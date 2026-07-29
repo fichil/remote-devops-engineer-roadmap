@@ -1,0 +1,24 @@
+name: Bug report
+description: Report a deterministic problem in the coach, CLI, or validation.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the expected and actual behavior without private learner data.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Provide minimal commands and sanitized output.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Checks
+      description: List validation or tests already run.

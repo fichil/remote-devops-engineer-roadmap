@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "learner"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "learner": {
+      "type": "object",
+      "required": ["public_name", "start_date", "timezone", "goal", "baseline", "track", "schedule", "budget", "privacy"],
+      "properties": {
+        "public_name": {"type": "string", "minLength": 1},
+        "start_date": {"type": "string", "format": "date"},
+        "timezone": {"const": "Asia/Shanghai"},
+        "goal": {
+          "type": "object",
+          "required": ["role", "employment_models", "target_months", "bridge_strategy"],
+          "properties": {
+            "role": {"const": "remote_devops_engineer"},
+            "employment_models": {"type": "array", "minItems": 1, "items": {"enum": ["employee", "long_term_contractor"]}},
+            "target_months": {"const": 18},
+            "bridge_strategy": {"type": "string"}
+          }
+        },
+        "baseline": {"type": "object", "required": ["it", "english"]},
+        "track": {"type": "object", "required": ["primary_cloud", "credential_strategy"]},
+        "schedule": {
+          "type": "object",
+          "required": ["weekday_minutes", "saturday_minutes", "sunday_minutes"],
+          "properties": {
+            "weekday_minutes": {"const": 75},
+            "saturday_minutes": {"const": 180},
+            "sunday_minutes": {"const": 120}
+          }
+        },
+        "budget": {"type": "object", "required": ["monthly_usd", "require_cost_estimate", "require_explicit_approval"]},
+        "privacy": {"type": "object", "required": ["public_learning_evidence", "public_applications", "publish_confirmation"]}
+      }
+    }
+  }
+}

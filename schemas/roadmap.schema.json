@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "title", "principles", "phases", "starter_weeks"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "title": {
+      "type": "object",
+      "required": ["zh", "en"],
+      "properties": {"zh": {"type": "string"}, "en": {"type": "string"}}
+    },
+    "principles": {"type": "array", "minItems": 3, "items": {"type": "string"}},
+    "phases": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["id", "title_zh", "title_en", "week_start", "week_end", "prerequisites", "outcomes", "labs", "english_output", "gate", "weekly_focus"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]+$"},
+          "title_zh": {"type": "string"},
+          "title_en": {"type": "string"},
+          "week_start": {"type": "integer", "minimum": 1, "maximum": 78},
+          "week_end": {"type": "integer", "minimum": 1, "maximum": 78},
+          "prerequisites": {"type": "array", "items": {"type": "string"}},
+          "outcomes": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+          "labs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "english_output": {"type": "string"},
+          "gate": {"type": "string"},
+          "weekly_focus": {
+            "type": "array",
+            "minItems": 13,
+            "maxItems": 13,
+            "items": {
+              "type": "object",
+              "required": ["week", "title_zh", "title_en"],
+              "properties": {
+                "week": {"type": "integer", "minimum": 1, "maximum": 78},
+                "title_zh": {"type": "string"},
+                "title_en": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "starter_weeks": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["week", "days"],
+        "properties": {
+          "week": {"type": "integer", "minimum": 1, "maximum": 4},
+          "days": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"type": "object"}}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+schema_version: 1
+learner:
+  public_name: learner
+  start_date: "2026-08-03"
+  timezone: Asia/Shanghai
+  goal:
+    role: remote_devops_engineer
+    employment_models:
+      - employee
+      - long_term_contractor
+    target_months: 18
+    bridge_strategy: junior_ops_cloud_support_and_open_source
+  baseline:
+    it: beginner
+    english: a2_reading_weak_speaking
+  track:
+    primary_cloud: aws
+    credential_strategy: portfolio_first
+  schedule:
+    weekday_minutes: 75
+    saturday_minutes: 180
+    sunday_minutes: 120
+  budget:
+    monthly_usd: 20
+    require_cost_estimate: true
+    require_explicit_approval: true
+  privacy:
+    public_learning_evidence: true
+    public_applications: false
+    publish_confirmation: 完成并发布今日记录

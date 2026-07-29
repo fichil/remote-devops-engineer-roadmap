@@ -1,0 +1,302 @@
+schema_version: 1
+title:
+  zh: 18个月海外远程 DevOps 转行路线
+  en: 18-Month Remote DevOps Career Roadmap
+principles:
+  - 证据优先：命令、代码、测试、Runbook 或演示比“看过课程”更重要。
+  - 先修优先：没有通过基础门槛，不用新工具掩盖知识缺口。
+  - 成本受控：云实验先估价、设告警、获确认，结束后销毁。
+  - 双语渐进：中文保证理解，英文逐步成为文档、协作和面试语言。
+  - 市场校准：每月根据真实岗位调整选修权重，不追逐短期工具热点。
+
+phases:
+  - id: foundations
+    title_zh: 计算机、Linux 与英语基础
+    title_en: Computer, Linux, and English Foundations
+    week_start: 1
+    week_end: 13
+    prerequisites: []
+    outcomes:
+      - 能在 WSL2 Ubuntu 中安全完成文件、权限、进程、包与网络操作。
+      - 能用 Git/GitHub 保存可审查的学习证据，并解释基础 Web 请求链路。
+    labs:
+      - Linux 故障排查手册与可重复命令记录
+    english_output: 用简单英语做五分钟环境介绍并写每周状态更新。
+    gate: 独立完成一次 Linux 权限、进程和网络组合排障，掌握度不低于 4/5。
+    weekly_focus:
+      - {week: 1, title_zh: 学习系统、WSL2 与终端, title_en: Learning System, WSL2, and Terminal}
+      - {week: 2, title_zh: Linux 文件、目录与路径, title_en: Linux Files, Directories, and Paths}
+      - {week: 3, title_zh: 用户、组与文件权限, title_en: Users, Groups, and Permissions}
+      - {week: 4, title_zh: 进程、服务与软件包, title_en: Processes, Services, and Packages}
+      - {week: 5, title_zh: Git 本地工作流, title_en: Local Git Workflow}
+      - {week: 6, title_zh: GitHub 协作与 Markdown, title_en: GitHub Collaboration and Markdown}
+      - {week: 7, title_zh: 计算机硬件、操作系统与虚拟化, title_en: Hardware, Operating Systems, and Virtualization}
+      - {week: 8, title_zh: IP、子网与路由基础, title_en: IP, Subnets, and Routing Basics}
+      - {week: 9, title_zh: DNS、端口与常见协议, title_en: DNS, Ports, and Common Protocols}
+      - {week: 10, title_zh: HTTP、HTTPS 与 TLS, title_en: HTTP, HTTPS, and TLS}
+      - {week: 11, title_zh: 日志、退出码与基础排障, title_en: Logs, Exit Codes, and Basic Troubleshooting}
+      - {week: 12, title_zh: Linux 排障手册项目, title_en: Linux Troubleshooting Runbook Project}
+      - {week: 13, title_zh: 基础阶段复测与英文演示, title_en: Foundation Gate and English Demo}
+
+  - id: systems_automation
+    title_zh: Linux 管理、脚本与系统自动化
+    title_en: Linux Administration, Scripting, and Automation
+    week_start: 14
+    week_end: 26
+    prerequisites: [foundations]
+    outcomes:
+      - 能用 Bash 与 Python 自动化重复任务并为关键逻辑编写测试。
+      - 能配置 SSH、Nginx、计划任务和基础安全控制，并进行系统级排障。
+    labs:
+      - Bash 与 Python 自动化工具箱
+      - 可重复部署的 Nginx 服务与 Runbook
+    english_output: 用英语编写脚本 README、故障报告和异步状态更新。
+    gate: 从空白环境部署服务、制造故障、定位根因并用脚本恢复。
+    weekly_focus:
+      - {week: 14, title_zh: Bash 变量、管道与退出码, title_en: Bash Variables, Pipes, and Exit Codes}
+      - {week: 15, title_zh: Bash 条件、循环与函数, title_en: Bash Conditions, Loops, and Functions}
+      - {week: 16, title_zh: Python 基础与虚拟环境, title_en: Python Basics and Virtual Environments}
+      - {week: 17, title_zh: Python 文件、JSON 与命令行, title_en: Python Files, JSON, and CLI Tools}
+      - {week: 18, title_zh: 自动化测试与错误处理, title_en: Automated Tests and Error Handling}
+      - {week: 19, title_zh: SSH、密钥与远程管理, title_en: SSH, Keys, and Remote Administration}
+      - {week: 20, title_zh: systemd、日志与计划任务, title_en: systemd, Logs, and Scheduled Jobs}
+      - {week: 21, title_zh: 存储、挂载与备份, title_en: Storage, Mounts, and Backups}
+      - {week: 22, title_zh: Nginx 与反向代理, title_en: Nginx and Reverse Proxying}
+      - {week: 23, title_zh: DNS、HTTP 与 TLS 深入排障, title_en: DNS, HTTP, and TLS Troubleshooting}
+      - {week: 24, title_zh: 最小权限、补丁与基础加固, title_en: Least Privilege, Patching, and Hardening}
+      - {week: 25, title_zh: 自动化工具箱项目, title_en: Automation Toolkit Project}
+      - {week: 26, title_zh: 系统自动化阶段复测, title_en: Systems Automation Gate}
+
+  - id: containers_cicd
+    title_zh: 容器与持续交付
+    title_en: Containers and Continuous Delivery
+    week_start: 27
+    week_end: 39
+    prerequisites: [foundations, systems_automation]
+    outcomes:
+      - 能构建、调试并安全运行容器镜像与 Compose 应用。
+      - 能设计带测试、制品、Secret 和回滚说明的 GitHub Actions 流水线。
+    labs:
+      - 带 CI/CD、版本发布与操作手册的容器化 Web 服务
+    english_output: 用英语提交 Issue、PR、发布说明和五分钟项目演示。
+    gate: 从 Git 提交到可验证部署全流程自动化，失败时能定位阶段和恢复。
+    weekly_focus:
+      - {week: 27, title_zh: 容器原理与 Docker CLI, title_en: Container Fundamentals and Docker CLI}
+      - {week: 28, title_zh: Dockerfile 与镜像分层, title_en: Dockerfiles and Image Layers}
+      - {week: 29, title_zh: 网络、卷与运行时配置, title_en: Networks, Volumes, and Runtime Configuration}
+      - {week: 30, title_zh: Docker Compose 多服务应用, title_en: Multi-Service Apps with Docker Compose}
+      - {week: 31, title_zh: 容器调试、性能与安全, title_en: Container Debugging, Performance, and Security}
+      - {week: 32, title_zh: CI/CD 原理与质量门禁, title_en: CI/CD Principles and Quality Gates}
+      - {week: 33, title_zh: GitHub Actions 工作流, title_en: GitHub Actions Workflows}
+      - {week: 34, title_zh: 测试、缓存与构建制品, title_en: Tests, Caching, and Build Artifacts}
+      - {week: 35, title_zh: Secrets、OIDC 与供应链基础, title_en: Secrets, OIDC, and Supply Chain Basics}
+      - {week: 36, title_zh: 版本、发布与回滚, title_en: Versioning, Releases, and Rollbacks}
+      - {week: 37, title_zh: 容器化服务项目实现, title_en: Containerized Service Implementation}
+      - {week: 38, title_zh: 流水线故障演练与 Runbook, title_en: Pipeline Failure Drills and Runbooks}
+      - {week: 39, title_zh: 容器与交付阶段复测, title_en: Containers and Delivery Gate}
+
+  - id: aws_iac
+    title_zh: AWS 云平台与基础设施即代码
+    title_en: AWS Cloud and Infrastructure as Code
+    week_start: 40
+    week_end: 52
+    prerequisites: [foundations, systems_automation, containers_cicd]
+    outcomes:
+      - 能在成本保护下设计并操作安全、可恢复的 AWS 基础环境。
+      - 能用 Terraform 创建、变更和销毁环境，并解释状态与模块边界。
+    labs:
+      - Terraform 管理的 AWS 网络、计算、存储、监控与预算告警
+    english_output: 用英语编写架构说明、成本估算、变更计划和项目演示。
+    gate: 经成本确认后从零创建环境、验证服务、展示监控并完整销毁。
+    weekly_focus:
+      - {week: 40, title_zh: 云模型、AWS 账号与成本保护, title_en: Cloud Models, AWS Accounts, and Cost Guardrails}
+      - {week: 41, title_zh: IAM、身份与最小权限, title_en: IAM, Identity, and Least Privilege}
+      - {week: 42, title_zh: VPC、子网、路由与安全组, title_en: VPCs, Subnets, Routes, and Security Groups}
+      - {week: 43, title_zh: EC2、负载均衡与自动伸缩, title_en: EC2, Load Balancing, and Auto Scaling}
+      - {week: 44, title_zh: S3、生命周期与静态内容, title_en: S3, Lifecycles, and Static Content}
+      - {week: 45, title_zh: RDS、备份与恢复, title_en: RDS, Backups, and Recovery}
+      - {week: 46, title_zh: ECR、ECS 与容器部署, title_en: ECR, ECS, and Container Deployment}
+      - {week: 47, title_zh: CloudWatch、日志、指标与告警, title_en: CloudWatch Logs, Metrics, and Alarms}
+      - {week: 48, title_zh: Terraform 资源、状态与计划, title_en: Terraform Resources, State, and Plans}
+      - {week: 49, title_zh: Terraform 模块与远程状态, title_en: Terraform Modules and Remote State}
+      - {week: 50, title_zh: CI 中的 IaC 与策略检查, title_en: IaC and Policy Checks in CI}
+      - {week: 51, title_zh: AWS Terraform 作品项目, title_en: AWS Terraform Portfolio Project}
+      - {week: 52, title_zh: 云与 IaC 阶段复测及认证决策, title_en: Cloud and IaC Gate with Certification Decision}
+
+  - id: kubernetes_sre
+    title_zh: Kubernetes、可观测性与 SRE
+    title_en: Kubernetes, Observability, and SRE
+    week_start: 53
+    week_end: 65
+    prerequisites: [containers_cicd, aws_iac]
+    outcomes:
+      - 能在本地集群部署、升级、调试和恢复 Kubernetes 工作负载。
+      - 能定义 SLI/SLO、监控、日志和告警，并主持一次事故复盘。
+    labs:
+      - Kubernetes、Helm、GitOps 与 Prometheus/Grafana/Loki 可观测性实验室
+    english_output: 用英语编写告警说明、事故时间线、复盘和技术演示。
+    gate: 在本地集群完成一次受控故障、告警、定位、恢复和无责复盘。
+    weekly_focus:
+      - {week: 53, title_zh: Kubernetes 架构与 kubectl, title_en: Kubernetes Architecture and kubectl}
+      - {week: 54, title_zh: Pod、Deployment 与 Service, title_en: Pods, Deployments, and Services}
+      - {week: 55, title_zh: ConfigMap、Secret 与存储, title_en: ConfigMaps, Secrets, and Storage}
+      - {week: 56, title_zh: 调度、资源、探针与伸缩, title_en: Scheduling, Resources, Probes, and Scaling}
+      - {week: 57, title_zh: 网络、Ingress 与 TLS, title_en: Networking, Ingress, and TLS}
+      - {week: 58, title_zh: Helm 包管理, title_en: Package Management with Helm}
+      - {week: 59, title_zh: GitOps 与 Argo CD, title_en: GitOps with Argo CD}
+      - {week: 60, title_zh: Prometheus 指标与 PromQL, title_en: Prometheus Metrics and PromQL}
+      - {week: 61, title_zh: Grafana 仪表盘与告警, title_en: Grafana Dashboards and Alerting}
+      - {week: 62, title_zh: Loki 日志与故障关联, title_en: Loki Logs and Incident Correlation}
+      - {week: 63, title_zh: SLI、SLO、错误预算与值班, title_en: SLIs, SLOs, Error Budgets, and On-Call}
+      - {week: 64, title_zh: Kubernetes 事故演练项目, title_en: Kubernetes Incident Drill Project}
+      - {week: 65, title_zh: Kubernetes 与 SRE 阶段复测, title_en: Kubernetes and SRE Gate}
+
+  - id: career_capstone
+    title_zh: 生产级综合项目与海外求职
+    title_en: Production Capstone and Global Job Search
+    week_start: 66
+    week_end: 78
+    prerequisites: [systems_automation, containers_cicd, aws_iac, kubernetes_sre]
+    outcomes:
+      - 能展示端到端平台、权衡、安全、可靠性、成本与恢复能力。
+      - 能用英语完成异步协作、技术面试、行为面试和远程岗位申请。
+    labs:
+      - 端到端 DevOps 平台综合项目
+      - 三轮英文模拟面试与公开技术演示
+    english_output: 全英文 README、架构演示、事故复盘、简历、求职信和面试回答。
+    gate: 六个作品、三次有效开源贡献、双语简历和三轮模拟面试达到 4/5。
+    weekly_focus:
+      - {week: 66, title_zh: 综合项目需求与成功指标, title_en: Capstone Requirements and Success Metrics}
+      - {week: 67, title_zh: 架构决策与威胁建模, title_en: Architecture Decisions and Threat Modeling}
+      - {week: 68, title_zh: IaC、CI/CD 与环境交付, title_en: IaC, CI/CD, and Environment Delivery}
+      - {week: 69, title_zh: 可观测性、SLO 与告警, title_en: Observability, SLOs, and Alerts}
+      - {week: 70, title_zh: 备份、灾难恢复与演练, title_en: Backup, Disaster Recovery, and Drills}
+      - {week: 71, title_zh: 安全、成本与性能审查, title_en: Security, Cost, and Performance Review}
+      - {week: 72, title_zh: 英文文档与项目演示, title_en: English Documentation and Project Demo}
+      - {week: 73, title_zh: 开源贡献冲刺, title_en: Open Source Contribution Sprint}
+      - {week: 74, title_zh: 英文简历、GitHub 与职业主页, title_en: English Resume, GitHub, and Professional Profile}
+      - {week: 75, title_zh: Linux、网络与云技术面试, title_en: Linux, Networking, and Cloud Interviews}
+      - {week: 76, title_zh: 系统设计、事故与行为面试, title_en: System Design, Incident, and Behavioral Interviews}
+      - {week: 77, title_zh: 海外岗位定制投递与复盘, title_en: Tailored Global Applications and Review}
+      - {week: 78, title_zh: 最终能力门槛与后续路线, title_en: Final Readiness Gate and Next Roadmap}
+
+starter_weeks:
+  - week: 1
+    days:
+      - english: 朗读并录音五个词：terminal、command、folder、file、evidence；用英语说出今天的目标。
+        concept: 认识终端、Shell、WSL2 与 Ubuntu 的关系，手绘从 Windows 到 Linux 命令的执行路径。
+        practice: 启动 WSL2，执行 pwd、whoami、uname -a、ls，并把输出保存到学习记录。
+        review: 写下环境是否可用、每条命令回答了什么、仍然不懂的一个问题。
+      - english: 用 This is、I can、I cannot yet 写五句环境描述并朗读。
+        concept: 理解命令、参数、选项、当前目录和退出码。
+        practice: 对 pwd、ls、echo、date 分别尝试帮助选项，并检查上一条命令退出码。
+        review: 不看笔记解释 command、option、argument、exit code。
+      - english: 学习 path、absolute、relative、home、root，并用三个英文例句区分它们。
+        concept: 理解 Linux 根目录、家目录、绝对路径和相对路径。
+        practice: 使用 cd、mkdir、touch、cp、mv 创建并整理 sandbox 目录，保存命令历史。
+        review: 画出今天创建的目录树并标注绝对路径。
+      - english: 用英语写本周项目的三句 README 摘要，至少投入 15 分钟。
+        project: 建立 linux-basics 实验证据目录，加入环境信息、命令清单、预期结果和实际结果；README 至少 15 分钟用英语完成。
+        review: 检查命令能否由别人按 README 重复执行。
+      - english: 不看词表口述十个本周术语，并记录卡住的词。
+        retrieval: 从空终端重做环境检查与目录实验，不复制历史命令。
+        weekly_review: 核对七天计划、实际分钟、证据和掌握度；没有证据的不算完成。
+        planning: 把未完成项按一次顺延规则带入下周，并确认 Week 2 负载。
+      - english: 用英语回答 What did I build? What failed? What will I do next?
+        concept: 认识标准输入、标准输出、标准错误和重定向。
+        practice: 用 >、>>、2> 和管道保存并筛选命令输出，故意制造一次错误。
+        review: 解释为什么错误输出不一定进入普通输出文件。
+      - english: 录制一分钟自我介绍：姓名可用公开昵称、目标和本周学到的三项技能。
+        concept: 理解公开证据与私人信息的边界。
+        practice: 检查学习记录，删除邮箱、Token、绝对私人路径和公司信息。
+        review: 运行隐私扫描并记录结果。
+
+  - week: 2
+    days:
+      - english: 学习 directory、parent、child、hidden、recursive 并造句。
+        concept: 理解目录树、隐藏文件和通配符。
+        practice: 用 ls、find 和通配符定位文件，比较安全匹配与过宽匹配。
+        review: 写出一次可能误删文件的通配符风险。
+      - english: 用英语解释 create、copy、move、rename、remove 的差别。
+        concept: 理解文件操作的可逆性、覆盖风险和安全检查。
+        practice: 在 sandbox 内完成创建、复制、移动、重命名和受控删除；删除前列出准确目标。
+        review: 保存一份安全文件操作检查表。
+      - english: 学习 text、line、pattern、match、case-sensitive。
+        concept: 理解纯文本、编码和按行处理。
+        practice: 用 cat、less、head、tail、wc、grep、rg 检查日志样本。
+        review: 说明何时使用 rg、何时使用 less。
+      - english: 用英语写文件检索实验的目的、步骤与结论，至少 15 分钟。
+        project: 扩充 Linux Runbook：加入文件定位、内容搜索和安全文件操作；英文 README 至少 15 分钟。
+        review: 让所有示例限定在 sandbox，避免破坏性宽路径。
+      - english: 口述路径与文件操作词汇，并纠正发音。
+        retrieval: 不看笔记完成“找到过去一天修改且包含 ERROR 的文件”模拟题。
+        weekly_review: 统计完成率和掌握度，检查是否真正会搜索而非只记命令。
+        planning: 为权限主题保留一个复习块和一个动手块。
+      - english: 用 because、therefore 写五句技术因果关系。
+        concept: 理解链接、inode 与文件元数据的基本概念。
+        practice: 比较 stat、软链接和硬链接的输出与行为。
+        review: 用自己的话解释删除原文件后的差异。
+      - english: 做两分钟英文屏幕讲解，演示查找和阅读一个文件。
+        concept: 复习本周最弱概念。
+        practice: 修复 Runbook 中一个无法重复执行的示例。
+        review: 提交证据并接受五题小测。
+
+  - week: 3
+    days:
+      - english: 学习 user、group、owner、permission、access。
+        concept: 理解 Linux 用户、组、所有者和最小权限。
+        practice: 用 id、groups、ls -l 检查身份和文件所有权。
+        review: 解释用户身份与文件所有者不是同一个概念。
+      - english: 用英语朗读 read、write、execute 和八进制权限。
+        concept: 理解 rwx、用户/组/其他人与目录执行权限。
+        practice: 在 sandbox 中用 chmod 符号模式和数字模式完成权限题。
+        review: 记录一项“文件能读但目录进不去”的原因。
+      - english: 用 should、must、must not 写五条权限安全规则。
+        concept: 理解 sudo、提权边界和为何不应默认使用 root。
+        practice: 只读检查 sudo 能力，设计无需 root 的替代操作。
+        review: 写下本项目禁止无理由提权的规则。
+      - english: 用英语编写权限故障案例摘要，至少 15 分钟。
+        project: 为 Runbook 增加三种权限故障、诊断命令、修复和回滚；英文摘要至少 15 分钟。
+        review: 确认案例没有要求在真实系统上危险改权。
+      - english: 不看笔记解释 owner、group、other、rwx、sudo。
+        retrieval: 从错误权限开始，依据报错定位并恢复 sandbox 文件访问。
+        weekly_review: 根据小测分数安排 48 小时或 7 天复习。
+        planning: 选择下周要制造的一个进程或服务故障。
+      - english: 用英语做一分钟权限故障状态更新。
+        concept: 理解 umask 和默认权限。
+        practice: 比较两种 umask 下新文件和目录的权限。
+        review: 解释为何默认权限需要减去 umask。
+      - english: 录制三分钟权限实验讲解。
+        concept: 复习目录权限与文件权限的区别。
+        practice: 完成十题权限组合实验并保存输出。
+        review: 达不到 4/5 时不得提前进入复杂服务配置。
+
+  - week: 4
+    days:
+      - english: 学习 process、PID、parent、signal、resource。
+        concept: 理解程序、进程、PID、父子关系和前后台任务。
+        practice: 用 ps、pgrep、top 启动并定位一个测试进程。
+        review: 解释程序文件和运行中进程的区别。
+      - english: 用英语解释 start、stop、restart、status、enable。
+        concept: 理解服务管理与 systemd 的职责。
+        practice: 只读检查三个服务状态和近期日志，不修改系统服务。
+        review: 写出 status 与 enable 的差异。
+      - english: 学习 package、repository、install、update、dependency。
+        concept: 理解软件包、软件源和依赖关系。
+        practice: 查询已安装包、可用版本和包文件，不执行无关升级。
+        review: 记录安装前应检查的三件事。
+      - english: 用英语写进程故障实验的时间线与根因，至少 15 分钟。
+        project: 为 Runbook 加入进程失控、端口占用和服务日志案例；英文事故摘要至少 15 分钟。
+        review: 确认每个修复都有验证命令和回滚说明。
+      - english: 口述进程、服务与软件包的关系。
+        retrieval: 制造一个无害测试进程故障，完成发现、假设、验证、恢复。
+        weekly_review: 完成第一个月复盘，比较计划分钟和实际分钟。
+        planning: 根据完成率选择 0.8、1.0 或 1.1 下月负载。
+      - english: 用英语完成三分钟 Linux 基础演示彩排。
+        concept: 整合路径、权限、进程和日志排障步骤。
+        practice: 在全新 sandbox 中完成综合故障题并保留证据。
+        review: 让教练按 0–5 给出掌握度与缺口。
+      - english: 发布前朗读英文 README 并修正无法理解的句子。
+        concept: 复习公开项目的证据链和隐私边界。
+        practice: 运行验证、测试、Markdown 链接和隐私扫描。
+        review: 只有明确说“完成并发布今日记录”后才允许推送。

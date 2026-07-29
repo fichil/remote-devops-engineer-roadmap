@@ -1,0 +1,26 @@
+name: Curriculum feedback
+description: Suggest an evidence-based curriculum correction or improvement.
+title: "[Curriculum]: "
+labels: [curriculum]
+body:
+  - type: input
+    id: week
+    attributes:
+      label: Week or phase
+      placeholder: Week 32 / containers_cicd
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and proposed change
+      description: Link primary documentation where possible and explain the learner impact.
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: This report contains no credentials, employer data, or personal application details.
+          required: true

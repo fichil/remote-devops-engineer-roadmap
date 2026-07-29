@@ -1,0 +1,90 @@
+{
+  "adaptation": {
+    "generated_at": null,
+    "load_factor": 1.0,
+    "reason": "initial baseline",
+    "source_week": null
+  },
+  "blockers": [],
+  "career": {
+    "accepted_open_source_contributions": 0,
+    "applications": 0,
+    "english_demos": 0,
+    "mock_interviews": 0
+  },
+  "current_phase": "foundations",
+  "current_week": 1,
+  "daily_plans": {
+    "2026-07-29": {
+      "path": "plans/2026/07/2026-07-29.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "planned",
+      "task_ids": [
+        "2026-07-29-english",
+        "2026-07-29-concept",
+        "2026-07-29-practice",
+        "2026-07-29-review"
+      ],
+      "week": 1
+    }
+  },
+  "portfolio": [],
+  "schema_version": 1,
+  "tasks": {
+    "2026-07-29-concept": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-07-29",
+      "evidence": null,
+      "id": "2026-07-29-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": null,
+      "section": "concept",
+      "status": "planned",
+      "title": "认识终端、Shell、WSL2 与 Ubuntu 的关系，手绘从 Windows 到 Linux 命令的执行路径。"
+    },
+    "2026-07-29-english": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-07-29",
+      "evidence": null,
+      "id": "2026-07-29-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": null,
+      "section": "english",
+      "status": "planned",
+      "title": "朗读并录音五个词：terminal、command、folder、file、evidence；用英语说出今天的目标。"
+    },
+    "2026-07-29-practice": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-07-29",
+      "evidence": null,
+      "id": "2026-07-29-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": null,
+      "section": "practice",
+      "status": "planned",
+      "title": "启动 WSL2，执行 pwd、whoami、uname -a、ls，并把输出保存到学习记录。"
+    },
+    "2026-07-29-review": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-07-29",
+      "evidence": null,
+      "id": "2026-07-29-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": null,
+      "section": "review",
+      "status": "planned",
+      "title": "写下环境是否可用、每条命令回答了什么、仍然不懂的一个问题。"
+    }
+  },
+  "updated_at": "2026-07-29T15:22:59+08:00",
+  "weekly_reviews": {}
+}

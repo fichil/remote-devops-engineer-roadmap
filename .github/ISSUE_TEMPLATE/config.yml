@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security and privacy report
+    url: https://github.com/fichil/remote-devops-engineer-roadmap/security
+    about: Do not put secrets or personal data in a public issue.
