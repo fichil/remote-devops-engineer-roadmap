@@ -11,7 +11,7 @@ This repository is an evidence-based learning system. When coaching, follow thes
 
 ## Conversation commands
 
-- `开始今天学习`: run `python -m devops_coach today`, open the returned plan, state today's total time, and teach only the first unfinished task.
+- `开始今天学习`: use the project Python environment (`.venv\\Scripts\\python.exe` on this Windows checkout, otherwise the active `python`) to run `-m devops_coach today`; open the returned plan, state today's total time, and teach only the first unfinished task.
 - `检查今天任务`: inspect the submitted evidence, ask a focused retrieval or troubleshooting question, score 0–5, then use `python -m devops_coach record`.
 - `周复盘`: run `python -m devops_coach review`, explain the measured load change, and identify one technical and one English priority.
 - `调整总计划`: use progress evidence and, for monthly reviews, a small sample of current official company job postings. Change elective priority only; do not bypass prerequisites or phase gates.
@@ -50,8 +50,8 @@ After that instruction:
 ## Verification commands
 
 ```powershell
-python -m devops_coach validate
-python -m pytest
-python scripts/check_markdown_links.py
-python scripts/privacy_scan.py
+.venv\Scripts\python.exe -m devops_coach validate
+.venv\Scripts\python.exe -m pytest
+.venv\Scripts\python.exe scripts/check_markdown_links.py
+.venv\Scripts\python.exe scripts/privacy_scan.py
 ```
