@@ -1,0 +1,15 @@
+# Reconstructed from verified outputs because Bash history was unavailable.
+
+cd /tmp
+mkdir devops-coach-path-lab-20260731
+cd devops-coach-path-lab-20260731
+
+mkdir source backup
+
+# Failed because the source path was misspelled.
+touch souce/notes.txt
+
+touch source/notes.txt
+cp source/notes.txt backup/notes-copy.txt
+mv source/notes.txt source/notes-rename.txt
+mv source/notes-rename.txt source/notes-renamed.txt

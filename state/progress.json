@@ -21,10 +21,36 @@
       "planned_minutes": 75,
       "status": "planned",
       "task_ids": [
-        "2026-07-29-english",
         "2026-07-29-concept",
         "2026-07-29-practice",
-        "2026-07-29-review"
+        "2026-07-29-review",
+        "2026-07-29-english"
+      ],
+      "week": 1
+    },
+    "2026-07-30": {
+      "path": "plans/2026/07/2026-07-30.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "planned",
+      "task_ids": [
+        "2026-07-30-concept",
+        "2026-07-30-practice",
+        "2026-07-30-review",
+        "2026-07-30-english"
+      ],
+      "week": 1
+    },
+    "2026-07-31": {
+      "path": "plans/2026/07/2026-07-31.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "planned",
+      "task_ids": [
+        "2026-07-31-concept",
+        "2026-07-31-practice",
+        "2026-07-31-review",
+        "2026-07-31-english"
       ],
       "week": 1
     }
@@ -33,16 +59,16 @@
   "schema_version": 1,
   "tasks": {
     "2026-07-29-concept": {
-      "actual_minutes": 0,
+      "actual_minutes": 20,
       "carryovers": 0,
       "date": "2026-07-29",
-      "evidence": null,
+      "evidence": "已核验：修订版命令执行路径图及共享内核解释（当前教练任务附件）",
       "id": "2026-07-29-concept",
       "next_review": null,
       "planned_minutes": 20,
-      "score": null,
+      "score": 4,
       "section": "concept",
-      "status": "planned",
+      "status": "done",
       "title": "认识终端、Shell、WSL2 与 Ubuntu 的关系，手绘从 Windows 到 Linux 命令的执行路径。"
     },
     "2026-07-29-english": {
@@ -55,36 +81,146 @@
       "planned_minutes": 20,
       "score": null,
       "section": "english",
+      "spoken_manual_start": true,
+      "spoken_not_before": "18:00",
       "status": "planned",
       "title": "朗读并录音五个词：terminal、command、folder、file、evidence；用英语说出今天的目标。"
     },
     "2026-07-29-practice": {
-      "actual_minutes": 0,
+      "actual_minutes": 60,
       "carryovers": 0,
       "date": "2026-07-29",
-      "evidence": null,
+      "evidence": "evidence/week-01/wsl-environment.md",
       "id": "2026-07-29-practice",
-      "next_review": null,
+      "next_review": "2026-08-06",
       "planned_minutes": 25,
-      "score": null,
+      "score": 3,
       "section": "practice",
-      "status": "planned",
+      "status": "done",
       "title": "启动 WSL2，执行 pwd、whoami、uname -a、ls，并把输出保存到学习记录。"
     },
     "2026-07-29-review": {
-      "actual_minutes": 0,
+      "actual_minutes": 15,
       "carryovers": 0,
       "date": "2026-07-29",
-      "evidence": null,
+      "evidence": "Verified coaching response: WSL usability, four-command review, and operating-system question",
       "id": "2026-07-29-review",
+      "next_review": "2026-08-06",
+      "planned_minutes": 10,
+      "score": 3,
+      "section": "review",
+      "status": "done",
+      "title": "写下环境是否可用、每条命令回答了什么、仍然不懂的一个问题。"
+    },
+    "2026-07-30-concept": {
+      "actual_minutes": 80,
+      "carryovers": 0,
+      "date": "2026-07-30",
+      "evidence": "Verified coaching dialogue: command-option-argument, CWD variation, and double-echo exit-code explanation",
+      "id": "2026-07-30-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解命令、参数、选项、当前目录和退出码。"
+    },
+    "2026-07-30-english": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-07-30",
+      "evidence": null,
+      "id": "2026-07-30-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": null,
+      "section": "english",
+      "spoken_manual_start": true,
+      "spoken_not_before": "18:00",
+      "status": "planned",
+      "title": "用 This is、I can、I cannot yet 写五句环境描述并朗读。"
+    },
+    "2026-07-30-practice": {
+      "actual_minutes": 105,
+      "carryovers": 0,
+      "date": "2026-07-30",
+      "evidence": "Verified coaching dialogue and command output: pwd, ls, echo, date help behavior and exit statuses",
+      "id": "2026-07-30-practice",
+      "next_review": "2026-08-06",
+      "planned_minutes": 25,
+      "score": 3,
+      "section": "practice",
+      "status": "done",
+      "title": "对 pwd、ls、echo、date 分别尝试帮助选项，并检查上一条命令退出码。"
+    },
+    "2026-07-30-review": {
+      "actual_minutes": 10,
+      "carryovers": 0,
+      "date": "2026-07-30",
+      "evidence": "Verified unaided definitions and independent echo -n hello variation in coaching dialogue",
+      "id": "2026-07-30-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "不看笔记解释 command、option、argument、exit code。"
+    },
+    "2026-07-31-concept": {
+      "actual_minutes": 5,
+      "carryovers": 0,
+      "date": "2026-07-31",
+      "evidence": "Verified coaching dialogue: root/home distinction and independent absolute-relative path resolution",
+      "id": "2026-07-31-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解 Linux 根目录、家目录、绝对路径和相对路径。"
+    },
+    "2026-07-31-english": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-07-31",
+      "evidence": null,
+      "id": "2026-07-31-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": null,
+      "section": "english",
+      "spoken_manual_start": true,
+      "spoken_not_before": "18:00",
+      "status": "planned",
+      "title": "学习 path、absolute、relative、home、root，并用三个英文例句区分它们。"
+    },
+    "2026-07-31-practice": {
+      "actual_minutes": 55,
+      "carryovers": 0,
+      "date": "2026-07-31",
+      "evidence": "evidence/week-01/path-lab-commands.txt",
+      "id": "2026-07-31-practice",
+      "next_review": "2026-08-06",
+      "planned_minutes": 25,
+      "score": 3,
+      "section": "practice",
+      "status": "done",
+      "title": "使用 cd、mkdir、touch、cp、mv 创建并整理 sandbox 目录，保存命令历史。"
+    },
+    "2026-07-31-review": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-07-31",
+      "evidence": null,
+      "id": "2026-07-31-review",
       "next_review": null,
       "planned_minutes": 10,
       "score": null,
       "section": "review",
       "status": "planned",
-      "title": "写下环境是否可用、每条命令回答了什么、仍然不懂的一个问题。"
+      "title": "画出今天创建的目录树并标注绝对路径。"
     }
   },
-  "updated_at": "2026-07-29T15:22:59+08:00",
+  "updated_at": "2026-07-30T17:41:26+08:00",
   "weekly_reviews": {}
 }
