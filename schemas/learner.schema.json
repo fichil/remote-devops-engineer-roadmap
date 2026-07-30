@@ -26,9 +26,11 @@
         "track": {"type": "object", "required": ["primary_cloud", "credential_strategy"]},
         "schedule": {
           "type": "object",
-          "required": ["weekday_minutes", "saturday_minutes", "sunday_minutes"],
+          "required": ["weekday_minutes", "weekday_spoken_english_not_before", "weekday_spoken_english_manual_start", "saturday_minutes", "sunday_minutes"],
           "properties": {
             "weekday_minutes": {"const": 75},
+            "weekday_spoken_english_not_before": {"type": "string", "pattern": "^(?:18|19|20|21|22|23):[0-5][0-9]$"},
+            "weekday_spoken_english_manual_start": {"const": true},
             "saturday_minutes": {"const": 180},
             "sunday_minutes": {"const": 120}
           }

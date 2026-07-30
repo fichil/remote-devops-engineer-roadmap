@@ -27,6 +27,10 @@ def test_day_budgets(project_copy: Path, target: date, expected_minutes: int) ->
 
 def test_plan_is_idempotent(project_copy: Path) -> None:
     target = date(2026, 7, 29)
+    initial_state = load_json(project_copy / "state" / "progress.json")
+    expected_plan_count = len(initial_state["daily_plans"]) + (
+        target.isoformat() not in initial_state["daily_plans"]
+    )
     first_path, first_created = create_today_plan(project_copy, target)
     first_content = first_path.read_text(encoding="utf-8")
     second_path, second_created = create_today_plan(project_copy, target)
@@ -35,7 +39,20 @@ def test_plan_is_idempotent(project_copy: Path) -> None:
     assert second_created is False
     assert first_path == second_path
     assert second_path.read_text(encoding="utf-8") == first_content
-    assert len(state["daily_plans"]) == 1
+    assert len(state["daily_plans"]) == expected_plan_count
+
+
+def test_weekday_english_is_scheduled_after_work(project_copy: Path) -> None:
+    target = date(2026, 7, 29)
+    path, _ = create_today_plan(project_copy, target)
+    state = load_json(project_copy / "state" / "progress.json")
+    english = state["tasks"]["2026-07-29-english"]
+
+    assert english["spoken_not_before"] == "18:00"
+    assert english["spoken_manual_start"] is True
+    assert state["daily_plans"][target.isoformat()]["task_ids"][0].endswith("-concept")
+    assert "- 口语部分：18:00 后手动开启" in path.read_text(encoding="utf-8")
+    assert "可做英语阅读和写作" in path.read_text(encoding="utf-8")
 
 
 def test_record_requires_evidence_and_schedules_review(project_copy: Path) -> None:

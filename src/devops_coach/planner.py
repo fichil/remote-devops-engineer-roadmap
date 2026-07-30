@@ -19,7 +19,7 @@ DAY_BUDGETS = {
     "weekday": DayBudget(
         "工作日",
         75,
-        (("english", 20), ("concept", 20), ("practice", 25), ("review", 10)),
+        (("concept", 20), ("practice", 25), ("review", 10), ("english", 20)),
     ),
     "saturday": DayBudget(
         "周六",
@@ -112,6 +112,7 @@ def create_today_plan(root: Path, target: date) -> tuple[Path, bool]:
     starter = _starter_day(roadmap, week, offset)
     kind = day_kind(target)
     budget = DAY_BUDGETS[kind]
+    schedule = learner["learner"]["schedule"]
     load_factor = float(progress.get("adaptation", {}).get("load_factor", 1.0))
     load_factor = max(0.8, min(1.1, load_factor))
 
@@ -132,6 +133,9 @@ def create_today_plan(root: Path, target: date) -> tuple[Path, bool]:
             "carryovers": 0,
             "next_review": None,
         }
+        if kind == "weekday" and section == "english":
+            task["spoken_not_before"] = schedule["weekday_spoken_english_not_before"]
+            task["spoken_manual_start"] = schedule["weekday_spoken_english_manual_start"]
         tasks.append(task)
         progress["tasks"][task_id] = task
 
@@ -161,6 +165,14 @@ def create_today_plan(root: Path, target: date) -> tuple[Path, bool]:
                 "",
                 task["title"],
                 "",
+                *(
+                    [
+                        f"- 口语部分：{task['spoken_not_before']} 后手动开启",
+                        "- 早间规则：可做英语阅读和写作，跳过朗读、录音与口头表达",
+                    ]
+                    if task.get("spoken_not_before")
+                    else []
+                ),
                 "- 状态：planned",
                 "- 证据：待提交",
                 "- 自评分：待测验",

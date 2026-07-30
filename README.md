@@ -79,6 +79,8 @@ python -m devops_coach record `
 | Saturday | 30 min + 15 min English README | 120 min project work | 15 min | 180 min |
 | Sunday | 30 min | 45 min retrieval | 45 min review and planning | 120 min |
 
+The weekday coach starts automatically at 09:00. English reading and writing may be included, but reading aloud, recording, and spoken-English output are deferred to a manual session after 18:00 in `Asia/Shanghai`.
+
 The project contains six 13-week phases: foundations, systems automation, containers and CI/CD, AWS and Terraform, Kubernetes and SRE, and a production capstone with the global job search. Every phase ends with a runnable public artifact, bilingual documentation, an English demo, and an evidence gate.
 
 ## Cost and privacy boundaries
@@ -93,7 +95,7 @@ python scripts/privacy_scan.py
 
 ## Codex scheduled coaching
 
-The personal setup uses two mutually exclusive local scheduled tasks: weekdays at 09:00 and weekends at 10:00 in `Asia/Shanghai`. A missed run is started manually; no API key is needed. See [Codex automation setup](docs/codex-automation.md).
+The weekday coach runs automatically at 09:00 and may include English reading or writing, while spoken-English practice starts manually after 18:00. The weekend coach runs automatically at 10:00 in `Asia/Shanghai`. No API key is needed. See [Codex automation setup](docs/codex-automation.md).
 
 ## Contributing
 
