@@ -53,6 +53,31 @@
         "2026-07-31-english"
       ],
       "week": 1
+    },
+    "2026-08-01": {
+      "path": "plans/2026/08/2026-08-01.md",
+      "phase": "foundations",
+      "planned_minutes": 180,
+      "status": "planned",
+      "task_ids": [
+        "2026-08-01-english",
+        "2026-08-01-project",
+        "2026-08-01-review"
+      ],
+      "week": 1
+    },
+    "2026-08-03": {
+      "path": "plans/2026/08/2026-08-03.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "planned",
+      "task_ids": [
+        "2026-08-03-concept",
+        "2026-08-03-practice",
+        "2026-08-03-review",
+        "2026-08-03-english"
+      ],
+      "week": 1
     }
   },
   "portfolio": [],
@@ -180,18 +205,18 @@
       "title": "理解 Linux 根目录、家目录、绝对路径和相对路径。"
     },
     "2026-07-31-english": {
-      "actual_minutes": 0,
+      "actual_minutes": 45,
       "carryovers": 0,
       "date": "2026-07-31",
-      "evidence": null,
+      "evidence": "Verified non-spoken coaching dialogue: written path, absolute, relative, home, and root examples; manual spoken evidence remains pending after 18:00",
       "id": "2026-07-31-english",
-      "next_review": null,
+      "next_review": "2026-08-07",
       "planned_minutes": 20,
-      "score": null,
+      "score": 3,
       "section": "english",
       "spoken_manual_start": true,
       "spoken_not_before": "18:00",
-      "status": "planned",
+      "status": "partial",
       "title": "学习 path、absolute、relative、home、root，并用三个英文例句区分它们。"
     },
     "2026-07-31-practice": {
@@ -208,19 +233,112 @@
       "title": "使用 cd、mkdir、touch、cp、mv 创建并整理 sandbox 目录，保存命令历史。"
     },
     "2026-07-31-review": {
-      "actual_minutes": 0,
+      "actual_minutes": 15,
       "carryovers": 0,
       "date": "2026-07-31",
-      "evidence": null,
+      "evidence": "Verified learner-submitted find output: final sandbox tree with absolute paths and independent cp/mv explanation",
       "id": "2026-07-31-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "画出今天创建的目录树并标注绝对路径。"
+    },
+    "2026-08-01-english": {
+      "actual_minutes": 25,
+      "carryovers": 0,
+      "date": "2026-08-01",
+      "evidence": "Learner-authored three-sentence English README summary, revised through retrieval and grammar checks; command, option, and argument concepts demonstrated",
+      "id": "2026-08-01-english",
+      "next_review": "2026-08-10",
+      "planned_minutes": 30,
+      "score": 3,
+      "section": "english",
+      "status": "done",
+      "title": "用英语写本周项目的三句 README 摘要，至少投入 15 分钟。"
+    },
+    "2026-08-01-project": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-08-01",
+      "evidence": null,
+      "id": "2026-08-01-project",
+      "next_review": null,
+      "planned_minutes": 135,
+      "score": null,
+      "section": "project",
+      "status": "planned",
+      "title": "建立 linux-basics 实验证据目录，加入环境信息、命令清单、预期结果和实际结果；README 至少 15 分钟用英语完成。"
+    },
+    "2026-08-01-review": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-08-01",
+      "evidence": null,
+      "id": "2026-08-01-review",
+      "next_review": null,
+      "planned_minutes": 15,
+      "score": null,
+      "section": "review",
+      "status": "planned",
+      "title": "检查命令能否由别人按 README 重复执行。"
+    },
+    "2026-08-03-concept": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-08-03",
+      "evidence": null,
+      "id": "2026-08-03-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": null,
+      "section": "concept",
+      "status": "planned",
+      "title": "认识标准输入、标准输出、标准错误和重定向。"
+    },
+    "2026-08-03-english": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-08-03",
+      "evidence": null,
+      "id": "2026-08-03-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": null,
+      "section": "english",
+      "spoken_manual_start": true,
+      "spoken_not_before": "18:00",
+      "status": "planned",
+      "title": "用英语回答 What did I build? What failed? What will I do next?"
+    },
+    "2026-08-03-practice": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-08-03",
+      "evidence": null,
+      "id": "2026-08-03-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": null,
+      "section": "practice",
+      "status": "planned",
+      "title": "用 >、>>、2> 和管道保存并筛选命令输出，故意制造一次错误。"
+    },
+    "2026-08-03-review": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-08-03",
+      "evidence": null,
+      "id": "2026-08-03-review",
       "next_review": null,
       "planned_minutes": 10,
       "score": null,
       "section": "review",
       "status": "planned",
-      "title": "画出今天创建的目录树并标注绝对路径。"
+      "title": "解释为什么错误输出不一定进入普通输出文件。"
     }
   },
-  "updated_at": "2026-07-30T17:41:26+08:00",
+  "updated_at": "2026-08-03T10:38:40+08:00",
   "weekly_reviews": {}
 }
