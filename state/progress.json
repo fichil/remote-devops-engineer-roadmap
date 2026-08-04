@@ -66,6 +66,20 @@
       ],
       "week": 1
     },
+    "2026-08-02": {
+      "actual_minutes": 125,
+      "path": "plans/2026/08/2026-08-02.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "done",
+      "task_ids": [
+        "2026-08-02-concept",
+        "2026-08-02-practice",
+        "2026-08-02-review",
+        "2026-08-02-english"
+      ],
+      "week": 1
+    },
     "2026-08-03": {
       "path": "plans/2026/08/2026-08-03.md",
       "phase": "foundations",
@@ -291,6 +305,58 @@
       "status": "planned",
       "title": "检查命令能否由别人按 README 重复执行。"
     },
+    "2026-08-02-concept": {
+      "actual_minutes": 40,
+      "carryovers": 0,
+      "date": "2026-08-02",
+      "evidence": "Verified coaching dialogue: stdin, stdout, stderr, redirection, and independent dual-redirection variation",
+      "id": "2026-08-02-concept",
+      "next_review": "2026-08-10",
+      "planned_minutes": 20,
+      "score": 3,
+      "section": "concept",
+      "status": "done",
+      "title": "认识标准输入、标准输出、标准错误和重定向。"
+    },
+    "2026-08-02-english": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-02",
+      "evidence": "Verified written English: three sentences answering built, failed, and next; independent let-to-allow variation passed",
+      "id": "2026-08-02-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "english",
+      "status": "done",
+      "title": "用英语回答 What did I build? What failed? What will I do next?"
+    },
+    "2026-08-02-practice": {
+      "actual_minutes": 50,
+      "carryovers": 0,
+      "date": "2026-08-02",
+      "evidence": "Verified WSL sandbox: stdout overwrite and append, stderr redirection with exit code, and pipeline filtering with independent direct-grep variation",
+      "id": "2026-08-02-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "用 >、>>、2> 和管道保存并筛选命令输出，故意制造一次错误。"
+    },
+    "2026-08-02-review": {
+      "actual_minutes": 15,
+      "carryovers": 0,
+      "date": "2026-08-02",
+      "evidence": "Verified WSL review: stdout-only redirection left an empty normal file, stderr redirection captured the missing-file diagnostic, with an independent explanation",
+      "id": "2026-08-02-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "解释为什么错误输出不一定进入普通输出文件。"
+    },
     "2026-08-03-concept": {
       "actual_minutes": 0,
       "carryovers": 0,
@@ -396,6 +462,6 @@
       "title": "运行隐私扫描并记录结果。"
     }
   },
-  "updated_at": "2026-08-04T16:06:41+08:00",
+  "updated_at": "2026-08-04T16:26:40+08:00",
   "weekly_reviews": {}
 }
