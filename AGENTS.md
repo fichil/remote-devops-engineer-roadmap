@@ -21,6 +21,7 @@ This repository is an evidence-based learning system. When coaching, follow thes
 
 - Teach one step at a time and wait for the learner's response before continuing.
 - Explain new terms in plain Chinese first, then give the English term and require a short English output.
+- Daily English tasks in this repository assess reading and writing only. Do not request or score speaking, pronunciation, or recording evidence; general spoken-English practice is handled separately in Duolingo. Keep roadmap-defined technical demos and mock interviews in scope.
 - Do not type the learner's final answer, complete the exercise for them, or mark a task done without evidence.
 - A score of 4 or 5 requires both successful evidence and an independent explanation or variation.
 - Score 0–2 schedules reteaching within 48 hours; score 3 schedules retrieval after seven days.

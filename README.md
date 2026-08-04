@@ -27,6 +27,7 @@ Remote DevOps roles commonly combine Linux, cloud infrastructure, Terraform, con
 - Schedules weak skills for review after two or seven days.
 - Reduces, preserves, or increases the next week's load based on completion and mastery.
 - Keeps at least 25% of learning time in English, including English project documentation.
+- Assesses daily English through reading and writing; general speaking and pronunciation practice stays in Duolingo, while roadmap technical demos and mock interviews remain in scope.
 - Keeps private application, company, income, and contact data outside Git.
 - Never pushes daily progress until the learner explicitly says `完成并发布今日记录`.
 
@@ -79,7 +80,7 @@ python -m devops_coach record `
 | Saturday | 30 min + 15 min English README | 120 min project work | 15 min | 180 min |
 | Sunday | 30 min | 45 min retrieval | 45 min review and planning | 120 min |
 
-The weekday coach starts automatically at 09:00. English reading and writing may be included, but reading aloud, recording, and spoken-English output are deferred to a manual session after 18:00 in `Asia/Shanghai`.
+The weekday coach starts automatically at 09:00 and may include English reading and writing. General speaking and pronunciation practice is handled separately in Duolingo and is not tracked by this repository.
 
 The project contains six 13-week phases: foundations, systems automation, containers and CI/CD, AWS and Terraform, Kubernetes and SRE, and a production capstone with the global job search. Every phase ends with a runnable public artifact, bilingual documentation, an English demo, and an evidence gate.
 
@@ -95,7 +96,7 @@ python scripts/privacy_scan.py
 
 ## Codex scheduled coaching
 
-The weekday coach runs automatically at 09:00 and may include English reading or writing, while spoken-English practice starts manually after 18:00. The weekend coach runs automatically at 10:00 in `Asia/Shanghai`. No API key is needed. See [Codex automation setup](docs/codex-automation.md).
+The weekday coach runs automatically at 09:00 and the weekend coach at 10:00 in `Asia/Shanghai`. Both may schedule English reading or writing, but they do not track general speaking, pronunciation, or recording practice. No API key is needed. See [Codex automation setup](docs/codex-automation.md).
 
 ## Contributing
 

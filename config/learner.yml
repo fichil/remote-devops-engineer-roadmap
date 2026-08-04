@@ -18,8 +18,6 @@ learner:
     credential_strategy: portfolio_first
   schedule:
     weekday_minutes: 75
-    weekday_spoken_english_not_before: "18:00"
-    weekday_spoken_english_manual_start: true
     saturday_minutes: 180
     sunday_minutes: 120
   budget:

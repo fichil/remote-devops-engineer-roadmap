@@ -42,17 +42,29 @@ def test_plan_is_idempotent(project_copy: Path) -> None:
     assert len(state["daily_plans"]) == expected_plan_count
 
 
-def test_weekday_english_is_scheduled_after_work(project_copy: Path) -> None:
+def test_weekday_english_uses_written_evidence_only(project_copy: Path) -> None:
     target = date(2026, 7, 29)
     path, _ = create_today_plan(project_copy, target)
     state = load_json(project_copy / "state" / "progress.json")
     english = state["tasks"]["2026-07-29-english"]
 
-    assert english["spoken_not_before"] == "18:00"
-    assert english["spoken_manual_start"] is True
+    assert "spoken_not_before" not in english
+    assert "spoken_manual_start" not in english
     assert state["daily_plans"][target.isoformat()]["task_ids"][0].endswith("-concept")
-    assert "- 口语部分：18:00 后手动开启" in path.read_text(encoding="utf-8")
-    assert "可做英语阅读和写作" in path.read_text(encoding="utf-8")
+    content = path.read_text(encoding="utf-8")
+    assert "口语部分" not in content
+    assert "朗读" not in english["title"]
+    assert "录音" not in english["title"]
+
+
+def test_default_english_task_is_a_written_summary(project_copy: Path) -> None:
+    target = date(2026, 8, 26)
+    _, _ = create_today_plan(project_copy, target)
+    state = load_json(project_copy / "state" / "progress.json")
+    english = state["tasks"]["2026-08-26-english"]
+
+    assert "书面总结" in english["title"]
+    assert "口头复述" not in english["title"]
 
 
 def test_record_requires_evidence_and_schedules_review(project_copy: Path) -> None:

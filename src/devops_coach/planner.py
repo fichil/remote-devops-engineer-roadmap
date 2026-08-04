@@ -76,7 +76,7 @@ def _task_copy(
     if starter and section in starter:
         return starter[section]
     templates = {
-        "english": f"用英语学习并口头复述：{focus['title_en']}。保留 3 个关键词和 3 句话。",
+        "english": f"用英语学习并书面总结：{focus['title_en']}。保留 3 个关键词和 3 句话。",
         "concept": f"阅读权威资料，画出概念图：{focus['title_zh']}。",
         "practice": f"完成一个可重复的小实验：{focus['title_zh']}，保存命令和结果。",
         "project": (
@@ -112,7 +112,6 @@ def create_today_plan(root: Path, target: date) -> tuple[Path, bool]:
     starter = _starter_day(roadmap, week, offset)
     kind = day_kind(target)
     budget = DAY_BUDGETS[kind]
-    schedule = learner["learner"]["schedule"]
     load_factor = float(progress.get("adaptation", {}).get("load_factor", 1.0))
     load_factor = max(0.8, min(1.1, load_factor))
 
@@ -133,9 +132,6 @@ def create_today_plan(root: Path, target: date) -> tuple[Path, bool]:
             "carryovers": 0,
             "next_review": None,
         }
-        if kind == "weekday" and section == "english":
-            task["spoken_not_before"] = schedule["weekday_spoken_english_not_before"]
-            task["spoken_manual_start"] = schedule["weekday_spoken_english_manual_start"]
         tasks.append(task)
         progress["tasks"][task_id] = task
 
@@ -165,14 +161,6 @@ def create_today_plan(root: Path, target: date) -> tuple[Path, bool]:
                 "",
                 task["title"],
                 "",
-                *(
-                    [
-                        f"- 口语部分：{task['spoken_not_before']} 后手动开启",
-                        "- 早间规则：可做英语阅读和写作，跳过朗读、录音与口头表达",
-                    ]
-                    if task.get("spoken_not_before")
-                    else []
-                ),
                 "- 状态：planned",
                 "- 证据：待提交",
                 "- 自评分：待测验",
@@ -183,7 +171,7 @@ def create_today_plan(root: Path, target: date) -> tuple[Path, bool]:
         [
             "## 完成标准",
             "",
-            "- 提供命令输出、代码、截图文字说明或口头复述之一。",
+            "- 提供命令输出、代码、截图文字说明或简短书面解释之一。",
             "- 教练通过追问或小测给出 0–5 掌握度。",
             "- 没有证据的任务不能标记为 done。",
             "- 只有说出“完成并发布今日记录”，才允许提交并推送公开进度。",
