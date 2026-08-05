@@ -81,10 +81,11 @@
       "week": 1
     },
     "2026-08-03": {
+      "actual_minutes": 85,
       "path": "plans/2026/08/2026-08-03.md",
       "phase": "foundations",
       "planned_minutes": 75,
-      "status": "planned",
+      "status": "done",
       "task_ids": [
         "2026-08-03-concept",
         "2026-08-03-practice",
@@ -358,55 +359,55 @@
       "title": "解释为什么错误输出不一定进入普通输出文件。"
     },
     "2026-08-03-concept": {
-      "actual_minutes": 0,
+      "actual_minutes": 20,
       "carryovers": 0,
       "date": "2026-08-03",
-      "evidence": null,
+      "evidence": "Verified coaching dialogue: stdin/stdout/stderr routing, empty stderr redirection file prediction, and written pipe-channel explanation",
       "id": "2026-08-03-concept",
-      "next_review": null,
+      "next_review": "2026-08-12",
       "planned_minutes": 20,
-      "score": null,
+      "score": 3,
       "section": "concept",
-      "status": "planned",
+      "status": "done",
       "title": "认识标准输入、标准输出、标准错误和重定向。"
     },
     "2026-08-03-english": {
-      "actual_minutes": 0,
+      "actual_minutes": 10,
       "carryovers": 0,
       "date": "2026-08-03",
-      "evidence": null,
+      "evidence": "Verified written coaching dialogue: three corrected sentences answering built, failed, and next; substantial retrieval and grammar scaffolding required",
       "id": "2026-08-03-english",
-      "next_review": null,
+      "next_review": "2026-08-12",
       "planned_minutes": 20,
-      "score": null,
+      "score": 3,
       "section": "english",
-      "status": "planned",
+      "status": "done",
       "title": "用英语回答 What did I build? What failed? What will I do next?"
     },
     "2026-08-03-practice": {
-      "actual_minutes": 0,
+      "actual_minutes": 45,
       "carryovers": 0,
       "date": "2026-08-03",
-      "evidence": null,
+      "evidence": "Verified WSL sandbox: stdout overwrite and append, stderr redirection with exit code, pipeline filtering, and independent INFO-count variation",
       "id": "2026-08-03-practice",
       "next_review": null,
       "planned_minutes": 25,
-      "score": null,
+      "score": 4,
       "section": "practice",
-      "status": "planned",
+      "status": "done",
       "title": "用 >、>>、2> 和管道保存并筛选命令输出，故意制造一次错误。"
     },
     "2026-08-03-review": {
-      "actual_minutes": 0,
+      "actual_minutes": 10,
       "carryovers": 0,
       "date": "2026-08-03",
-      "evidence": null,
+      "evidence": "Verified WSL review: independent stdout-only error prediction matched exit code 2, visible diagnostic, and empty redirected stdout file",
       "id": "2026-08-03-review",
       "next_review": null,
       "planned_minutes": 10,
-      "score": null,
+      "score": 4,
       "section": "review",
-      "status": "planned",
+      "status": "done",
       "title": "解释为什么错误输出不一定进入普通输出文件。"
     },
     "2026-08-04-concept": {
@@ -462,6 +463,6 @@
       "title": "运行隐私扫描并记录结果。"
     }
   },
-  "updated_at": "2026-08-04T16:26:40+08:00",
+  "updated_at": "2026-08-05T11:08:51+08:00",
   "weekly_reviews": {}
 }
