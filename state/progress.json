@@ -13,7 +13,7 @@
     "mock_interviews": 0
   },
   "current_phase": "foundations",
-  "current_week": 1,
+  "current_week": 2,
   "daily_plans": {
     "2026-07-29": {
       "path": "plans/2026/07/2026-07-29.md",
@@ -107,6 +107,19 @@
         "2026-08-04-english"
       ],
       "week": 1
+    },
+    "2026-08-05": {
+      "path": "plans/2026/08/2026-08-05.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "planned",
+      "task_ids": [
+        "2026-08-05-concept",
+        "2026-08-05-practice",
+        "2026-08-05-review",
+        "2026-08-05-english"
+      ],
+      "week": 2
     }
   },
   "portfolio": [],
@@ -462,8 +475,60 @@
       "section": "review",
       "status": "done",
       "title": "运行隐私扫描并记录结果。"
+    },
+    "2026-08-05-concept": {
+      "actual_minutes": 10,
+      "carryovers": 0,
+      "date": "2026-08-05",
+      "evidence": "Verified learner-authored answers: parent-child directory relationships, hidden-file recognition with ls -all, wildcard matches for *.txt and notes.?d, and corrected English sentence.",
+      "id": "2026-08-05-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解目录树、隐藏文件和通配符。"
+    },
+    "2026-08-05-english": {
+      "actual_minutes": 15,
+      "carryovers": 0,
+      "date": "2026-08-05",
+      "evidence": "Verified learner-authored written definitions and sentences for directory, parent, child, hidden, and recursive, including corrected plural agreement, articles, and relative-clause structure.",
+      "id": "2026-08-05-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "english",
+      "status": "done",
+      "title": "学习 directory、parent、child、hidden、recursive 并造句。"
+    },
+    "2026-08-05-practice": {
+      "actual_minutes": 35,
+      "carryovers": 0,
+      "date": "2026-08-05",
+      "evidence": "Verified learner-authored sandbox evidence: complete file listing including hidden and nested files, exact ls *.txt match, broad find -name '*' match, and independent explanation of destructive rm/cp risk.",
+      "id": "2026-08-05-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "用 ls、find 和通配符定位文件，比较安全匹配与过宽匹配。"
+    },
+    "2026-08-05-review": {
+      "actual_minutes": 10,
+      "carryovers": 0,
+      "date": "2026-08-05",
+      "evidence": "Verified learner-authored wildcard risk review: broad pattern can target all files; explained find, type f, name, delete, set -eu, and corrected the exact pre-delete check to find $lab -type f -name '*' -print.",
+      "id": "2026-08-05-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "写出一次可能误删文件的通配符风险。"
     }
   },
-  "updated_at": "2026-08-05T11:08:51+08:00",
+  "updated_at": "2026-08-05T15:51:32+08:00",
   "weekly_reviews": {}
 }
