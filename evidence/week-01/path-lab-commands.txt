@@ -1,13 +1,13 @@
 # Reconstructed from verified outputs because Bash history was unavailable.
 
-cd /tmp
-mkdir devops-coach-path-lab-20260731
-cd devops-coach-path-lab-20260731
+set -e
+lab="$(mktemp -d /tmp/devops-coach-files.XXXXXX)"
+cd "$lab"
 
 mkdir source backup
 
 # Failed because the source path was misspelled.
-touch souce/notes.txt
+# touch souce/notes.txt
 
 touch source/notes.txt
 cp source/notes.txt backup/notes-copy.txt
