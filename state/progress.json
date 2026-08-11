@@ -120,6 +120,20 @@
         "2026-08-05-english"
       ],
       "week": 2
+    },
+    "2026-08-06": {
+      "path": "plans/2026/08/2026-08-06.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "actual_minutes": 100,
+      "status": "done",
+      "task_ids": [
+        "2026-08-06-concept",
+        "2026-08-06-practice",
+        "2026-08-06-review",
+        "2026-08-06-english"
+      ],
+      "week": 2
     }
   },
   "portfolio": [],
@@ -527,8 +541,60 @@
       "section": "review",
       "status": "done",
       "title": "写出一次可能误删文件的通配符风险。"
+    },
+    "2026-08-06-concept": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-06",
+      "evidence": "Verified learner-authored explanation of reversibility, overwrite risk, and safety checks, plus corrected find preview excluding hidden files: find . -maxdepth 1 -type f -name '*.txt' ! -name '.*' -print",
+      "id": "2026-08-06-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解文件操作的可逆性、覆盖风险和安全检查。"
+    },
+    "2026-08-06-practice": {
+      "actual_minutes": 30,
+      "carryovers": 0,
+      "date": "2026-08-06",
+      "evidence": "Verified fresh sandbox practice: learner-created files; content-verified copy; move and rename with old/new path checks; exact find -print preview; controlled find -delete of archive/keep.txt; unaffected report files verified; independent predicate-safety explanation.",
+      "id": "2026-08-06-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "在 sandbox 内完成创建、复制、移动、重命名和受控删除；删除前列出准确目标。"
+    },
+    "2026-08-06-review": {
+      "actual_minutes": 30,
+      "carryovers": 0,
+      "date": "2026-08-06",
+      "evidence": "evidence/week-02/file-operation-safety-checklist.md",
+      "id": "2026-08-06-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "保存一份安全文件操作检查表。"
+    },
+    "2026-08-06-english": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-06",
+      "evidence": "evidence/week-02/file-operation-safety-checklist.md",
+      "id": "2026-08-06-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "english",
+      "status": "done",
+      "title": "用英语解释 create、copy、move、rename、remove 的差别。"
     }
   },
-  "updated_at": "2026-08-05T15:51:32+08:00",
+  "updated_at": "2026-08-11T10:46:25+08:00",
   "weekly_reviews": {}
 }
