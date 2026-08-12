@@ -135,6 +135,20 @@
       ],
       "week": 2
     },
+    "2026-08-07": {
+      "path": "plans/2026/08/2026-08-07.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "actual_minutes": 80,
+      "status": "done",
+      "task_ids": [
+        "2026-08-07-concept",
+        "2026-08-07-practice",
+        "2026-08-07-review",
+        "2026-08-07-english"
+      ],
+      "week": 2
+    },
     "2026-08-11": {
       "path": "plans/2026/08/2026-08-11.md",
       "phase": "foundations",
@@ -608,6 +622,58 @@
       "status": "done",
       "title": "用英语解释 create、copy、move、rename、remove 的差别。"
     },
+    "2026-08-07-concept": {
+      "actual_minutes": 10,
+      "carryovers": 0,
+      "date": "2026-08-07",
+      "evidence": "Verified learner-authored explanation of bytes, characters, and encoding, plus a variation answer explaining that a wrong decoder can group bytes differently and produce incorrect characters.",
+      "id": "2026-08-07-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解纯文本、编码和按行处理。"
+    },
+    "2026-08-07-practice": {
+      "actual_minutes": 25,
+      "carryovers": 0,
+      "date": "2026-08-07",
+      "evidence": "Verified fresh WSL sandbox /tmp/devops-20260807.pGWUea: learner used cat, less, head, tail, wc, grep, and rg; demonstrated case-sensitive and case-insensitive matching; searched a nested log recursively; diagnosed missing native rg as an environment issue and completed the task after ripgrep installation.",
+      "id": "2026-08-07-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "用 cat、less、head、tail、wc、grep、rg 检查日志样本。"
+    },
+    "2026-08-07-review": {
+      "actual_minutes": 15,
+      "carryovers": 0,
+      "date": "2026-08-07",
+      "evidence": "Verified two learner-authored scenario decisions: chose less for paging and searching within one known long log, and rg for optimized recursive searching across a directory tree; explained both choices independently.",
+      "id": "2026-08-07-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "说明何时使用 rg、何时使用 less。"
+    },
+    "2026-08-07-english": {
+      "actual_minutes": 30,
+      "carryovers": 0,
+      "date": "2026-08-07",
+      "evidence": "Verified written-only learner evidence for text, line, pattern, match, and case-sensitive; corrected past participle, articles, subject-verb agreement, and relative clauses; independently explained that rg -i is case-insensitive and matches lines containing ERROR and error.",
+      "id": "2026-08-07-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "english",
+      "status": "done",
+      "title": "学习 text、line、pattern、match、case-sensitive。"
+    },
     "2026-08-11-concept": {
       "actual_minutes": 20,
       "carryovers": 0,
@@ -661,6 +727,6 @@
       "title": "用英文书面说明查找和阅读一个文件的步骤与结果。"
     }
   },
-  "updated_at": "2026-08-11T16:06:36+08:00",
+  "updated_at": "2026-08-12T16:57:10+08:00",
   "weekly_reviews": {}
 }
