@@ -50,12 +50,18 @@ def validate_project(root: Path) -> list[str]:
     if focus_weeks != list(range(1, 79)):
         errors.append("roadmap: weekly_focus must contain each week 1 through 78 exactly once")
 
-    integrated_english = {"weekday": 0, "saturday": 15, "sunday": 0}
+    starter_weeks = roadmap.get("starter_weeks", [])
+    if [item.get("week") for item in starter_weeks] != [1, 2, 3, 4]:
+        errors.append("roadmap: starter_weeks must contain weeks 1 through 4 in order")
+    for starter in starter_weeks:
+        if len(starter.get("missions", [])) != 5:
+            errors.append(f"roadmap: starter week {starter.get('week')} must contain 5 missions")
+
+    schedule = learner.get("learner", {}).get("schedule", {})
     for name, budget in DAY_BUDGETS.items():
-        if sum(minutes for _, minutes in budget.sections) != budget.total:
-            errors.append(f"schedule: {name} section minutes do not equal {budget.total}")
-        english = next(minutes for section, minutes in budget.sections if section == "english")
-        effective_english = english + integrated_english[name]
-        if effective_english / budget.total < 0.25:
+        configured = schedule.get(f"{name}_minutes")
+        if configured != budget.total:
+            errors.append(f"schedule: {name} must equal {budget.total} minutes")
+        if budget.total and budget.english_minutes / budget.total < 0.25:
             errors.append(f"schedule: {name} English share is below 25%")
     return errors

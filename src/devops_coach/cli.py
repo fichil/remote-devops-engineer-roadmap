@@ -6,9 +6,9 @@ from collections.abc import Sequence
 from datetime import date
 from pathlib import Path
 
-from devops_coach.planner import create_today_plan, record_task
+from devops_coach.planner import create_today_plan, record_task, weekday_streak
 from devops_coach.review import review_week
-from devops_coach.storage import load_json, project_root
+from devops_coach.storage import load_json, load_yaml, project_root
 from devops_coach.validation import validate_project
 
 
@@ -40,6 +40,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     root = args.root.resolve()
     if args.command == "today":
         path, created = create_today_plan(root, args.date)
+        if path is None:
+            print(f"Rest day: no learning plan scheduled for {args.date.isoformat()}")
+            return 0
         verb = "Created" if created else "Resuming"
         print(f"{verb}: {path}")
         return 0
@@ -61,6 +64,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     if args.command == "status":
         progress = load_json(root / "state" / "progress.json")
+        learner = load_yaml(root / "config" / "learner.yml")["learner"]
+        current_streak, best_streak = weekday_streak(
+            progress,
+            date.fromisoformat(learner["start_date"]),
+            date.today(),
+            int(learner["schedule"]["minimum_session_minutes"]),
+        )
         summary = {
             "current_week": progress["current_week"],
             "current_phase": progress["current_phase"],
@@ -68,6 +78,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "tasks": len(progress["tasks"]),
             "blockers": progress["blockers"],
             "adaptation": progress["adaptation"],
+            "weekday_streak": {"current": current_streak, "best": best_streak},
         }
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0

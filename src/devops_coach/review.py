@@ -25,6 +25,7 @@ def review_week(root: Path, week_value: str) -> tuple[Path, dict[str, Any]]:
         task
         for task in progress["tasks"].values()
         if date.fromisoformat(task["date"]).isocalendar()[:2] == (year, week)
+        and task.get("status") != "cancelled"
     ]
     done = [task for task in tasks if task["status"] == "done"]
     scored = [task["score"] for task in tasks if task["score"] is not None]

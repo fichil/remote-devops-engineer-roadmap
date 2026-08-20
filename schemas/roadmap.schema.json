@@ -51,10 +51,27 @@
       "maxItems": 4,
       "items": {
         "type": "object",
-        "required": ["week", "days"],
+        "required": ["week", "missions"],
+        "additionalProperties": false,
         "properties": {
           "week": {"type": "integer", "minimum": 1, "maximum": 4},
-          "days": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"type": "object"}}
+          "missions": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "items": {
+              "type": "object",
+              "required": ["codename", "scenario", "objective", "lab", "english_output"],
+              "additionalProperties": false,
+              "properties": {
+                "codename": {"type": "string", "minLength": 1},
+                "scenario": {"type": "string", "minLength": 1},
+                "objective": {"type": "string", "minLength": 1},
+                "lab": {"type": "string", "minLength": 1},
+                "english_output": {"type": "string", "minLength": 1}
+              }
+            }
+          }
         }
       }
     }

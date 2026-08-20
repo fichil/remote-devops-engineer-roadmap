@@ -18,8 +18,12 @@ learner:
     credential_strategy: portfolio_first
   schedule:
     weekday_minutes: 75
-    saturday_minutes: 180
-    sunday_minutes: 120
+    saturday_minutes: 0
+    sunday_minutes: 0
+    minimum_session_minutes: 15
+  engagement:
+    style: incident_mission
+    show_weekday_streak: true
   budget:
     monthly_usd: 20
     require_cost_estimate: true

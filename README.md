@@ -11,7 +11,7 @@ This repository is not a list of links or a promise of employment. It combines a
 The included learner profile assumes:
 
 - a beginner in IT and approximately A2 English;
-- 10–12 sustainable hours per week;
+- about 6.25 sustainable repository-study hours per week, with weekends off;
 - AWS as the primary cloud track;
 - a monthly learning and cloud budget of at most USD 20;
 - overseas employee and long-term contractor roles as valid outcomes;
@@ -21,11 +21,13 @@ Remote DevOps roles commonly combine Linux, cloud infrastructure, Terraform, con
 
 ## What the coach does
 
-- Generates or resumes one idempotent plan for a date.
+- Generates or resumes one incident-style mission on each weekday; weekends are read-only rest days.
 - Preserves a single machine-readable progress state.
 - Requires command output, code, tests, a runbook, or a demo before marking work complete.
 - Schedules weak skills for review after two or seven days.
 - Reduces, preserves, or increases the next week's load based on completion and mastery.
+- Shows a non-punitive weekday participation streak. Evidence-backed `partial` or `done` work
+  of at least 15 minutes counts; weekends are skipped and the streak never changes scores or gates.
 - Keeps at least 25% of learning time in English, including English project documentation.
 - Assesses daily English through reading and writing; general speaking and pronunciation practice stays in Duolingo, while roadmap technical demos and mock interviews remain in scope.
 - Keeps private application, company, income, and contact data outside Git.
@@ -65,7 +67,7 @@ Example evidence update:
 
 ```powershell
 python -m devops_coach record `
-  --task 2026-07-29-practice `
+  --task 2026-07-29-mission `
   --status done `
   --score 4 `
   --minutes 25 `
@@ -74,15 +76,21 @@ python -m devops_coach record `
 
 ## Weekly schedule
 
-| Day | English | Technical or project work | Review | Total |
+| Day | Briefing | Hands-on response | Written English handoff | Total |
 |---|---:|---:|---:|---:|
-| Monday–Friday | 20 min | 45 min | 10 min | 75 min |
-| Saturday | 30 min + 15 min English README | 120 min project work | 15 min | 180 min |
-| Sunday | 30 min | 45 min retrieval | 45 min review and planning | 120 min |
+| Monday–Friday | 15 min | 40 min | 20 min | 75 min |
+| Saturday–Sunday | — | — | — | Rest |
 
-The weekday coach starts automatically at 09:00 and may include English reading and writing. General speaking and pronunciation practice is handled separately in Duolingo and is not tracked by this repository.
+Reduced-load missions run for 60 minutes (10/35/15), and accelerated missions run for 80
+minutes (15/45/20). On a busy weekday, 15 minutes of evidence-backed participation may be
+recorded as `partial`. The fifth mission includes the weekly review. General speaking and
+pronunciation practice is handled separately in Duolingo and is not tracked here.
 
-The project contains six 13-week phases: foundations, systems automation, containers and CI/CD, AWS and Terraform, Kubernetes and SRE, and a production capstone with the global job search. Every phase ends with a runnable public artifact, bilingual documentation, an English demo, and an evidence gate.
+The project contains six 13-week phases: foundations, systems automation, containers and CI/CD,
+AWS and Terraform, Kubernetes and SRE, and a production capstone with the global job search.
+Every phase ends with a runnable public artifact, bilingual documentation, an English demo, and
+an evidence gate. If evidence is insufficient, the route extends; gates are never lowered to keep
+the nominal 78-week date.
 
 ## Cost and privacy boundaries
 
@@ -96,7 +104,10 @@ python scripts/privacy_scan.py
 
 ## Codex scheduled coaching
 
-The weekday coach runs automatically at 09:00 and the weekend coach at 10:00 in `Asia/Shanghai`. Both may schedule English reading or writing, but they do not track general speaking, pronunciation, or recording practice. No API key is needed. See [Codex automation setup](docs/codex-automation.md).
+One weekday coach runs at 09:00 in `Asia/Shanghai`. There is no weekend automation and no
+synthetic backfill. It may assess English reading and writing, but not general speaking,
+pronunciation, or recording practice. No API key is needed. See
+[Codex automation setup](docs/codex-automation.md).
 
 ## Contributing
 

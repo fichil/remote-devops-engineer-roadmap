@@ -6,8 +6,54 @@
     "schema_version": {"const": 1},
     "current_week": {"type": "integer", "minimum": 1, "maximum": 78},
     "current_phase": {"type": "string"},
-    "daily_plans": {"type": "object"},
-    "tasks": {"type": "object"},
+    "daily_plans": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["path", "week", "phase", "planned_minutes", "task_ids", "status"],
+        "properties": {
+          "path": {"type": "string"},
+          "week": {"type": "integer", "minimum": 1, "maximum": 78},
+          "phase": {"type": "string"},
+          "planned_minutes": {"type": "integer", "minimum": 0},
+          "actual_minutes": {"type": "integer", "minimum": 0},
+          "task_ids": {"type": "array", "items": {"type": "string"}},
+          "status": {"enum": ["planned", "partial", "done", "cancelled"]}
+        }
+      }
+    },
+    "tasks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "id",
+          "date",
+          "section",
+          "title",
+          "planned_minutes",
+          "actual_minutes",
+          "status",
+          "score",
+          "evidence",
+          "carryovers",
+          "next_review"
+        ],
+        "properties": {
+          "id": {"type": "string"},
+          "date": {"type": "string", "format": "date"},
+          "section": {"type": "string"},
+          "title": {"type": "string"},
+          "planned_minutes": {"type": "integer", "minimum": 0},
+          "actual_minutes": {"type": "integer", "minimum": 0},
+          "status": {"enum": ["planned", "partial", "done", "blocked", "cancelled"]},
+          "score": {"type": ["integer", "null"], "minimum": 0, "maximum": 5},
+          "evidence": {"type": ["string", "null"]},
+          "carryovers": {"type": "integer", "minimum": 0},
+          "next_review": {"type": ["string", "null"]}
+        }
+      }
+    },
     "blockers": {"type": "array", "items": {"type": "string"}},
     "portfolio": {"type": "array"},
     "career": {"type": "object"},

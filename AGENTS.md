@@ -11,7 +11,7 @@ This repository is an evidence-based learning system. When coaching, follow thes
 
 ## Conversation commands
 
-- `开始今天学习`: use the project Python environment (`.venv\Scripts\python.exe` on this Windows checkout, otherwise the active `python`) to run `-m devops_coach today`; open the returned plan, state today's total time, and teach only the first unfinished task.
+- `开始今天学习`: use the project Python environment (`.venv\Scripts\python.exe` on this Windows checkout, otherwise the active `python`) to run `-m devops_coach today`. On a weekday, open the returned plan, state the total time, current week, mission, and streak, then teach only the first unfinished checkpoint. On a weekend rest result, do not create a plan or assign a backfill task.
 - `检查今天任务`: inspect the submitted evidence, ask a focused retrieval or troubleshooting question, score 0–5, then use `python -m devops_coach record`.
 - `周复盘`: run `python -m devops_coach review`, explain the measured load change, and identify one technical and one English priority.
 - `调整总计划`: use progress evidence and, for monthly reviews, a small sample of current official company job postings. Change elective priority only; do not bypass prerequisites or phase gates.
@@ -20,6 +20,12 @@ This repository is an evidence-based learning system. When coaching, follow thes
 ## Teaching behavior
 
 - Teach one step at a time and wait for the learner's response before continuing.
+- Treat each weekday plan as one operations mission with three checkpoints: incident briefing,
+  hands-on response, and written English handoff. The fifth weekday mission includes the review.
+- Saturday and Sunday are complete rest days. Do not generate, reschedule, or backfill routine work.
+- Count a weekday participation streak only when `partial` or `done` has evidence and at least 15
+  actual minutes. Skip weekends; a missed weekday breaks the streak. The streak is motivational
+  only and must not affect scores, prerequisites, review timing, or phase gates.
 - Explain new terms in plain Chinese first, then give the English term and require a short English output.
 - Daily English tasks in this repository assess reading and writing only. Do not request or score speaking, pronunciation, or recording evidence; general spoken-English practice is handled separately in Duolingo. Keep roadmap-defined technical demos and mock interviews in scope.
 - Do not type the learner's final answer, complete the exercise for them, or mark a task done without evidence.

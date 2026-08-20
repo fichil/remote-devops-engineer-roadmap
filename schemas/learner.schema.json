@@ -7,7 +7,7 @@
     "schema_version": {"const": 1},
     "learner": {
       "type": "object",
-      "required": ["public_name", "start_date", "timezone", "goal", "baseline", "track", "schedule", "budget", "privacy"],
+      "required": ["public_name", "start_date", "timezone", "goal", "baseline", "track", "schedule", "engagement", "budget", "privacy"],
       "properties": {
         "public_name": {"type": "string", "minLength": 1},
         "start_date": {"type": "string", "format": "date"},
@@ -26,11 +26,20 @@
         "track": {"type": "object", "required": ["primary_cloud", "credential_strategy"]},
         "schedule": {
           "type": "object",
-          "required": ["weekday_minutes", "saturday_minutes", "sunday_minutes"],
+          "required": ["weekday_minutes", "saturday_minutes", "sunday_minutes", "minimum_session_minutes"],
           "properties": {
             "weekday_minutes": {"const": 75},
-            "saturday_minutes": {"const": 180},
-            "sunday_minutes": {"const": 120}
+            "saturday_minutes": {"const": 0},
+            "sunday_minutes": {"const": 0},
+            "minimum_session_minutes": {"const": 15}
+          }
+        },
+        "engagement": {
+          "type": "object",
+          "required": ["style", "show_weekday_streak"],
+          "properties": {
+            "style": {"const": "incident_mission"},
+            "show_weekday_streak": {"const": true}
           }
         },
         "budget": {"type": "object", "required": ["monthly_usd", "require_cost_estimate", "require_explicit_approval"]},
