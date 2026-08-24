@@ -2,11 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "required": ["schema_version", "title", "principles", "phases", "starter_weeks"],
+  "additionalProperties": false,
   "properties": {
     "schema_version": {"const": 1},
     "title": {
       "type": "object",
       "required": ["zh", "en"],
+      "additionalProperties": false,
       "properties": {"zh": {"type": "string"}, "en": {"type": "string"}}
     },
     "principles": {"type": "array", "minItems": 3, "items": {"type": "string"}},
@@ -17,6 +19,7 @@
       "items": {
         "type": "object",
         "required": ["id", "title_zh", "title_en", "week_start", "week_end", "prerequisites", "outcomes", "labs", "english_output", "gate", "weekly_focus"],
+        "additionalProperties": false,
         "properties": {
           "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]+$"},
           "title_zh": {"type": "string"},
@@ -35,6 +38,7 @@
             "items": {
               "type": "object",
               "required": ["week", "title_zh", "title_en"],
+              "additionalProperties": false,
               "properties": {
                 "week": {"type": "integer", "minimum": 1, "maximum": 78},
                 "title_zh": {"type": "string"},
@@ -51,10 +55,27 @@
       "maxItems": 4,
       "items": {
         "type": "object",
-        "required": ["week", "days"],
+        "required": ["week", "missions"],
+        "additionalProperties": false,
         "properties": {
           "week": {"type": "integer", "minimum": 1, "maximum": 4},
-          "days": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"type": "object"}}
+          "missions": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "items": {
+              "type": "object",
+              "required": ["codename", "scenario", "objective", "lab", "english_output"],
+              "additionalProperties": false,
+              "properties": {
+                "codename": {"type": "string", "minLength": 1},
+                "scenario": {"type": "string", "minLength": 1},
+                "objective": {"type": "string", "minLength": 1},
+                "lab": {"type": "string", "minLength": 1},
+                "english_output": {"type": "string", "minLength": 1}
+              }
+            }
+          }
         }
       }
     }

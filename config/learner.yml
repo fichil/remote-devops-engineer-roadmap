@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 learner:
   public_name: fichil
   start_date: "2026-07-29"
@@ -17,9 +17,22 @@ learner:
     primary_cloud: aws
     credential_strategy: portfolio_first
   schedule:
-    weekday_minutes: 75
-    saturday_minutes: 180
-    sunday_minutes: 120
+    weekday_missions: 1
+    optional_carryover_missions: 1
+    saturday_missions: 0
+    sunday_missions: 0
+  engagement:
+    style: incident_mission
+    streak_basis: completed_evidence_task
+    backlog_order: today_first_then_oldest
+  publication:
+    mode: auto_after_task_completion
+    integration: ready_pr_squash
+    base_branch: main
+    branch_prefix: learn
+    primary_per_workday: 1
+    optional_carryover_per_workday: 1
+    recover_before_today: true
   budget:
     monthly_usd: 20
     require_cost_estimate: true

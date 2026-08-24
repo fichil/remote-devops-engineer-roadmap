@@ -2,13 +2,27 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections.abc import Sequence
 from datetime import date
 from pathlib import Path
 
-from devops_coach.planner import create_today_plan, record_task
+from devops_coach.migration import migrate_to_schema_2
+from devops_coach.planner import (
+    ensure_master_plan,
+    ensure_week_plan,
+    project_summary,
+    record_checkpoint,
+    render_today_text,
+    today_overview,
+)
+from devops_coach.publication import (
+    PublicationError,
+    publish_completed_task,
+    recover_publications,
+)
 from devops_coach.review import review_week
-from devops_coach.storage import load_json, project_root
+from devops_coach.storage import load_json, load_yaml, project_root
 from devops_coach.validation import validate_project
 
 
@@ -17,58 +31,155 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--root", type=Path, default=project_root(), help=argparse.SUPPRESS)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    today_parser = subparsers.add_parser("today", help="Create or resume today's plan")
+    migrate_parser = subparsers.add_parser("migrate", help="Migrate active data")
+    migrate_parser.add_argument("--to-schema", type=int, choices=(2,), required=True)
+    migrate_parser.add_argument("--dry-run", action="store_true")
+
+    plan_parser = subparsers.add_parser("plan", help="Generate durable planning documents")
+    plan_subparsers = plan_parser.add_subparsers(dest="plan_kind", required=True)
+    plan_subparsers.add_parser("master", help="Generate the 78-week master plan")
+    week_parser = plan_subparsers.add_parser("week", help="Generate or resume one week")
+    week_parser.add_argument("--week", required=True)
+
+    today_parser = subparsers.add_parser("today", help="Show project, week, and today")
     today_parser.add_argument("--date", type=date.fromisoformat, default=date.today())
+    today_parser.add_argument(
+        "--continue-carryover",
+        action="store_true",
+        help="After today's primary task, explicitly start the oldest carryover",
+    )
+    today_parser.add_argument("--json", action="store_true")
 
-    record_parser = subparsers.add_parser("record", help="Record verified task progress")
+    record_parser = subparsers.add_parser("record", help="Record one verified checkpoint")
     record_parser.add_argument("--task", required=True)
-    record_parser.add_argument("--status", choices=("done", "partial", "blocked"), required=True)
+    record_parser.add_argument("--checkpoint", required=True)
+    record_parser.add_argument(
+        "--status", choices=("in_progress", "done", "blocked"), required=True
+    )
     record_parser.add_argument("--score", type=int, choices=range(0, 6), required=True)
-    record_parser.add_argument("--minutes", type=int, required=True)
-    record_parser.add_argument("--evidence", default="")
+    record_parser.add_argument("--evidence", required=True)
+    record_parser.add_argument(
+        "--artifact",
+        action="append",
+        default=[],
+        help="Repository-contained evidence file; repeat for multiple artifacts",
+    )
 
-    review_parser = subparsers.add_parser("review", help="Create a weekly review")
+    publish_parser = subparsers.add_parser(
+        "publish", help="Publish an evidence-complete task through a Ready PR"
+    )
+    publish_parser.add_argument("--date", type=date.fromisoformat)
+    publish_parser.add_argument("--kind", choices=("primary", "carryover"))
+    publish_mode = publish_parser.add_mutually_exclusive_group(required=True)
+    publish_mode.add_argument("--dry-run", action="store_true")
+    publish_mode.add_argument("--apply", action="store_true")
+    publish_mode.add_argument("--recover", action="store_true")
+    publish_parser.add_argument("--json", action="store_true")
+
+    review_parser = subparsers.add_parser("review", help="Write a review into the weekly plan")
     review_parser.add_argument("--week", default=date.today().strftime("%G-W%V"))
 
-    subparsers.add_parser("status", help="Show current learning state")
-    subparsers.add_parser("validate", help="Validate schemas and roadmap semantics")
+    subparsers.add_parser("status", help="Show current structured progress")
+    subparsers.add_parser("validate", help="Validate schemas, roadmap, and planning sync")
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     root = args.root.resolve()
+    if args.command == "migrate":
+        summary = migrate_to_schema_2(root, dry_run=args.dry_run)
+        print(json.dumps(summary, ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "plan":
+        if args.plan_kind == "master":
+            path, created = ensure_master_plan(root)
+        else:
+            path, created = ensure_week_plan(root, args.week)
+        print(f"{'Created' if created else 'Resuming'}: {path}")
+        return 0
     if args.command == "today":
-        path, created = create_today_plan(root, args.date)
-        verb = "Created" if created else "Resuming"
-        print(f"{verb}: {path}")
+        overview = today_overview(root, args.date, args.continue_carryover)
+        if args.json:
+            print(json.dumps(overview, ensure_ascii=False, indent=2))
+        else:
+            print(render_today_text(overview))
         return 0
     if args.command == "record":
-        task = record_task(
+        task = record_checkpoint(
             root,
             args.task,
+            args.checkpoint,
             args.status,
             args.score,
-            args.minutes,
             args.evidence,
+            artifacts=args.artifact,
         )
-        print(json.dumps(task, ensure_ascii=False, indent=2))
+        payload: dict[str, object] = {"task": task}
+        if task["status"] == "done":
+            progress = load_json(root / "state" / "progress.json")
+            completed = next(
+                item
+                for item in progress["completion_log"]
+                if item["task_id"] == task["id"] and item["date"] == date.today().isoformat()
+            )
+            try:
+                payload["publication"] = publish_completed_task(
+                    root,
+                    date.today(),
+                    completed["kind"],
+                    apply=True,
+                )
+            except PublicationError as exc:
+                payload["publication"] = {
+                    "status": "pending_recovery",
+                    "error": str(exc),
+                }
+                print(json.dumps(payload, ensure_ascii=False, indent=2))
+                return 1
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "publish":
+        try:
+            if args.recover:
+                results = recover_publications(root, target=args.date, kind=args.kind)
+                payload = {"status": "complete", "recovered": results}
+            else:
+                if args.date is None or args.kind is None:
+                    print(
+                        "--date and --kind are required with --dry-run or --apply",
+                        file=sys.stderr,
+                    )
+                    return 2
+                payload = publish_completed_task(
+                    root,
+                    args.date,
+                    args.kind,
+                    apply=args.apply,
+                )
+        except PublicationError as exc:
+            payload = {"status": "blocked", "error": str(exc)}
+            if args.json:
+                print(json.dumps(payload, ensure_ascii=False, indent=2))
+            else:
+                print(f"Publication blocked: {exc}", file=sys.stderr)
+            return 1
+        if args.json:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        else:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0
     if args.command == "review":
         path, summary = review_week(root, args.week)
-        print(f"Review: {path}")
+        print(f"Review updated: {path}")
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
     if args.command == "status":
         progress = load_json(root / "state" / "progress.json")
-        summary = {
-            "current_week": progress["current_week"],
-            "current_phase": progress["current_phase"],
-            "plans": len(progress["daily_plans"]),
-            "tasks": len(progress["tasks"]),
-            "blockers": progress["blockers"],
-            "adaptation": progress["adaptation"],
-        }
+        learner = load_yaml(root / "config" / "learner.yml")
+        summary = project_summary(learner, progress, date.today())
+        summary["blockers"] = progress["blockers"]
+        summary["adaptation"] = progress["adaptation"]
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
     if args.command == "validate":
@@ -78,6 +189,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             for error in errors:
                 print(f"- {error}")
             return 1
-        print("Validation passed: schemas, 78-week coverage, and time budgets are valid.")
+        print(
+            "Validation passed: schema v2, 78-week coverage, task quotas, "
+            "and planning sync are valid."
+        )
         return 0
     return 2
