@@ -1,73 +1,134 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "status": {"enum": ["queued", "in_progress", "done", "blocked", "cancelled"]},
+    "score": {"type": ["integer", "null"], "minimum": 0, "maximum": 5},
+    "checkpoint": {
+      "type": "object",
+      "required": ["id", "title", "instruction", "status", "score", "evidence", "next_review"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "instruction": {"type": "string", "minLength": 1},
+        "status": {"$ref": "#/$defs/status"},
+        "score": {"$ref": "#/$defs/score"},
+        "evidence": {"type": ["string", "null"]},
+        "artifacts": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "next_review": {"type": ["string", "null"], "format": "date"}
+      }
+    },
+    "task": {
+      "type": "object",
+      "required": ["id", "created_on", "curriculum_week", "phase", "section", "title", "status", "score", "evidence", "completed_on", "next_review", "queue_order", "checkpoints"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "created_on": {"type": "string", "format": "date"},
+        "scheduled_for": {"type": ["string", "null"], "format": "date"},
+        "curriculum_week": {"type": "integer", "minimum": 1, "maximum": 78},
+        "phase": {"type": "string", "minLength": 1},
+        "section": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "scenario": {"type": "string"},
+        "status": {"$ref": "#/$defs/status"},
+        "score": {"$ref": "#/$defs/score"},
+        "evidence": {"type": ["string", "null"]},
+        "artifacts": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "completed_on": {"type": ["string", "null"], "format": "date"},
+        "next_review": {"type": ["string", "null"], "format": "date"},
+        "queue_order": {"type": "integer", "minimum": 1},
+        "source": {"type": "string"},
+        "weekly_review": {"type": "boolean"},
+        "gate_id": {"type": "string"},
+        "coaching_action": {"type": "string"},
+        "carryover_activated_on": {"type": ["string", "null"], "format": "date"},
+        "checkpoints": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/checkpoint"}}
+      }
+    }
+  },
   "type": "object",
-  "required": ["schema_version", "current_week", "current_phase", "daily_plans", "tasks", "blockers", "portfolio", "career", "adaptation", "weekly_reviews", "updated_at"],
+  "required": ["schema_version", "current_week", "current_phase", "weekly_plans", "tasks", "blockers", "completion_log", "portfolio", "career", "adaptation", "weekly_reviews", "phase_gates", "updated_at"],
+  "additionalProperties": false,
   "properties": {
-    "schema_version": {"const": 1},
+    "schema_version": {"const": 2},
     "current_week": {"type": "integer", "minimum": 1, "maximum": 78},
-    "current_phase": {"type": "string"},
-    "daily_plans": {
+    "current_phase": {"type": "string", "minLength": 1},
+    "weekly_plans": {
       "type": "object",
       "additionalProperties": {
         "type": "object",
-        "required": ["path", "week", "phase", "planned_minutes", "task_ids", "status"],
+        "required": ["path", "week", "calendar_phase", "execution_phase", "theme_zh", "theme_en", "monday", "friday", "new_task_ids", "execution_slots", "gate_mode"],
+        "additionalProperties": false,
         "properties": {
-          "path": {"type": "string"},
+          "path": {"type": "string", "minLength": 1},
           "week": {"type": "integer", "minimum": 1, "maximum": 78},
-          "phase": {"type": "string"},
-          "planned_minutes": {"type": "integer", "minimum": 0},
-          "actual_minutes": {"type": "integer", "minimum": 0},
-          "task_ids": {"type": "array", "items": {"type": "string"}},
-          "status": {"enum": ["planned", "partial", "done", "cancelled"]}
+          "calendar_phase": {"type": "string", "minLength": 1},
+          "execution_phase": {"type": "string", "minLength": 1},
+          "theme_zh": {"type": "string", "minLength": 1},
+          "theme_en": {"type": "string", "minLength": 1},
+          "monday": {"type": "string", "format": "date"},
+          "friday": {"type": "string", "format": "date"},
+          "new_task_ids": {"type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": {"type": "string"}},
+          "execution_slots": {"type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": {"type": "string"}},
+          "gate_mode": {"enum": ["normal", "remediation"]}
         }
       }
     },
-    "tasks": {
-      "type": "object",
-      "additionalProperties": {
+    "tasks": {"type": "object", "additionalProperties": {"$ref": "#/$defs/task"}},
+    "blockers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "completion_log": {
+      "type": "array",
+      "items": {
         "type": "object",
-        "required": [
-          "id",
-          "date",
-          "section",
-          "title",
-          "planned_minutes",
-          "actual_minutes",
-          "status",
-          "score",
-          "evidence",
-          "carryovers",
-          "next_review"
-        ],
+        "required": ["date", "task_id", "evidence"],
+        "additionalProperties": false,
         "properties": {
-          "id": {"type": "string"},
           "date": {"type": "string", "format": "date"},
-          "section": {"type": "string"},
-          "title": {"type": "string"},
-          "planned_minutes": {"type": "integer", "minimum": 0},
-          "actual_minutes": {"type": "integer", "minimum": 0},
-          "status": {"enum": ["planned", "partial", "done", "blocked", "cancelled"]},
-          "score": {"type": ["integer", "null"], "minimum": 0, "maximum": 5},
-          "evidence": {"type": ["string", "null"]},
-          "carryovers": {"type": "integer", "minimum": 0},
-          "next_review": {"type": ["string", "null"]}
+          "task_id": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["primary", "carryover"]},
+          "evidence": {"type": "string", "minLength": 1},
+          "artifacts": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
         }
       }
     },
-    "blockers": {"type": "array", "items": {"type": "string"}},
     "portfolio": {"type": "array"},
-    "career": {"type": "object"},
+    "career": {
+      "type": "object",
+      "required": ["accepted_open_source_contributions", "applications", "english_demos", "mock_interviews"],
+      "additionalProperties": true,
+      "properties": {
+        "accepted_open_source_contributions": {"type": "integer", "minimum": 0},
+        "applications": {"type": "integer", "minimum": 0},
+        "english_demos": {"type": "integer", "minimum": 0},
+        "mock_interviews": {"type": "integer", "minimum": 0}
+      }
+    },
     "adaptation": {
       "type": "object",
-      "required": ["load_factor", "reason", "source_week", "generated_at"],
+      "required": ["mode", "reason", "source_week", "generated_at"],
+      "additionalProperties": false,
       "properties": {
-        "load_factor": {"type": "number", "minimum": 0.8, "maximum": 1.1},
-        "reason": {"type": "string"},
+        "mode": {"enum": ["reteach", "standard", "stretch"]},
+        "reason": {"type": "string", "minLength": 1},
         "source_week": {"type": ["string", "null"]},
         "generated_at": {"type": ["string", "null"]}
       }
     },
     "weekly_reviews": {"type": "object"},
+    "phase_gates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "score", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "status": {"enum": ["locked", "active", "passed"]},
+          "score": {"$ref": "#/$defs/score"},
+          "evidence": {"type": ["string", "null"]}
+        }
+      }
+    },
     "updated_at": {"type": "string"}
   }
 }

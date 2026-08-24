@@ -24,17 +24,17 @@ phases:
     english_output: 用简单英语做五分钟环境介绍并写每周状态更新。
     gate: 独立完成一次 Linux 权限、进程和网络组合排障，掌握度不低于 4/5。
     weekly_focus:
-      - {week: 1, title_zh: 学习系统、WSL2 与终端, title_en: Learning System, WSL2, and Terminal}
-      - {week: 2, title_zh: Linux 文件、目录与路径, title_en: Linux Files, Directories, and Paths}
-      - {week: 3, title_zh: 用户、组与文件权限, title_en: Users, Groups, and Permissions}
-      - {week: 4, title_zh: 进程、服务与软件包, title_en: Processes, Services, and Packages}
+      - {week: 1, title_zh: 学习系统、WSL2 与终端, title_en: "Learning System, WSL2, and Terminal"}
+      - {week: 2, title_zh: Linux 文件、目录与路径, title_en: "Linux Files, Directories, and Paths"}
+      - {week: 3, title_zh: 用户、组与文件权限, title_en: "Users, Groups, and Permissions"}
+      - {week: 4, title_zh: 进程、服务与软件包, title_en: "Processes, Services, and Packages"}
       - {week: 5, title_zh: Git 本地工作流, title_en: Local Git Workflow}
       - {week: 6, title_zh: GitHub 协作与 Markdown, title_en: GitHub Collaboration and Markdown}
-      - {week: 7, title_zh: 计算机硬件、操作系统与虚拟化, title_en: Hardware, Operating Systems, and Virtualization}
-      - {week: 8, title_zh: IP、子网与路由基础, title_en: IP, Subnets, and Routing Basics}
-      - {week: 9, title_zh: DNS、端口与常见协议, title_en: DNS, Ports, and Common Protocols}
-      - {week: 10, title_zh: HTTP、HTTPS 与 TLS, title_en: HTTP, HTTPS, and TLS}
-      - {week: 11, title_zh: 日志、退出码与基础排障, title_en: Logs, Exit Codes, and Basic Troubleshooting}
+      - {week: 7, title_zh: 计算机硬件、操作系统与虚拟化, title_en: "Hardware, Operating Systems, and Virtualization"}
+      - {week: 8, title_zh: IP、子网与路由基础, title_en: "IP, Subnets, and Routing Basics"}
+      - {week: 9, title_zh: DNS、端口与常见协议, title_en: "DNS, Ports, and Common Protocols"}
+      - {week: 10, title_zh: HTTP、HTTPS 与 TLS, title_en: "HTTP, HTTPS, and TLS"}
+      - {week: 11, title_zh: 日志、退出码与基础排障, title_en: "Logs, Exit Codes, and Basic Troubleshooting"}
       - {week: 12, title_zh: Linux 排障手册项目, title_en: Linux Troubleshooting Runbook Project}
       - {week: 13, title_zh: 基础阶段复测与英文演示, title_en: Foundation Gate and English Demo}
 
@@ -53,17 +53,17 @@ phases:
     english_output: 用英语编写脚本 README、故障报告和异步状态更新。
     gate: 从空白环境部署服务、制造故障、定位根因并用脚本恢复。
     weekly_focus:
-      - {week: 14, title_zh: Bash 变量、管道与退出码, title_en: Bash Variables, Pipes, and Exit Codes}
-      - {week: 15, title_zh: Bash 条件、循环与函数, title_en: Bash Conditions, Loops, and Functions}
+      - {week: 14, title_zh: Bash 变量、管道与退出码, title_en: "Bash Variables, Pipes, and Exit Codes"}
+      - {week: 15, title_zh: Bash 条件、循环与函数, title_en: "Bash Conditions, Loops, and Functions"}
       - {week: 16, title_zh: Python 基础与虚拟环境, title_en: Python Basics and Virtual Environments}
-      - {week: 17, title_zh: Python 文件、JSON 与命令行, title_en: Python Files, JSON, and CLI Tools}
+      - {week: 17, title_zh: Python 文件、JSON 与命令行, title_en: "Python Files, JSON, and CLI Tools"}
       - {week: 18, title_zh: 自动化测试与错误处理, title_en: Automated Tests and Error Handling}
-      - {week: 19, title_zh: SSH、密钥与远程管理, title_en: SSH, Keys, and Remote Administration}
-      - {week: 20, title_zh: systemd、日志与计划任务, title_en: systemd, Logs, and Scheduled Jobs}
-      - {week: 21, title_zh: 存储、挂载与备份, title_en: Storage, Mounts, and Backups}
+      - {week: 19, title_zh: SSH、密钥与远程管理, title_en: "SSH, Keys, and Remote Administration"}
+      - {week: 20, title_zh: systemd、日志与计划任务, title_en: "systemd, Logs, and Scheduled Jobs"}
+      - {week: 21, title_zh: 存储、挂载与备份, title_en: "Storage, Mounts, and Backups"}
       - {week: 22, title_zh: Nginx 与反向代理, title_en: Nginx and Reverse Proxying}
-      - {week: 23, title_zh: DNS、HTTP 与 TLS 深入排障, title_en: DNS, HTTP, and TLS Troubleshooting}
-      - {week: 24, title_zh: 最小权限、补丁与基础加固, title_en: Least Privilege, Patching, and Hardening}
+      - {week: 23, title_zh: DNS、HTTP 与 TLS 深入排障, title_en: "DNS, HTTP, and TLS Troubleshooting"}
+      - {week: 24, title_zh: 最小权限、补丁与基础加固, title_en: "Least Privilege, Patching, and Hardening"}
       - {week: 25, title_zh: 自动化工具箱项目, title_en: Automation Toolkit Project}
       - {week: 26, title_zh: 系统自动化阶段复测, title_en: Systems Automation Gate}
 
@@ -83,14 +83,14 @@ phases:
     weekly_focus:
       - {week: 27, title_zh: 容器原理与 Docker CLI, title_en: Container Fundamentals and Docker CLI}
       - {week: 28, title_zh: Dockerfile 与镜像分层, title_en: Dockerfiles and Image Layers}
-      - {week: 29, title_zh: 网络、卷与运行时配置, title_en: Networks, Volumes, and Runtime Configuration}
+      - {week: 29, title_zh: 网络、卷与运行时配置, title_en: "Networks, Volumes, and Runtime Configuration"}
       - {week: 30, title_zh: Docker Compose 多服务应用, title_en: Multi-Service Apps with Docker Compose}
-      - {week: 31, title_zh: 容器调试、性能与安全, title_en: Container Debugging, Performance, and Security}
+      - {week: 31, title_zh: 容器调试、性能与安全, title_en: "Container Debugging, Performance, and Security"}
       - {week: 32, title_zh: CI/CD 原理与质量门禁, title_en: CI/CD Principles and Quality Gates}
       - {week: 33, title_zh: GitHub Actions 工作流, title_en: GitHub Actions Workflows}
-      - {week: 34, title_zh: 测试、缓存与构建制品, title_en: Tests, Caching, and Build Artifacts}
-      - {week: 35, title_zh: Secrets、OIDC 与供应链基础, title_en: Secrets, OIDC, and Supply Chain Basics}
-      - {week: 36, title_zh: 版本、发布与回滚, title_en: Versioning, Releases, and Rollbacks}
+      - {week: 34, title_zh: 测试、缓存与构建制品, title_en: "Tests, Caching, and Build Artifacts"}
+      - {week: 35, title_zh: Secrets、OIDC 与供应链基础, title_en: "Secrets, OIDC, and Supply Chain Basics"}
+      - {week: 36, title_zh: 版本、发布与回滚, title_en: "Versioning, Releases, and Rollbacks"}
       - {week: 37, title_zh: 容器化服务项目实现, title_en: Containerized Service Implementation}
       - {week: 38, title_zh: 流水线故障演练与 Runbook, title_en: Pipeline Failure Drills and Runbooks}
       - {week: 39, title_zh: 容器与交付阶段复测, title_en: Containers and Delivery Gate}
@@ -109,15 +109,15 @@ phases:
     english_output: 用英语编写架构说明、成本估算、变更计划和项目演示。
     gate: 经成本确认后从零创建环境、验证服务、展示监控并完整销毁。
     weekly_focus:
-      - {week: 40, title_zh: 云模型、AWS 账号与成本保护, title_en: Cloud Models, AWS Accounts, and Cost Guardrails}
-      - {week: 41, title_zh: IAM、身份与最小权限, title_en: IAM, Identity, and Least Privilege}
-      - {week: 42, title_zh: VPC、子网、路由与安全组, title_en: VPCs, Subnets, Routes, and Security Groups}
-      - {week: 43, title_zh: EC2、负载均衡与自动伸缩, title_en: EC2, Load Balancing, and Auto Scaling}
-      - {week: 44, title_zh: S3、生命周期与静态内容, title_en: S3, Lifecycles, and Static Content}
-      - {week: 45, title_zh: RDS、备份与恢复, title_en: RDS, Backups, and Recovery}
-      - {week: 46, title_zh: ECR、ECS 与容器部署, title_en: ECR, ECS, and Container Deployment}
-      - {week: 47, title_zh: CloudWatch、日志、指标与告警, title_en: CloudWatch Logs, Metrics, and Alarms}
-      - {week: 48, title_zh: Terraform 资源、状态与计划, title_en: Terraform Resources, State, and Plans}
+      - {week: 40, title_zh: 云模型、AWS 账号与成本保护, title_en: "Cloud Models, AWS Accounts, and Cost Guardrails"}
+      - {week: 41, title_zh: IAM、身份与最小权限, title_en: "IAM, Identity, and Least Privilege"}
+      - {week: 42, title_zh: VPC、子网、路由与安全组, title_en: "VPCs, Subnets, Routes, and Security Groups"}
+      - {week: 43, title_zh: EC2、负载均衡与自动伸缩, title_en: "EC2, Load Balancing, and Auto Scaling"}
+      - {week: 44, title_zh: S3、生命周期与静态内容, title_en: "S3, Lifecycles, and Static Content"}
+      - {week: 45, title_zh: RDS、备份与恢复, title_en: "RDS, Backups, and Recovery"}
+      - {week: 46, title_zh: ECR、ECS 与容器部署, title_en: "ECR, ECS, and Container Deployment"}
+      - {week: 47, title_zh: CloudWatch、日志、指标与告警, title_en: "CloudWatch Logs, Metrics, and Alarms"}
+      - {week: 48, title_zh: Terraform 资源、状态与计划, title_en: "Terraform Resources, State, and Plans"}
       - {week: 49, title_zh: Terraform 模块与远程状态, title_en: Terraform Modules and Remote State}
       - {week: 50, title_zh: CI 中的 IaC 与策略检查, title_en: IaC and Policy Checks in CI}
       - {week: 51, title_zh: AWS Terraform 作品项目, title_en: AWS Terraform Portfolio Project}
@@ -138,16 +138,16 @@ phases:
     gate: 在本地集群完成一次受控故障、告警、定位、恢复和无责复盘。
     weekly_focus:
       - {week: 53, title_zh: Kubernetes 架构与 kubectl, title_en: Kubernetes Architecture and kubectl}
-      - {week: 54, title_zh: Pod、Deployment 与 Service, title_en: Pods, Deployments, and Services}
-      - {week: 55, title_zh: ConfigMap、Secret 与存储, title_en: ConfigMaps, Secrets, and Storage}
-      - {week: 56, title_zh: 调度、资源、探针与伸缩, title_en: Scheduling, Resources, Probes, and Scaling}
-      - {week: 57, title_zh: 网络、Ingress 与 TLS, title_en: Networking, Ingress, and TLS}
+      - {week: 54, title_zh: Pod、Deployment 与 Service, title_en: "Pods, Deployments, and Services"}
+      - {week: 55, title_zh: ConfigMap、Secret 与存储, title_en: "ConfigMaps, Secrets, and Storage"}
+      - {week: 56, title_zh: 调度、资源、探针与伸缩, title_en: "Scheduling, Resources, Probes, and Scaling"}
+      - {week: 57, title_zh: 网络、Ingress 与 TLS, title_en: "Networking, Ingress, and TLS"}
       - {week: 58, title_zh: Helm 包管理, title_en: Package Management with Helm}
       - {week: 59, title_zh: GitOps 与 Argo CD, title_en: GitOps with Argo CD}
       - {week: 60, title_zh: Prometheus 指标与 PromQL, title_en: Prometheus Metrics and PromQL}
       - {week: 61, title_zh: Grafana 仪表盘与告警, title_en: Grafana Dashboards and Alerting}
       - {week: 62, title_zh: Loki 日志与故障关联, title_en: Loki Logs and Incident Correlation}
-      - {week: 63, title_zh: SLI、SLO、错误预算与值班, title_en: SLIs, SLOs, Error Budgets, and On-Call}
+      - {week: 63, title_zh: SLI、SLO、错误预算与值班, title_en: "SLIs, SLOs, Error Budgets, and On-Call"}
       - {week: 64, title_zh: Kubernetes 事故演练项目, title_en: Kubernetes Incident Drill Project}
       - {week: 65, title_zh: Kubernetes 与 SRE 阶段复测, title_en: Kubernetes and SRE Gate}
 
@@ -168,15 +168,15 @@ phases:
     weekly_focus:
       - {week: 66, title_zh: 综合项目需求与成功指标, title_en: Capstone Requirements and Success Metrics}
       - {week: 67, title_zh: 架构决策与威胁建模, title_en: Architecture Decisions and Threat Modeling}
-      - {week: 68, title_zh: IaC、CI/CD 与环境交付, title_en: IaC, CI/CD, and Environment Delivery}
-      - {week: 69, title_zh: 可观测性、SLO 与告警, title_en: Observability, SLOs, and Alerts}
-      - {week: 70, title_zh: 备份、灾难恢复与演练, title_en: Backup, Disaster Recovery, and Drills}
-      - {week: 71, title_zh: 安全、成本与性能审查, title_en: Security, Cost, and Performance Review}
+      - {week: 68, title_zh: IaC、CI/CD 与环境交付, title_en: "IaC, CI/CD, and Environment Delivery"}
+      - {week: 69, title_zh: 可观测性、SLO 与告警, title_en: "Observability, SLOs, and Alerts"}
+      - {week: 70, title_zh: 备份、灾难恢复与演练, title_en: "Backup, Disaster Recovery, and Drills"}
+      - {week: 71, title_zh: 安全、成本与性能审查, title_en: "Security, Cost, and Performance Review"}
       - {week: 72, title_zh: 英文文档与项目演示, title_en: English Documentation and Project Demo}
       - {week: 73, title_zh: 开源贡献冲刺, title_en: Open Source Contribution Sprint}
-      - {week: 74, title_zh: 英文简历、GitHub 与职业主页, title_en: English Resume, GitHub, and Professional Profile}
-      - {week: 75, title_zh: Linux、网络与云技术面试, title_en: Linux, Networking, and Cloud Interviews}
-      - {week: 76, title_zh: 系统设计、事故与行为面试, title_en: System Design, Incident, and Behavioral Interviews}
+      - {week: 74, title_zh: 英文简历、GitHub 与职业主页, title_en: "English Resume, GitHub, and Professional Profile"}
+      - {week: 75, title_zh: Linux、网络与云技术面试, title_en: "Linux, Networking, and Cloud Interviews"}
+      - {week: 76, title_zh: 系统设计、事故与行为面试, title_en: "System Design, Incident, and Behavioral Interviews"}
       - {week: 77, title_zh: 海外岗位定制投递与复盘, title_en: Tailored Global Applications and Review}
       - {week: 78, title_zh: 最终能力门槛与后续路线, title_en: Final Readiness Gate and Next Roadmap}
 

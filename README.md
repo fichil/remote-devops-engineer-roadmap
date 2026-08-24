@@ -2,36 +2,36 @@
 
 [简体中文](README.zh-CN.md)
 
-An open-source, evidence-based Codex coach for a beginner working toward an overseas remote DevOps role in 18 months.
+An open-source, evidence-based Codex coach for a beginner working toward an overseas remote DevOps role through a 78-week route.
 
-This repository is not a list of links or a promise of employment. It combines a 78-week competency map, daily time-boxed practice, verified evidence, weekly adaptation, progressive technical English, portfolio gates, and a bridge into real operations experience.
+This repository is not a link list or a promise of employment. It combines a competency roadmap, one complete weekday operations mission, verified evidence, content-based weekly adaptation, progressive technical English, portfolio gates, and a bridge into real operations experience.
 
 ## Who this is for
 
 The included learner profile assumes:
 
 - a beginner in IT and approximately A2 English;
-- about 6.25 sustainable repository-study hours per week, with weekends off;
+- Monday through Friday learning, with complete weekend rest;
 - AWS as the primary cloud track;
 - a monthly learning and cloud budget of at most USD 20;
 - overseas employee and long-term contractor roles as valid outcomes;
 - junior operations, cloud support, and open-source contribution as experience bridges.
 
-Remote DevOps roles commonly combine Linux, cloud infrastructure, Terraform, containers, CI/CD, observability, incident response, and strong written communication. Many current roles also ask for several years of production experience. The roadmap therefore targets job readiness and a credible opportunity pipeline; it does not guarantee a job.
+Remote DevOps roles commonly combine Linux, cloud infrastructure, Terraform, containers, CI/CD, observability, incident response, and strong written communication. The roadmap targets job readiness and a credible opportunity pipeline; it does not guarantee a job offer.
 
 ## What the coach does
 
-- Generates or resumes one incident-style mission on each weekday; weekends are read-only rest days.
-- Preserves a single machine-readable progress state.
-- Requires command output, code, tests, a runbook, or a demo before marking work complete.
-- Schedules weak skills for review after two or seven days.
-- Reduces, preserves, or increases the next week's load based on completion and mastery.
-- Shows a non-punitive weekday participation streak. Evidence-backed `partial` or `done` work
-  of at least 15 minutes counts; weekends are skipped and the streak never changes scores or gates.
-- Keeps at least 25% of learning time in English, including English project documentation.
-- Assesses daily English through reading and writing; general speaking and pronunciation practice stays in Duolingo, while roadmap technical demos and mock interviews remain in scope.
+- Maintains a human-readable [78-week master plan](plans/master-plan.md) and one living plan per calendar week.
+- Creates five new missions for each Monday–Friday week and keeps each mission assigned to its scheduled workday.
+- Starts today's scheduled mission first. After it is complete, one oldest carryover is optional only when the learner explicitly asks to continue.
+- Gives each standard mission three checkpoints: incident briefing, hands-on response, and written English handoff.
+- Requires command output, code, tests, a Runbook, or a structured demonstration before completion.
+- Schedules weak skills for reteaching or retrieval and adapts content without changing the daily task quantity.
+- Counts a weekday streak only when a complete mission has evidence; weekends are skipped and missed weekdays break the streak.
+- Advances calendar topics every week, while unmet phase gates replace next-phase work with remediation or retesting.
+- Assesses routine English through reading and writing only. General speaking and pronunciation stay in Duolingo; roadmap technical demos and mock interviews remain in scope.
 - Keeps private application, company, income, and contact data outside Git.
-- Never pushes daily progress until the learner explicitly says `完成并发布今日记录`.
+- Automatically publishes only evidence-complete tasks through a Ready PR, required CI, and a verified squash merge. The phrase `完成并发布今日记录` remains a manual recovery command.
 
 ## Quick start
 
@@ -41,60 +41,56 @@ Requirements: Python 3.11 or later and Git.
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev]"
+python -m devops_coach migrate --to-schema 2 --dry-run
+python -m devops_coach migrate --to-schema 2
+python -m devops_coach plan master
 python -m devops_coach validate
 python -m devops_coach today
 ```
 
-Then open the generated plan under `plans/` or tell Codex:
-
-```text
-开始今天学习
-```
-
-The durable coaching rules are in [`AGENTS.md`](AGENTS.md). The learner-safe public settings are in [`config/learner.yml`](config/learner.yml); copy [`config/learner.example.yml`](config/learner.example.yml) when adapting the project.
+Migration is idempotent. An existing schema-v1 progress file is archived byte-for-byte at `state/archive/progress-v1.json`; historical daily plans are not rewritten. New planning uses `plans/master-plan.md` and `plans/weeks/YYYY-Www.md` and does not create daily Markdown files.
 
 ## CLI
 
 ```text
-python -m devops_coach today [--date YYYY-MM-DD]
-python -m devops_coach record --task ID --status done|partial|blocked --score 0..5 --minutes N --evidence PATH
+python -m devops_coach migrate --to-schema 2 [--dry-run]
+python -m devops_coach plan master
+python -m devops_coach plan week --week YYYY-Www
+python -m devops_coach today [--date YYYY-MM-DD] [--continue-carryover] [--json]
+python -m devops_coach record --task ID --checkpoint ID --status in_progress|done|blocked --score 0..5 --evidence TEXT [--artifact PATH ...]
+python -m devops_coach publish --date YYYY-MM-DD --kind primary|carryover --dry-run|--apply [--json]
+python -m devops_coach publish --recover [--date YYYY-MM-DD] [--kind primary|carryover] [--json]
 python -m devops_coach review [--week YYYY-Www]
 python -m devops_coach status
 python -m devops_coach validate
 ```
 
-Example evidence update:
+Example checkpoint update:
 
 ```powershell
 python -m devops_coach record `
-  --task 2026-07-29-mission `
+  --task 2026-W34-01-mission `
+  --checkpoint briefing `
   --status done `
   --score 4 `
-  --minutes 25 `
-  --evidence evidence/week-01/wsl-environment.md
+  --evidence "Verified learner briefing and independent risk explanation" `
+  --artifact evidence/week-05/git/briefing.md
 ```
 
-## Weekly schedule
+## Weekday mission contract
 
-| Day | Briefing | Hands-on response | Written English handoff | Total |
-|---|---:|---:|---:|---:|
-| Monday–Friday | 15 min | 40 min | 20 min | 75 min |
-| Saturday–Sunday | — | — | — | Rest |
+| Day | Required quota | Optional carryover | Required checkpoints |
+|---|---:|---:|---|
+| Monday–Friday | 1 scheduled mission | At most 1, after an explicit continue request | Incident briefing, hands-on evidence, written English handoff |
+| Saturday–Sunday | Rest | None | No generation, rescheduling, or backfill |
 
-Reduced-load missions run for 60 minutes (10/35/15), and accelerated missions run for 80
-minutes (15/45/20). On a busy weekday, 15 minutes of evidence-backed participation may be
-recorded as `partial`. The fifth mission includes the weekly review. General speaking and
-pronunciation practice is handled separately in Duolingo and is not tracked here.
+All carryovers are shown, but they never displace today's scheduled mission. After the primary mission is complete, the coach stops by default. The learner can explicitly request one oldest carryover with `python -m devops_coach today --continue-carryover`. Both completions still count as one streak workday.
 
-The project contains six 13-week phases: foundations, systems automation, containers and CI/CD,
-AWS and Terraform, Kubernetes and SRE, and a production capstone with the global job search.
-Every phase ends with a runnable public artifact, bilingual documentation, an English demo, and
-an evidence gate. If evidence is insufficient, the route extends; gates are never lowered to keep
-the nominal 78-week date.
+The project contains six phases: foundations, systems automation, containers and CI/CD, AWS and Terraform, Kubernetes and SRE, and a production capstone with the global job search. Every phase ends with an evidence gate. If evidence is insufficient, the route extends; gates are never lowered to preserve the nominal end date.
 
 ## Cost and privacy boundaries
 
-Before creating a potentially billable AWS resource, the coach must provide a cost estimate, require a budget alarm, receive explicit approval, and include a teardown command. Persistent EKS is out of scope for the USD 20 monthly budget; Kubernetes practice uses a local cluster by default.
+Before creating a potentially billable AWS resource, the coach must provide a cost estimate, verify a budget alarm, receive explicit approval, and include a teardown command. Persistent EKS is outside the USD 20 monthly budget; Kubernetes practice uses a local cluster by default.
 
 The entire `private/` directory is ignored. Public learning logs must not contain credentials, private keys, personal email addresses, employer data, internal hostnames, private repository names, or unredacted local paths. Run the scanner before publication:
 
@@ -104,10 +100,7 @@ python scripts/privacy_scan.py
 
 ## Codex scheduled coaching
 
-One weekday coach runs at 09:00 in `Asia/Shanghai`. There is no weekend automation and no
-synthetic backfill. It may assess English reading and writing, but not general speaking,
-pronunciation, or recording practice. No API key is needed. See
-[Codex automation setup](docs/codex-automation.md).
+One weekday coach runs at 09:00 in `Asia/Shanghai`. There is no weekend automation or synthetic backfill. It may assess English reading and writing, but not general speaking, pronunciation, or recording practice. See [Codex automation setup](docs/codex-automation.md).
 
 ## Contributing
 

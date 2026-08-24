@@ -1,0 +1,833 @@
+{
+  "adaptation": {
+    "generated_at": null,
+    "load_factor": 1.0,
+    "reason": "initial baseline",
+    "source_week": null
+  },
+  "blockers": [],
+  "career": {
+    "accepted_open_source_contributions": 0,
+    "applications": 0,
+    "english_demos": 0,
+    "mock_interviews": 0
+  },
+  "current_phase": "foundations",
+  "current_week": 4,
+  "daily_plans": {
+    "2026-07-29": {
+      "actual_minutes": 95,
+      "path": "plans/2026/07/2026-07-29.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "partial",
+      "task_ids": [
+        "2026-07-29-concept",
+        "2026-07-29-practice",
+        "2026-07-29-review",
+        "2026-07-29-english"
+      ],
+      "week": 1
+    },
+    "2026-07-30": {
+      "actual_minutes": 195,
+      "path": "plans/2026/07/2026-07-30.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "partial",
+      "task_ids": [
+        "2026-07-30-concept",
+        "2026-07-30-practice",
+        "2026-07-30-review",
+        "2026-07-30-english"
+      ],
+      "week": 1
+    },
+    "2026-07-31": {
+      "path": "plans/2026/07/2026-07-31.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "planned",
+      "task_ids": [
+        "2026-07-31-concept",
+        "2026-07-31-practice",
+        "2026-07-31-review",
+        "2026-07-31-english"
+      ],
+      "week": 1
+    },
+    "2026-08-01": {
+      "actual_minutes": 25,
+      "path": "plans/2026/08/2026-08-01.md",
+      "phase": "foundations",
+      "planned_minutes": 180,
+      "status": "partial",
+      "task_ids": [
+        "2026-08-01-english",
+        "2026-08-01-project",
+        "2026-08-01-review"
+      ],
+      "week": 1
+    },
+    "2026-08-02": {
+      "actual_minutes": 125,
+      "path": "plans/2026/08/2026-08-02.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "done",
+      "task_ids": [
+        "2026-08-02-concept",
+        "2026-08-02-practice",
+        "2026-08-02-review",
+        "2026-08-02-english"
+      ],
+      "week": 1
+    },
+    "2026-08-03": {
+      "actual_minutes": 85,
+      "path": "plans/2026/08/2026-08-03.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "done",
+      "task_ids": [
+        "2026-08-03-concept",
+        "2026-08-03-practice",
+        "2026-08-03-review",
+        "2026-08-03-english"
+      ],
+      "week": 1
+    },
+    "2026-08-04": {
+      "actual_minutes": 70,
+      "path": "plans/2026/08/2026-08-04.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "done",
+      "task_ids": [
+        "2026-08-04-concept",
+        "2026-08-04-practice",
+        "2026-08-04-review",
+        "2026-08-04-english"
+      ],
+      "week": 1
+    },
+    "2026-08-05": {
+      "path": "plans/2026/08/2026-08-05.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "planned",
+      "task_ids": [
+        "2026-08-05-concept",
+        "2026-08-05-practice",
+        "2026-08-05-review",
+        "2026-08-05-english"
+      ],
+      "week": 2
+    },
+    "2026-08-06": {
+      "actual_minutes": 100,
+      "path": "plans/2026/08/2026-08-06.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "done",
+      "task_ids": [
+        "2026-08-06-concept",
+        "2026-08-06-practice",
+        "2026-08-06-review",
+        "2026-08-06-english"
+      ],
+      "week": 2
+    },
+    "2026-08-07": {
+      "actual_minutes": 80,
+      "path": "plans/2026/08/2026-08-07.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "done",
+      "task_ids": [
+        "2026-08-07-concept",
+        "2026-08-07-practice",
+        "2026-08-07-review",
+        "2026-08-07-english"
+      ],
+      "week": 2
+    },
+    "2026-08-08": {
+      "path": "plans/2026/08/2026-08-08.md",
+      "phase": "foundations",
+      "planned_minutes": 180,
+      "status": "planned",
+      "task_ids": [
+        "2026-08-08-english",
+        "2026-08-08-project",
+        "2026-08-08-review"
+      ],
+      "week": 2
+    },
+    "2026-08-11": {
+      "actual_minutes": 80,
+      "path": "plans/2026/08/2026-08-11.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "done",
+      "task_ids": [
+        "2026-08-11-concept",
+        "2026-08-11-practice",
+        "2026-08-11-review",
+        "2026-08-11-english"
+      ],
+      "week": 2
+    },
+    "2026-08-21": {
+      "actual_minutes": 75,
+      "path": "plans/2026/08/2026-08-21.md",
+      "phase": "foundations",
+      "planned_minutes": 75,
+      "status": "partial",
+      "task_ids": [
+        "2026-08-21-mission"
+      ],
+      "week": 4
+    }
+  },
+  "portfolio": [],
+  "schema_version": 1,
+  "tasks": {
+    "2026-07-29-concept": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-07-29",
+      "evidence": "已核验：修订版命令执行路径图及共享内核解释（当前教练任务附件）",
+      "id": "2026-07-29-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "认识终端、Shell、WSL2 与 Ubuntu 的关系，手绘从 Windows 到 Linux 命令的执行路径。"
+    },
+    "2026-07-29-english": {
+      "actual_minutes": 0,
+      "adaptation_action": "not_carried",
+      "carryovers": 0,
+      "date": "2026-07-29",
+      "evidence": null,
+      "id": "2026-07-29-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": null,
+      "section": "english",
+      "status": "cancelled",
+      "title": "写出 terminal、command、folder、file、evidence 五个词的中文含义，并用一句英语写下今天的目标。"
+    },
+    "2026-07-29-practice": {
+      "actual_minutes": 60,
+      "carryovers": 0,
+      "date": "2026-07-29",
+      "evidence": "evidence/week-01/wsl-environment.md",
+      "id": "2026-07-29-practice",
+      "next_review": "2026-08-06",
+      "planned_minutes": 25,
+      "score": 3,
+      "section": "practice",
+      "status": "done",
+      "title": "启动 WSL2，执行 pwd、whoami、uname -a、ls，并把输出保存到学习记录。"
+    },
+    "2026-07-29-review": {
+      "actual_minutes": 15,
+      "carryovers": 0,
+      "date": "2026-07-29",
+      "evidence": "Verified coaching response: WSL usability, four-command review, and operating-system question",
+      "id": "2026-07-29-review",
+      "next_review": "2026-08-06",
+      "planned_minutes": 10,
+      "score": 3,
+      "section": "review",
+      "status": "done",
+      "title": "写下环境是否可用、每条命令回答了什么、仍然不懂的一个问题。"
+    },
+    "2026-07-30-concept": {
+      "actual_minutes": 80,
+      "carryovers": 0,
+      "date": "2026-07-30",
+      "evidence": "Verified coaching dialogue: command-option-argument, CWD variation, and double-echo exit-code explanation",
+      "id": "2026-07-30-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解命令、参数、选项、当前目录和退出码。"
+    },
+    "2026-07-30-english": {
+      "actual_minutes": 0,
+      "adaptation_action": "not_carried",
+      "carryovers": 0,
+      "date": "2026-07-30",
+      "evidence": null,
+      "id": "2026-07-30-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": null,
+      "section": "english",
+      "status": "cancelled",
+      "title": "用 This is、I can、I cannot yet 写五句环境描述并自检。"
+    },
+    "2026-07-30-practice": {
+      "actual_minutes": 105,
+      "carryovers": 0,
+      "date": "2026-07-30",
+      "evidence": "Verified coaching dialogue and command output: pwd, ls, echo, date help behavior and exit statuses",
+      "id": "2026-07-30-practice",
+      "next_review": "2026-08-06",
+      "planned_minutes": 25,
+      "score": 3,
+      "section": "practice",
+      "status": "done",
+      "title": "对 pwd、ls、echo、date 分别尝试帮助选项，并检查上一条命令退出码。"
+    },
+    "2026-07-30-review": {
+      "actual_minutes": 10,
+      "carryovers": 0,
+      "date": "2026-07-30",
+      "evidence": "Verified unaided definitions and independent echo -n hello variation in coaching dialogue",
+      "id": "2026-07-30-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "不看笔记解释 command、option、argument、exit code。"
+    },
+    "2026-07-31-concept": {
+      "actual_minutes": 5,
+      "carryovers": 0,
+      "date": "2026-07-31",
+      "evidence": "Verified coaching dialogue: root/home distinction and independent absolute-relative path resolution",
+      "id": "2026-07-31-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解 Linux 根目录、家目录、绝对路径和相对路径。"
+    },
+    "2026-07-31-english": {
+      "actual_minutes": 45,
+      "carryovers": 0,
+      "date": "2026-07-31",
+      "evidence": "Verified written coaching dialogue: path, absolute, relative, home, and root examples",
+      "id": "2026-07-31-english",
+      "next_review": "2026-08-07",
+      "planned_minutes": 20,
+      "score": 3,
+      "section": "english",
+      "status": "done",
+      "title": "学习 path、absolute、relative、home、root，并用三个英文例句区分它们。"
+    },
+    "2026-07-31-practice": {
+      "actual_minutes": 55,
+      "carryovers": 0,
+      "date": "2026-07-31",
+      "evidence": "evidence/week-01/path-lab-commands.txt",
+      "id": "2026-07-31-practice",
+      "next_review": "2026-08-06",
+      "planned_minutes": 25,
+      "score": 3,
+      "section": "practice",
+      "status": "done",
+      "title": "使用 cd、mkdir、touch、cp、mv 创建并整理 sandbox 目录，保存命令历史。"
+    },
+    "2026-07-31-review": {
+      "actual_minutes": 15,
+      "carryovers": 0,
+      "date": "2026-07-31",
+      "evidence": "Verified learner-submitted find output: final sandbox tree with absolute paths and independent cp/mv explanation",
+      "id": "2026-07-31-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "画出今天创建的目录树并标注绝对路径。"
+    },
+    "2026-08-01-english": {
+      "actual_minutes": 25,
+      "carryovers": 0,
+      "date": "2026-08-01",
+      "evidence": "Learner-authored three-sentence English README summary, revised through retrieval and grammar checks; command, option, and argument concepts demonstrated",
+      "id": "2026-08-01-english",
+      "next_review": "2026-08-10",
+      "planned_minutes": 30,
+      "score": 3,
+      "section": "english",
+      "status": "done",
+      "title": "用英语写本周项目的三句 README 摘要，至少投入 15 分钟。"
+    },
+    "2026-08-01-project": {
+      "actual_minutes": 0,
+      "adaptation_action": "not_carried",
+      "carryovers": 0,
+      "date": "2026-08-01",
+      "evidence": null,
+      "id": "2026-08-01-project",
+      "next_review": null,
+      "planned_minutes": 135,
+      "score": null,
+      "section": "project",
+      "status": "cancelled",
+      "title": "建立 linux-basics 实验证据目录，加入环境信息、命令清单、预期结果和实际结果；README 至少 15 分钟用英语完成。"
+    },
+    "2026-08-01-review": {
+      "actual_minutes": 0,
+      "adaptation_action": "not_carried",
+      "carryovers": 0,
+      "date": "2026-08-01",
+      "evidence": null,
+      "id": "2026-08-01-review",
+      "next_review": null,
+      "planned_minutes": 15,
+      "score": null,
+      "section": "review",
+      "status": "cancelled",
+      "title": "检查命令能否由别人按 README 重复执行。"
+    },
+    "2026-08-02-concept": {
+      "actual_minutes": 40,
+      "carryovers": 0,
+      "date": "2026-08-02",
+      "evidence": "Verified coaching dialogue: stdin, stdout, stderr, redirection, and independent dual-redirection variation",
+      "id": "2026-08-02-concept",
+      "next_review": "2026-08-10",
+      "planned_minutes": 20,
+      "score": 3,
+      "section": "concept",
+      "status": "done",
+      "title": "认识标准输入、标准输出、标准错误和重定向。"
+    },
+    "2026-08-02-english": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-02",
+      "evidence": "Verified written English: three sentences answering built, failed, and next; independent let-to-allow variation passed",
+      "id": "2026-08-02-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "english",
+      "status": "done",
+      "title": "用英语回答 What did I build? What failed? What will I do next?"
+    },
+    "2026-08-02-practice": {
+      "actual_minutes": 50,
+      "carryovers": 0,
+      "date": "2026-08-02",
+      "evidence": "Verified WSL sandbox: stdout overwrite and append, stderr redirection with exit code, and pipeline filtering with independent direct-grep variation",
+      "id": "2026-08-02-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "用 >、>>、2> 和管道保存并筛选命令输出，故意制造一次错误。"
+    },
+    "2026-08-02-review": {
+      "actual_minutes": 15,
+      "carryovers": 0,
+      "date": "2026-08-02",
+      "evidence": "Verified WSL review: stdout-only redirection left an empty normal file, stderr redirection captured the missing-file diagnostic, with an independent explanation",
+      "id": "2026-08-02-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "解释为什么错误输出不一定进入普通输出文件。"
+    },
+    "2026-08-03-concept": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-03",
+      "evidence": "Verified coaching dialogue: stdin/stdout/stderr routing, empty stderr redirection file prediction, and written pipe-channel explanation",
+      "id": "2026-08-03-concept",
+      "next_review": "2026-08-12",
+      "planned_minutes": 20,
+      "score": 3,
+      "section": "concept",
+      "status": "done",
+      "title": "认识标准输入、标准输出、标准错误和重定向。"
+    },
+    "2026-08-03-english": {
+      "actual_minutes": 10,
+      "carryovers": 0,
+      "date": "2026-08-03",
+      "evidence": "Verified written coaching dialogue: three corrected sentences answering built, failed, and next; substantial retrieval and grammar scaffolding required",
+      "id": "2026-08-03-english",
+      "next_review": "2026-08-12",
+      "planned_minutes": 20,
+      "score": 3,
+      "section": "english",
+      "status": "done",
+      "title": "用英语回答 What did I build? What failed? What will I do next?"
+    },
+    "2026-08-03-practice": {
+      "actual_minutes": 45,
+      "carryovers": 0,
+      "date": "2026-08-03",
+      "evidence": "Verified WSL sandbox: stdout overwrite and append, stderr redirection with exit code, pipeline filtering, and independent INFO-count variation",
+      "id": "2026-08-03-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "用 >、>>、2> 和管道保存并筛选命令输出，故意制造一次错误。"
+    },
+    "2026-08-03-review": {
+      "actual_minutes": 10,
+      "carryovers": 0,
+      "date": "2026-08-03",
+      "evidence": "Verified WSL review: independent stdout-only error prediction matched exit code 2, visible diagnostic, and empty redirected stdout file",
+      "id": "2026-08-03-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "解释为什么错误输出不一定进入普通输出文件。"
+    },
+    "2026-08-04-concept": {
+      "actual_minutes": 15,
+      "carryovers": 0,
+      "date": "2026-08-04",
+      "evidence": "Verified written coaching dialogue: correctly classified five public/private evidence examples, explained scoped Access Token exposure including read-only privacy risk, and wrote an accurate redaction sentence",
+      "id": "2026-08-04-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解公开证据与私人信息的边界。"
+    },
+    "2026-08-04-english": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-04",
+      "evidence": "Verified written English only: public nickname and remote DevOps goal sentence plus three Week 1 skills; final paragraph passed grammar and privacy checks after guided corrections",
+      "id": "2026-08-04-english",
+      "next_review": "2026-08-12",
+      "planned_minutes": 20,
+      "score": 3,
+      "section": "english",
+      "status": "done",
+      "title": "写一段一分钟长度的自我介绍：姓名可用公开昵称，并包含目标和本周学到的三项技能。"
+    },
+    "2026-08-04-practice": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-04",
+      "evidence": "Verified written coaching and WSL evidence: safe filename-only and line-only searches, rg-to-grep fallback, CWD recovery, one redacted hostname placeholder, two generic Token false positives, and no true sensitive values requiring deletion",
+      "id": "2026-08-04-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "检查学习记录，删除邮箱、Token、绝对私人路径和公司信息。"
+    },
+    "2026-08-04-review": {
+      "actual_minutes": 15,
+      "carryovers": 0,
+      "date": "2026-08-04",
+      "evidence": "Verified written coaching and command evidence: privacy_scan.py ran via absolute WSL path, reported no known credential or personal-email patterns with exit code 0, and learner independently explained that uncovered Access Token patterns can be missed",
+      "id": "2026-08-04-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "运行隐私扫描并记录结果。"
+    },
+    "2026-08-05-concept": {
+      "actual_minutes": 10,
+      "carryovers": 0,
+      "date": "2026-08-05",
+      "evidence": "Verified learner-authored answers: parent-child directory relationships, hidden-file recognition with ls -all, wildcard matches for *.txt and notes.?d, and corrected English sentence.",
+      "id": "2026-08-05-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解目录树、隐藏文件和通配符。"
+    },
+    "2026-08-05-english": {
+      "actual_minutes": 15,
+      "carryovers": 0,
+      "date": "2026-08-05",
+      "evidence": "Verified learner-authored written definitions and sentences for directory, parent, child, hidden, and recursive, including corrected plural agreement, articles, and relative-clause structure.",
+      "id": "2026-08-05-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "english",
+      "status": "done",
+      "title": "学习 directory、parent、child、hidden、recursive 并造句。"
+    },
+    "2026-08-05-practice": {
+      "actual_minutes": 35,
+      "carryovers": 0,
+      "date": "2026-08-05",
+      "evidence": "Verified learner-authored sandbox evidence: complete file listing including hidden and nested files, exact ls *.txt match, broad find -name '*' match, and independent explanation of destructive rm/cp risk.",
+      "id": "2026-08-05-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "用 ls、find 和通配符定位文件，比较安全匹配与过宽匹配。"
+    },
+    "2026-08-05-review": {
+      "actual_minutes": 10,
+      "carryovers": 0,
+      "date": "2026-08-05",
+      "evidence": "Verified learner-authored wildcard risk review: broad pattern can target all files; explained find, type f, name, delete, set -eu, and corrected the exact pre-delete check to find $lab -type f -name '*' -print.",
+      "id": "2026-08-05-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "写出一次可能误删文件的通配符风险。"
+    },
+    "2026-08-06-concept": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-06",
+      "evidence": "Verified learner-authored explanation of reversibility, overwrite risk, and safety checks, plus corrected find preview excluding hidden files: find . -maxdepth 1 -type f -name '*.txt' ! -name '.*' -print",
+      "id": "2026-08-06-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解文件操作的可逆性、覆盖风险和安全检查。"
+    },
+    "2026-08-06-english": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-06",
+      "evidence": "evidence/week-02/file-operation-safety-checklist.md",
+      "id": "2026-08-06-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "english",
+      "status": "done",
+      "title": "用英语解释 create、copy、move、rename、remove 的差别。"
+    },
+    "2026-08-06-practice": {
+      "actual_minutes": 30,
+      "carryovers": 0,
+      "date": "2026-08-06",
+      "evidence": "Verified fresh sandbox practice: learner-created files; content-verified copy; move and rename with old/new path checks; exact find -print preview; controlled find -delete of archive/keep.txt; unaffected report files verified; independent predicate-safety explanation.",
+      "id": "2026-08-06-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "在 sandbox 内完成创建、复制、移动、重命名和受控删除；删除前列出准确目标。"
+    },
+    "2026-08-06-review": {
+      "actual_minutes": 30,
+      "carryovers": 0,
+      "date": "2026-08-06",
+      "evidence": "evidence/week-02/file-operation-safety-checklist.md",
+      "id": "2026-08-06-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "保存一份安全文件操作检查表。"
+    },
+    "2026-08-07-concept": {
+      "actual_minutes": 10,
+      "carryovers": 0,
+      "date": "2026-08-07",
+      "evidence": "Verified learner-authored explanation of bytes, characters, and encoding, plus a variation answer explaining that a wrong decoder can group bytes differently and produce incorrect characters.",
+      "id": "2026-08-07-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "理解纯文本、编码和按行处理。"
+    },
+    "2026-08-07-english": {
+      "actual_minutes": 30,
+      "carryovers": 0,
+      "date": "2026-08-07",
+      "evidence": "Verified written-only learner evidence for text, line, pattern, match, and case-sensitive; corrected past participle, articles, subject-verb agreement, and relative clauses; independently explained that rg -i is case-insensitive and matches lines containing ERROR and error.",
+      "id": "2026-08-07-english",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "english",
+      "status": "done",
+      "title": "学习 text、line、pattern、match、case-sensitive。"
+    },
+    "2026-08-07-practice": {
+      "actual_minutes": 25,
+      "carryovers": 0,
+      "date": "2026-08-07",
+      "evidence": "Verified fresh WSL sandbox /tmp/devops-20260807.pGWUea: learner used cat, less, head, tail, wc, grep, and rg; demonstrated case-sensitive and case-insensitive matching; searched a nested log recursively; diagnosed missing native rg as an environment issue and completed the task after ripgrep installation.",
+      "id": "2026-08-07-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "用 cat、less、head、tail、wc、grep、rg 检查日志样本。"
+    },
+    "2026-08-07-review": {
+      "actual_minutes": 15,
+      "carryovers": 0,
+      "date": "2026-08-07",
+      "evidence": "Verified two learner-authored scenario decisions: chose less for paging and searching within one known long log, and rg for optimized recursive searching across a directory tree; explained both choices independently.",
+      "id": "2026-08-07-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "说明何时使用 rg、何时使用 less。"
+    },
+    "2026-08-08-english": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-08",
+      "evidence": "Verified learner-authored written purpose, grep and pwd steps, and conclusion; independently selected rg for recursive pattern search after guided grammar revisions.",
+      "id": "2026-08-08-english",
+      "next_review": "2026-08-19",
+      "planned_minutes": 30,
+      "score": 3,
+      "section": "english",
+      "status": "done",
+      "title": "用英语写文件检索实验的目的、步骤与结论，至少 15 分钟。"
+    },
+    "2026-08-08-project": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-08-08",
+      "evidence": null,
+      "id": "2026-08-08-project",
+      "next_review": null,
+      "planned_minutes": 135,
+      "score": null,
+      "section": "project",
+      "status": "planned",
+      "title": "扩充 Linux Runbook：加入文件定位、内容搜索和安全文件操作；英文 README 至少 15 分钟。"
+    },
+    "2026-08-08-review": {
+      "actual_minutes": 0,
+      "carryovers": 0,
+      "date": "2026-08-08",
+      "evidence": null,
+      "id": "2026-08-08-review",
+      "next_review": null,
+      "planned_minutes": 15,
+      "score": null,
+      "section": "review",
+      "status": "planned",
+      "title": "让所有示例限定在 sandbox，避免破坏性宽路径。"
+    },
+    "2026-08-11-concept": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-11",
+      "evidence": "Verified coaching dialogue: rejected direct deletion, corrected an exact read-only find preview, and independently classified first-level, hidden, and nested matches.",
+      "id": "2026-08-11-concept",
+      "next_review": null,
+      "planned_minutes": 20,
+      "score": 4,
+      "section": "concept",
+      "status": "done",
+      "title": "复习本周最弱概念。"
+    },
+    "2026-08-11-english": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-11",
+      "evidence": "Verified written-only coaching evidence: located and read evidence/week-01/path-lab-commands.txt, then wrote an understandable English result sentence about mktemp creating a temporary directory for each run; grammar and terminology need retrieval.",
+      "id": "2026-08-11-english",
+      "next_review": "2026-08-18",
+      "planned_minutes": 20,
+      "score": 3,
+      "section": "english",
+      "status": "done",
+      "title": "用英文书面说明查找和阅读一个文件的步骤与结果。"
+    },
+    "2026-08-11-practice": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-11",
+      "evidence": "evidence/week-01/path-lab-commands.txt",
+      "id": "2026-08-11-practice",
+      "next_review": null,
+      "planned_minutes": 25,
+      "score": 4,
+      "section": "practice",
+      "status": "done",
+      "title": "修复 Runbook 中一个无法重复执行的示例。"
+    },
+    "2026-08-11-review": {
+      "actual_minutes": 20,
+      "carryovers": 0,
+      "date": "2026-08-11",
+      "evidence": "Verified five-question coaching quiz: unique mktemp sandbox, set -e failure behavior, exact find preview, copy verification, and move verification; exact filename spelling remains the minor gap.",
+      "id": "2026-08-11-review",
+      "next_review": null,
+      "planned_minutes": 10,
+      "score": 4,
+      "section": "review",
+      "status": "done",
+      "title": "提交证据并接受五题小测。"
+    },
+    "2026-08-21-mission": {
+      "actual_minutes": 75,
+      "carryovers": 0,
+      "checkpoints": [
+        {
+          "instruction": "阅读事件背景，写出事实、风险和第一条假设。",
+          "minutes": 15,
+          "name": "briefing"
+        },
+        {
+          "instruction": "查询已安装状态、候选版本、来源、依赖和包文件；不执行无关升级。",
+          "minutes": 40,
+          "name": "lab"
+        },
+        {
+          "instruction": "Write a package change brief with source, version, dependencies, risk, and rollback.",
+          "minutes": 20,
+          "name": "written_handoff"
+        }
+      ],
+      "date": "2026-08-21",
+      "evidence": "Verified coaching dialogue and live read-only WSL evidence: remote Nginx change briefing; Ubuntu 22.04 identification; exact grep variation; Nginx installed at 1.18.0-6ubuntu14.18; apt-cache policy confirmed installed equals candidate from jammy-updates and jammy-security; learner independently explained Installed versus Candidate without claiming an upgrade occurred.",
+      "id": "2026-08-21-mission",
+      "next_review": null,
+      "planned_minutes": 75,
+      "scenario": "团队准备安装工具，但尚未确认软件源、版本、依赖、影响和回滚方式。",
+      "score": 4,
+      "section": "mission",
+      "status": "partial",
+      "title": "Package Change：在安装前完成软件包侦察和变更风险检查。",
+      "weekly_review": false
+    }
+  },
+  "updated_at": "2026-08-21T10:13:01+08:00",
+  "weekly_reviews": {}
+}

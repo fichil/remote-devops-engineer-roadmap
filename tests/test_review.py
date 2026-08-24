@@ -3,83 +3,86 @@ from __future__ import annotations
 from datetime import date, timedelta
 from pathlib import Path
 
-from devops_coach.planner import create_today_plan, record_task
+from devops_coach.planner import ensure_week_plan, record_checkpoint
 from devops_coach.review import review_week
-from devops_coach.storage import load_json, write_json
+from devops_coach.storage import load_json
 
 
-def _prepare_workweek(
-    project: Path,
-    monday: date,
-    done_count: int,
-    blocked: bool = False,
-) -> list[str]:
-    task_ids: list[str] = []
-    for offset in range(5):
-        target = monday + timedelta(days=offset)
-        create_today_plan(project, target)
-        task_id = f"{target.isoformat()}-mission"
-        task_ids.append(task_id)
-        if offset < done_count:
-            record_task(project, task_id, "done", 4, 75, f"evidence/{task_id}.md", target)
-        elif blocked and offset == done_count:
-            record_task(project, task_id, "blocked", 2, 10, "blocked by lab", target)
-    return task_ids
+def _complete(project: Path, task_id: str, day: date, score: int = 4) -> None:
+    state = load_json(project / "state" / "progress.json")
+    for checkpoint in state["tasks"][task_id]["checkpoints"]:
+        record_checkpoint(
+            project,
+            task_id,
+            checkpoint["id"],
+            "done",
+            score,
+            f"verified {checkpoint['id']}",
+            day,
+        )
 
 
-def test_weekly_adaptation_uses_five_missions(project_copy: Path) -> None:
-    low_ids = _prepare_workweek(project_copy, date(2026, 8, 3), 0)
-    _, low = review_week(project_copy, "2026-W32")
-    assert low["load_factor"] == 0.8
-    assert low["task_count"] == 5
+def test_low_completion_changes_content_to_reteach_not_quantity(
+    project_copy: Path,
+) -> None:
+    ensure_week_plan(project_copy, "2026-W31")
+    task_id = "2026-W31-03-mission"
+    record_checkpoint(
+        project_copy,
+        task_id,
+        "briefing",
+        "blocked",
+        2,
+        "environment blocker evidence",
+        date(2026, 7, 29),
+    )
 
-    _prepare_workweek(project_copy, date(2026, 8, 10), 4)
-    _, normal = review_week(project_copy, "2026-W33")
-    assert normal["load_factor"] == 1.0
-
-    high_ids = _prepare_workweek(project_copy, date(2026, 8, 17), 5)
-    _, high = review_week(project_copy, "2026-W34")
-    assert high["load_factor"] == 1.1
-    assert high["done_count"] == len(high_ids)
-
-    _prepare_workweek(project_copy, date(2026, 8, 24), 4, blocked=True)
-    _, blocked = review_week(project_copy, "2026-W35")
-    assert blocked["load_factor"] == 1.0
-    assert blocked["blockers"]
-
-    review_week(project_copy, "2026-W32")
+    path, summary = review_week(project_copy, "2026-W31")
     state = load_json(project_copy / "state" / "progress.json")
-    assert state["tasks"][low_ids[0]]["adaptation_action"] == "split_and_reteach"
+
+    assert path == project_copy / "plans" / "weeks" / "2026-W31.md"
+    assert summary["adaptation_mode"] == "reteach"
+    assert summary["daily_mission_quota"] == 1
+    assert summary["task_count"] == 5
+    assert task_id in summary["blockers"]
+    assert state["adaptation"]["mode"] == "reteach"
+    assert not (project_copy / "reviews" / "2026-W31.md").exists()
+    assert "下周内容模式：reteach" in path.read_text(encoding="utf-8")
+
+    ensure_week_plan(project_copy, "2026-W32")
+    state = load_json(project_copy / "state" / "progress.json")
+    next_ids = state["weekly_plans"]["2026-W32"]["new_task_ids"]
+    assert len(next_ids) == 5
+    assert all(
+        "拆成可验证的小步" in state["tasks"][task_id]["checkpoints"][0]["instruction"]
+        for task_id in next_ids
+    )
 
 
-def test_cancelled_tasks_do_not_affect_review_or_carryover(project_copy: Path) -> None:
-    monday = date(2026, 8, 3)
-    task_ids = _prepare_workweek(project_copy, monday, 4)
-    state_path = project_copy / "state" / "progress.json"
-    state = load_json(state_path)
-    cancelled_id = "2026-08-03-legacy-english"
-    state["tasks"][cancelled_id] = {
-        "id": cancelled_id,
-        "date": "2026-08-03",
-        "section": "english",
-        "title": "Legacy task",
-        "planned_minutes": 20,
-        "actual_minutes": 0,
-        "status": "cancelled",
-        "score": None,
-        "evidence": None,
-        "carryovers": 0,
-        "next_review": None,
-    }
-    state["daily_plans"]["2026-08-03"]["task_ids"].append(cancelled_id)
-    write_json(state_path, state)
+def test_high_completion_adds_independent_variation_with_same_quantity(
+    project_copy: Path,
+) -> None:
+    ensure_week_plan(project_copy, "2026-W31")
+    monday = date(2026, 7, 27)
+    for index in range(4):
+        _complete(
+            project_copy,
+            f"2026-W31-{index + 1:02d}-mission",
+            monday + timedelta(days=index),
+        )
 
-    _, summary = review_week(project_copy, "2026-W32")
-    state = load_json(state_path)
-
-    assert summary["task_count"] == len(task_ids)
+    _, summary = review_week(project_copy, "2026-W31")
     assert summary["completion_rate"] == 0.8
-    assert cancelled_id not in {
-        item["task"] for item in summary["carryover_actions"]
-    }
-    assert "adaptation_action" not in state["tasks"][cancelled_id]
+    assert summary["mean_score"] == 4
+    assert summary["adaptation_mode"] == "stretch"
+    assert summary["daily_mission_quota"] == 1
+
+    ensure_week_plan(project_copy, "2026-W32")
+    state = load_json(project_copy / "state" / "progress.json")
+    next_ids = state["weekly_plans"]["2026-W32"]["new_task_ids"]
+    assert len(next_ids) == 5
+    assert all(
+        "独立处理一个未给步骤的变化条件" in state["tasks"][task_id]["checkpoints"][1]["instruction"]
+        for task_id in next_ids
+    )
+    assert "load_factor" not in state["adaptation"]

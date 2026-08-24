@@ -4,10 +4,11 @@
   "required": ["schema_version", "learner"],
   "additionalProperties": false,
   "properties": {
-    "schema_version": {"const": 1},
+    "schema_version": {"const": 2},
     "learner": {
       "type": "object",
-      "required": ["public_name", "start_date", "timezone", "goal", "baseline", "track", "schedule", "engagement", "budget", "privacy"],
+      "required": ["public_name", "start_date", "timezone", "goal", "baseline", "track", "schedule", "engagement", "publication", "budget", "privacy"],
+      "additionalProperties": false,
       "properties": {
         "public_name": {"type": "string", "minLength": 1},
         "start_date": {"type": "string", "format": "date"},
@@ -15,35 +16,87 @@
         "goal": {
           "type": "object",
           "required": ["role", "employment_models", "target_months", "bridge_strategy"],
+          "additionalProperties": false,
           "properties": {
             "role": {"const": "remote_devops_engineer"},
             "employment_models": {"type": "array", "minItems": 1, "items": {"enum": ["employee", "long_term_contractor"]}},
             "target_months": {"const": 18},
-            "bridge_strategy": {"type": "string"}
+            "bridge_strategy": {"type": "string", "minLength": 1}
           }
         },
-        "baseline": {"type": "object", "required": ["it", "english"]},
-        "track": {"type": "object", "required": ["primary_cloud", "credential_strategy"]},
+        "baseline": {
+          "type": "object",
+          "required": ["it", "english"],
+          "additionalProperties": false,
+          "properties": {
+            "it": {"type": "string", "minLength": 1},
+            "english": {"type": "string", "minLength": 1}
+          }
+        },
+        "track": {
+          "type": "object",
+          "required": ["primary_cloud", "credential_strategy"],
+          "additionalProperties": false,
+          "properties": {
+            "primary_cloud": {"type": "string", "minLength": 1},
+            "credential_strategy": {"type": "string", "minLength": 1}
+          }
+        },
         "schedule": {
           "type": "object",
-          "required": ["weekday_minutes", "saturday_minutes", "sunday_minutes", "minimum_session_minutes"],
+          "required": ["weekday_missions", "optional_carryover_missions", "saturday_missions", "sunday_missions"],
+          "additionalProperties": false,
           "properties": {
-            "weekday_minutes": {"const": 75},
-            "saturday_minutes": {"const": 0},
-            "sunday_minutes": {"const": 0},
-            "minimum_session_minutes": {"const": 15}
+            "weekday_missions": {"const": 1},
+            "optional_carryover_missions": {"const": 1},
+            "saturday_missions": {"const": 0},
+            "sunday_missions": {"const": 0}
           }
         },
         "engagement": {
           "type": "object",
-          "required": ["style", "show_weekday_streak"],
+          "required": ["style", "streak_basis", "backlog_order"],
+          "additionalProperties": false,
           "properties": {
             "style": {"const": "incident_mission"},
-            "show_weekday_streak": {"const": true}
+            "streak_basis": {"const": "completed_evidence_task"},
+            "backlog_order": {"const": "today_first_then_oldest"}
           }
         },
-        "budget": {"type": "object", "required": ["monthly_usd", "require_cost_estimate", "require_explicit_approval"]},
-        "privacy": {"type": "object", "required": ["public_learning_evidence", "public_applications", "publish_confirmation"]}
+        "publication": {
+          "type": "object",
+          "required": ["mode", "integration", "base_branch", "branch_prefix", "primary_per_workday", "optional_carryover_per_workday", "recover_before_today"],
+          "additionalProperties": false,
+          "properties": {
+            "mode": {"const": "auto_after_task_completion"},
+            "integration": {"const": "ready_pr_squash"},
+            "base_branch": {"const": "main"},
+            "branch_prefix": {"const": "learn"},
+            "primary_per_workday": {"const": 1},
+            "optional_carryover_per_workday": {"const": 1},
+            "recover_before_today": {"const": true}
+          }
+        },
+        "budget": {
+          "type": "object",
+          "required": ["monthly_usd", "require_cost_estimate", "require_explicit_approval"],
+          "additionalProperties": false,
+          "properties": {
+            "monthly_usd": {"type": "number", "minimum": 0},
+            "require_cost_estimate": {"const": true},
+            "require_explicit_approval": {"const": true}
+          }
+        },
+        "privacy": {
+          "type": "object",
+          "required": ["public_learning_evidence", "public_applications", "publish_confirmation"],
+          "additionalProperties": false,
+          "properties": {
+            "public_learning_evidence": {"type": "boolean"},
+            "public_applications": {"const": false},
+            "publish_confirmation": {"const": "完成并发布今日记录"}
+          }
+        }
       }
     }
   }
