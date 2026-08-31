@@ -23,8 +23,8 @@
 - 维护一份 [78 周总规划](plans/master-plan.md) 和每个日历周一份可持续更新的周规划。
 - 每周创建五个新任务，并把它们固定为周一至周五各自的当天计划任务。
 - 每个工作日先执行当天任务；完成后默认停止，只有学习者明确要求继续时才可选做一个最早遗留项。
-- 每个标准任务固定包含事件简报、实战处理和英文书面交接三个检查点。
-- 只有提供命令输出、代码、测试、Runbook 或结构化演示后，检查点才能完成。
+- 每个标准任务采用认知学徒制：概念与预测、逐步撤提示的引导练习、独立迁移与真实交付。
+- 复制命令和只粘贴输出只能算引导练习；掌握证据必须包含学习者自己的选择或命令、预测、实际结果和解释。
 - 根据完成数量、掌握度和阻塞调整下周内容，不改变每天一个任务的定量。
 - 只有工作日完整完成一个有证据任务才计入连胜；周末跳过，缺席工作日中断。
 - 日历主题每周前进，但阶段门禁未通过时会改派重教或复测，不启动下一阶段实作。
@@ -53,10 +53,12 @@ python -m devops_coach today
 
 ```text
 python -m devops_coach migrate --to-schema 2 [--dry-run]
+python -m devops_coach migrate --to-training cognitive_apprenticeship_v1 [--dry-run]
 python -m devops_coach plan master
 python -m devops_coach plan week --week YYYY-Www
 python -m devops_coach today [--date YYYY-MM-DD] [--continue-carryover] [--json]
-python -m devops_coach record --task ID --checkpoint ID --status in_progress|done|blocked --score 0..5 --evidence TEXT [--artifact PATH ...]
+python -m devops_coach record --task ID --checkpoint ID --status in_progress|done|blocked [--score 0..5] --evidence TEXT [--hint-level 0..3] [--independent] [--prediction TEXT --learner-action TEXT --observed-result TEXT --interpretation TEXT --handoff TEXT] [--artifact PATH ...]
+python -m devops_coach lab prepare|status|reproduce --week YYYY-Www [--date YYYY-MM-DD] [--json]
 python -m devops_coach publish --date YYYY-MM-DD --kind primary|carryover --dry-run|--apply [--json]
 python -m devops_coach publish --recover [--date YYYY-MM-DD] [--kind primary|carryover] [--json]
 python -m devops_coach review [--week YYYY-Www]
@@ -68,19 +70,27 @@ python -m devops_coach validate
 
 ```powershell
 python -m devops_coach record `
-  --task 2026-W34-01-mission `
+  --task TASK-ID `
   --checkpoint briefing `
   --status done `
-  --score 4 `
-  --evidence "已核验学习者简报及独立风险解释" `
+  --hint-level 1 `
+  --evidence "已核验学习者自己写出的概念解释和预测" `
   --artifact evidence/week-05/git/briefing.md
 ```
+
+## 认知学徒制训练
+
+- **概念与预测**：教练先用中文讲清一个心智模型，只问一个与当前目标有关的判断题；这是形成性阶段，不评分。
+- **引导练习**：学习者先预测，再通过逐级提示自行构造动作、执行并解释结果。教练给出完整命令后，该次只能算引导练习。
+- **独立迁移与交付**：更换条件且不提供完整命令，由学习者独立完成并解释证据，最后写 2–4 句真实英文 PR 评论或交接；只有这一阶段计 0–5 分。
+
+每周项目位于被忽略的 `private/labs/YYYY-Www/`。周一至周四共享一个工作副本，周五从本地裸远程创建全新副本独立复现。GitHub 训练本地优先、默认只读，绝不把学习系统仓库当作练习仓库。
 
 ## 工作日任务契约
 
 | 日期 | 必做定量 | 可选遗留 | 必做检查点 |
 |---|---:|---:|---|
-| 周一至周五 | 1 个当天计划任务 | 明确要求继续后最多 1 个 | 事件简报、实战证据、英文书面交接 |
+| 周一至周五 | 1 个当天计划任务 | 明确要求继续后最多 1 个 | 概念与预测、引导练习、独立迁移与交付 |
 | 周六、周日 | 完全休息 | 无 | 不生成、不补排、不回填例行任务 |
 
 启动总览会列出全部遗留项，但遗留不得抢占当天计划任务。当天任务完成后教练默认停止；学习者明确要求继续时，才通过 `python -m devops_coach today --continue-carryover` 启动最早遗留的一项。同日完成两项仍只计一个连胜工作日。

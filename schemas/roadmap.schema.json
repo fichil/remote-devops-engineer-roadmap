@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
-  "required": ["schema_version", "title", "principles", "phases", "starter_weeks"],
+  "required": ["schema_version", "title", "principles", "phases", "training_blueprints", "starter_weeks"],
   "additionalProperties": false,
   "properties": {
     "schema_version": {"const": 1},
@@ -49,6 +49,23 @@
         }
       }
     },
+    "training_blueprints": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/trainingBlueprint"}, {"properties": {"week": {"const": 5}}}]},
+        {"allOf": [{"$ref": "#/$defs/trainingBlueprint"}, {"properties": {"week": {"const": 6}}}]},
+        {"allOf": [{"$ref": "#/$defs/trainingBlueprint"}, {"properties": {"week": {"const": 7}}}]},
+        {"allOf": [{"$ref": "#/$defs/trainingBlueprint"}, {"properties": {"week": {"const": 8}}}]},
+        {"allOf": [{"$ref": "#/$defs/trainingBlueprint"}, {"properties": {"week": {"const": 9}}}]},
+        {"allOf": [{"$ref": "#/$defs/trainingBlueprint"}, {"properties": {"week": {"const": 10}}}]},
+        {"allOf": [{"$ref": "#/$defs/trainingBlueprint"}, {"properties": {"week": {"const": 11}}}]},
+        {"allOf": [{"$ref": "#/$defs/trainingBlueprint"}, {"properties": {"week": {"const": 12}}}]},
+        {"allOf": [{"$ref": "#/$defs/trainingBlueprint"}, {"properties": {"week": {"const": 13}}}]}
+      ],
+      "items": false
+    },
     "starter_weeks": {
       "type": "array",
       "minItems": 4,
@@ -76,6 +93,67 @@
               }
             }
           }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "nonEmptyStringArray": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/nonEmptyString"}
+    },
+    "seedFiles": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"$ref": "#/$defs/nonEmptyString"},
+      "propertyNames": {
+        "pattern": "^(?!/)(?![A-Za-z]:)(?!.*\\.\\.)(?!private(?:/|$))(?!\\.git(?:/|$))(?!.*(?:/private|/\\.git)(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+      }
+    },
+    "trainingProject": {
+      "type": "object",
+      "required": ["id", "goal", "environment", "starting_state", "seed_files", "acceptance_criteria", "safety_boundaries", "core_concepts", "friday_variation"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_-]+$"},
+        "goal": {"$ref": "#/$defs/nonEmptyString"},
+        "environment": {"$ref": "#/$defs/nonEmptyString"},
+        "starting_state": {"$ref": "#/$defs/nonEmptyString"},
+        "seed_files": {"$ref": "#/$defs/seedFiles"},
+        "acceptance_criteria": {"$ref": "#/$defs/nonEmptyStringArray"},
+        "safety_boundaries": {"$ref": "#/$defs/nonEmptyStringArray"},
+        "core_concepts": {"$ref": "#/$defs/nonEmptyStringArray"},
+        "friday_variation": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "trainingMission": {
+      "type": "object",
+      "required": ["codename", "scenario", "learning_goal", "concept_prompt", "guided_practice", "independent_delivery"],
+      "additionalProperties": false,
+      "properties": {
+        "codename": {"$ref": "#/$defs/nonEmptyString"},
+        "scenario": {"$ref": "#/$defs/nonEmptyString"},
+        "learning_goal": {"$ref": "#/$defs/nonEmptyString"},
+        "concept_prompt": {"$ref": "#/$defs/nonEmptyString"},
+        "guided_practice": {"$ref": "#/$defs/nonEmptyString"},
+        "independent_delivery": {"$ref": "#/$defs/nonEmptyString"}
+      }
+    },
+    "trainingBlueprint": {
+      "type": "object",
+      "required": ["week", "project", "missions"],
+      "additionalProperties": false,
+      "properties": {
+        "week": {"type": "integer", "minimum": 5, "maximum": 13},
+        "project": {"$ref": "#/$defs/trainingProject"},
+        "missions": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {"$ref": "#/$defs/trainingMission"}
         }
       }
     }

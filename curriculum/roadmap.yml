@@ -180,6 +180,583 @@ phases:
       - {week: 77, title_zh: 海外岗位定制投递与复盘, title_en: Tailored Global Applications and Review}
       - {week: 78, title_zh: 最终能力门槛与后续路线, title_en: Final Readiness Gate and Next Roadmap}
 
+training_blueprints:
+  - week: 5
+    project:
+      id: local-git-change-control
+      goal: 在连续的本地配置变更中建立工作区、暂存区、HEAD 与提交范围的可靠心智模型。
+      environment: 教练在 private/labs/YYYY-Www/ 中准备的本地 Git 工作仓库；周一至周四复用同一状态，周五从本地裸远程取得全新副本。
+      starting_state: 教练创建种子文件并完成基线提交；学习者接手一个仅允许修改测试配置与验证记录的本地变更单。
+      seed_files:
+        README.md: |
+          # Local timeout change
+          This repository is a local training service. No real service is deployed.
+        deploy/app.conf: |
+          environment=test
+          timeout=30
+        notes/verification.txt: |
+          Expected check: timeout value is visible in the test configuration.
+      acceptance_criteria:
+        - 能根据实际差异区分工作区、暂存区和 HEAD 中的内容。
+        - 能按变更目标选择明确文件与明确内容形成可审查提交。
+        - 能在新条件下独立恢复误操作并说明验证证据。
+        - 能用 2–4 句英语完成真实变更交接。
+      safety_boundaries:
+        - 只操作 private/labs/YYYY-Www/，不得修改学习系统仓库。
+        - 不使用强制推送、自动 stash、硬重置或无法说明影响的清理命令。
+        - 教练只准备和验证环境，不替学习者构造最终命令。
+      core_concepts:
+        - 工作区、暂存区、HEAD 与提交对象
+        - 路径限定的差异、暂存与提交范围
+        - 分支指针、可恢复操作与证据链
+      friday_variation: 教练把本周裸远程推进到一个包含额外文档变更的新基线；学习者从全新副本中只交付获授权的配置修改，并证明未夹带文档变化。
+    missions:
+      - codename: State Map
+        scenario: 接手人看到配置文件和验证记录处于不同 Git 状态，必须先判断每份内容位于哪一层再决定动作。
+        learning_goal: 用观察到的差异建立工作区、暂存区与 HEAD 的内容地图。
+        concept_prompt: 如果一个文件在暂存后再次修改，哪两个比较面会出现不同内容？
+        guided_practice: 先写目标和结果预测，再自行选择只读检查；阻塞时教练依次提供概念提示、带空格的命令骨架、最后才逐段拆解完整命令，执行后由学习者解释实际结果与预测差异。
+        independent_delivery: 教练改变两个文件的状态组合且不提供完整命令；学习者独立写出命令、预测、实际结果和解释，并用 2–4 句英语交接当前状态与安全下一步。
+      - codename: Selective Stage
+        scenario: 第一次配置修改已获授权，随后出现尚未批准的第二次修改，提交必须只包含获授权内容。
+        learning_goal: 理解暂存是内容快照而不是“文件永久进入提交”的标签。
+        concept_prompt: 暂存后再次编辑同一文件时，普通提交会包含哪一个版本？
+        guided_practice: 学习者先说明目标内容和预期提交范围，再自行设计检查与暂存动作；教练按概念提示、留空骨架、完整拆解逐级支援，最后要求解释每一层实际保存的内容。
+        independent_delivery: 换成验证记录中一行获批、一行未获批的新条件；学习者无完整命令提示独立完成选择、预测、执行、验证和解释，再写 2–4 句英语说明提交范围。
+      - codename: Commit Scope Incident
+        scenario: 仓库同时存在已跟踪配置修改和未跟踪验证文件，同事建议使用会扩大范围的快捷提交方式。
+        learning_goal: 根据业务授权选择提交范围，并识别快捷选项的夹带与遗漏风险。
+        concept_prompt: 当目标只允许一个文件的已暂存内容时，自动纳入全部已跟踪修改是否安全？
+        guided_practice: 先由学习者陈述授权边界并预测不同提交方式的结果，再自行选择只读比较；仅在阻塞时逐级提供概念、留空骨架和参数拆解，不把当前正确命令直接交给学习者。
+        independent_delivery: 教练增加另一个已跟踪但无关的修改；学习者独立形成目标提交并提交前后验证，交付命令、预测、结果、解释及 2–4 句英语 PR 更新。
+      - codename: Local Recovery
+        scenario: 本地提交意外包含未批准内容，但尚未推送，必须在保留合法修改的前提下恢复可审查状态。
+        learning_goal: 依据提交是否共享选择可恢复方案，并验证对象与文件内容均符合预期。
+        concept_prompt: 尚未共享的错误提交与已经共享的提交是否应使用同一种修复策略？
+        guided_practice: 学习者先描述希望保留与撤回的内容并预测恢复后的状态；教练只按概念、留空骨架、逐段拆解升级提示，学习者执行后必须用差异和历史解释实际结果。
+        independent_delivery: 新条件改为正确提交之后还有一个无关本地提交；学习者不获完整命令，自主选择安全恢复路径，提供预测、动作、结果、解释和 2–4 句英语事故更新。
+      - codename: Fresh Clone Delivery
+        scenario: 另一位工程师只能从本地裸远程取得全新副本，要求复现本周变更且不依赖旧工作区状态。
+        learning_goal: 在全新副本中独立完成范围确认、变更、提交和可重复验证。
+        concept_prompt: 如果旧工作区中存在未提交证据，全新副本会自动包含这些证据吗？
+        guided_practice: 教练只说明交付目标和验收边界；学习者先预测新副本状态并提出步骤，必要提示仍按概念、留空骨架、完整拆解递进，任何完整提示后的执行只算引导练习。
+        independent_delivery: 使用本周 friday_variation 且不给完整命令；学习者独立提交命令、预测、实际结果、解释与验证证据，并写 2–4 句英语交付说明。
+
+  - week: 6
+    project:
+      id: local-pr-collaboration
+      goal: 先在本地仓库与裸远程中理解分支、远程跟踪、差异和 PR 审查边界，再进行真实 GitHub 只读核验。
+      environment: private/labs/YYYY-Www/ 下的工作仓库和本地裸远程；周一至周四连续使用，周五从裸远程全新克隆；真实 GitHub 只允许只读查询。
+      starting_state: 教练把 main 基线推入本地裸远程，并准备一个文档变更请求；学习者不得在学习系统仓库或外部 GitHub 创建资源。
+      seed_files:
+        README.md: |
+          # Local web service
+          Deployment command: start-service.ps1
+        deploy/app.conf: |
+          environment=test
+          timeout=30
+        docs/change-request.md: |
+          Replace the README deployment command with start-app.ps1.
+          Application configuration is out of scope.
+      acceptance_criteria:
+        - 能解释本地分支、远程跟踪分支、默认分支和 PR 的关系。
+        - 能以本地分支差异判断 Markdown 变更是否越过授权范围。
+        - 能把 CI、审批与业务授权视为独立门禁。
+        - 能在只读 GitHub 核验前说明查询目标并脱敏解释结果。
+      safety_boundaries:
+        - 不修改学习系统仓库，不创建外部仓库、PR、Issue 或评论。
+        - GitHub 操作仅限只读；不得合并、审批、推送或更改分支保护。
+        - 不隐藏诊断输出；展示前先移除账号、仓库名、令牌和私有地址。
+      core_concepts:
+        - 本地仓库、本地分支、本地裸远程、远程跟踪引用与默认分支
+        - Markdown 差异、PR 变更集与审查范围
+        - CI、审批、授权与合并条件
+      friday_variation: 裸远程新增一个紧急修正文档提交并改变默认分支领先关系；学习者从新副本重建功能分支，排除越界配置修改并给出不合并或可合并结论。
+    missions:
+      - codename: Remote Mental Model
+        scenario: 同事把本地 main、远程 main 和 PR 当成同一个对象，导致无法说明变更到底在哪里。
+        learning_goal: 用本地裸远程建立提交可达性、分支和远程跟踪引用的心智模型。
+        concept_prompt: 本地功能分支新增提交后，本地裸远程是否会自动出现该提交？
+        guided_practice: 学习者先画出对象关系并预测一次只读查询结果，再自行选择查询；教练只逐级给概念提示、留空骨架和最终参数拆解，不让复制命令代替理解。
+        independent_delivery: 教练改变一个分支的领先关系；学习者独立选择命令、预测并解释实际提交可达性，再用 2–4 句英语说明分支状态和下一步。
+      - codename: Markdown Scope
+        scenario: 文档工单只允许替换 README 的部署命令，但功能分支还出现应用配置差异。
+        learning_goal: 通过变更请求、文件差异和 Markdown 渲染预期界定 PR 范围。
+        concept_prompt: 当 CI 通过但配置文件越过工单范围时，PR 是否已具备合并条件？
+        guided_practice: 先让学习者说明要证明的范围和预测，再自行检查本地分支差异；阻塞时按概念、留空骨架、完整拆解递进，并要求解释为何每项证据支持或反驳目标。
+        independent_delivery: 新条件加入一个看似文档实为脚本行为变化的文件；学习者无完整命令提示独立审查、预测、验证、解释，并写 2–4 句英语 review comment。
+      - codename: Review Set
+        scenario: PR 标题和描述都声称仅改文档，审查人必须确认完整提交范围而不是相信文字摘要。
+        learning_goal: 以基线到功能分支的完整差异审查提交集合、文件集合和内容。
+        concept_prompt: 只查看最后一个提交能否证明整个功能分支没有更早的越界修改？
+        guided_practice: 学习者先定义比较两端并预测变更集，再自行构造只读检查；教练以概念、留空骨架、参数拆解逐步帮助，最后由学习者解释比较范围。
+        independent_delivery: 教练把越界修改放入较早提交而把最后提交改成纯文档；学习者独立找出证据并交付命令、预测、结果、解释及 2–4 句英语审查结论。
+      - codename: Read-only GitHub Gate
+        scenario: 本地证据已理解，团队要求只读确认真实 GitHub 默认分支、CI 和审批概念，不允许执行任何写操作。
+        learning_goal: 在查询前明确字段、隐私边界和失败诊断，而不是只回报退出码。
+        concept_prompt: 只知道命令退出码为零能否证明目标 PR 已满足业务授权？
+        guided_practice: 学习者先说清查询目标、预期字段和脱敏方式；教练从概念到留空查询骨架再到字段拆解递进，保留脱敏后的错误文本用于诊断，不要求只返回退出码。
+        independent_delivery: 改为核验另一个公开只读字段且不给完整查询；学习者独立选择方法，提交预测、脱敏结果和解释，并用 2–4 句英语说明证据局限。
+      - codename: Local PR Boss
+        scenario: 接手人必须从本地裸远程的新副本独立重建一个可审查的文档分支，并给出模拟 PR 门禁结论。
+        learning_goal: 整合远程模型、范围审查、Markdown、CI 与审批边界完成可重复交付。
+        concept_prompt: 新副本中的功能分支与默认分支比较基线选错时，审查结论是否仍可靠？
+        guided_practice: 教练只给业务目标、初始状态和验收标准；学习者先预测再规划，提示严格按概念、留空骨架、完整拆解升级，完整提示后的同题结果不计独立掌握。
+        independent_delivery: 使用 friday_variation，在无完整命令下独立给出命令、预测、结果、解释、门禁结论和证据，并写 2–4 句英语 PR handoff。
+
+  - week: 7
+    project:
+      id: workstation-capacity-assessment
+      goal: 为一台本地开发工作站制作可验证的硬件、操作系统与虚拟化容量评估，不凭产品名称猜测能力。
+      environment: private/labs/YYYY-Www/ 中的只读采集与脱敏报告项目；允许读取本机和 WSL 的非敏感系统信息，不要求管理员权限。
+      starting_state: 教练准备容量需求和空白资产记录；学习者逐日补齐经过解释的证据，周五在新副本处理不同工作负载要求。
+      seed_files:
+        README.md: |
+          # Workstation capacity assessment
+          Use only non-sensitive, read-only system evidence.
+        requirements/workload.yml: |
+          workload: local-ci-runner
+          cpu_cores_min: 4
+          memory_gb_min: 8
+          disk_free_gb_min: 20
+        evidence/inventory.md: |
+          # Sanitized inventory
+          Evidence is not collected yet.
+      acceptance_criteria:
+        - 能区分硬件资源、宿主操作系统、客户机与虚拟化层。
+        - 能把 CPU、内存和存储证据与工作负载需求逐项对应。
+        - 能识别采集结果中的隐私字段并在交接前脱敏。
+        - 能在新工作负载条件下独立给出有证据的容量结论。
+      safety_boundaries:
+        - 仅运行只读查询，不更改 BIOS、Hyper-V、WSL、驱动或系统资源配置。
+        - 不记录序列号、用户名、主机名、设备 ID、网络标识或私有路径。
+        - 只在 private/labs/YYYY-Www/ 保存实验结果，不修改学习系统仓库。
+      core_concepts:
+        - CPU、内存、存储和体系结构
+        - 内核、操作系统、宿主机、客户机与虚拟机管理器
+        - 资源容量、开销、共享与隔离
+      friday_variation: 新副本中的需求改为同时运行两个隔离任务且磁盘要求更高；学习者必须重新评估瓶颈，不能复用周四结论。
+    missions:
+      - codename: Layer Map
+        scenario: 工单把 Windows、WSL、Linux 内核和物理 CPU 混称为“服务器”，容量判断失去对象边界。
+        learning_goal: 画出硬件、宿主系统、虚拟化层和客户环境的层次关系。
+        concept_prompt: WSL 中看到的 Linux 内核版本是否等同于物理主机的硬件型号？
+        guided_practice: 学习者先预测各层查询会回答什么，再选择只读证据；教练按概念、留空骨架、完整拆解递进，输出脱敏后由学习者解释每条证据所属层次。
+        independent_delivery: 教练换成容器与虚拟机的边界比较；学习者独立查询、预测、记录结果和解释，并写 2–4 句英语环境说明。
+      - codename: Resource Baseline
+        scenario: 团队准备运行本地 CI runner，需要确认 CPU 与内存是否满足最低要求而不暴露设备身份。
+        learning_goal: 把资源量、当前可用量和工作负载最低需求分开比较。
+        concept_prompt: 物理内存总量超过最低值是否足以证明两个并发任务都能稳定运行？
+        guided_practice: 先写容量指标和预测，再自行选择只读采集；阻塞时只逐级提供概念、带空格骨架和字段解释，最后要求说明总量与可用量的差别。
+        independent_delivery: 新条件增加并发和预留开销；学习者无完整命令独立采集、计算、解释结论，并用 2–4 句英语提交容量风险。
+      - codename: Storage Boundary
+        scenario: 工作负载需要临时制品空间，但报告把磁盘容量、卷容量和目录所在文件系统混为一谈。
+        learning_goal: 将目标目录映射到实际文件系统，并比较可用空间与需求。
+        concept_prompt: 另一个卷存在空闲空间是否必然能供目标目录中的任务使用？
+        guided_practice: 学习者先指出目标目录和预测所在卷，再自行读取证据；教练逐级给概念、留空骨架、字段拆解，不直接提供当前完整命令。
+        independent_delivery: 教练把输出目录移到另一个实验路径；学习者独立判断文件系统与余量，提供预测、动作、结果、解释及 2–4 句英语结论。
+      - codename: Virtualization Tradeoff
+        scenario: 同事建议为隔离性增加虚拟环境，但未核算虚拟化开销与共享资源竞争。
+        learning_goal: 根据隔离需求与资源开销比较进程、容器概念和虚拟机方案。
+        concept_prompt: 隔离层增加后，可供工作负载使用的资源是否会无成本保持不变？
+        guided_practice: 学习者先提出比较标准和预测，再结合已有证据做选择；教练只按概念提示、留空决策骨架、完整推理拆解支援，不替学习者给结论。
+        independent_delivery: 新条件强调不同信任级别而非性能；学习者独立权衡并引用证据，提交解释和 2–4 句英语建议。
+      - codename: Capacity Boss
+        scenario: 新接手人必须在全新副本中依据需求和脱敏系统证据作出 go/no-go 容量判断。
+        learning_goal: 独立完成层次识别、资源采集、需求比较、风险说明和可重复交接。
+        concept_prompt: 当一项关键指标无法安全采集时，没有证据是否可以按“满足”处理？
+        guided_practice: 教练只提供目标与安全边界，学习者先预测并规划；任何支援遵循概念、留空骨架、完整拆解，完整提示后的同题不能计入独立成绩。
+        independent_delivery: 使用 friday_variation 且不给完整命令；学习者独立提交命令或方法、预测、脱敏结果、解释和 go/no-go 结论，并写 2–4 句英语交付。
+
+  - week: 8
+    project:
+      id: branch-office-routing-plan
+      goal: 为完全本地的分支办公室拓扑验证 IP、子网、网关和路由判断，不改动真实网络配置。
+      environment: private/labs/YYYY-Www/ 中的静态拓扑、地址计算与只读本机路由证据；禁止创建或修改真实路由。
+      starting_state: 教练提供两个网段、三台模拟主机和一条缺失路由的拓扑；学习者连续补齐计算、验证与故障解释。
+      seed_files:
+        README.md: |
+          # Branch office routing plan
+          This is an offline topology. Do not change host networking.
+        topology/network.yml: |
+          office_a: 192.0.2.0/29
+          office_b: 198.51.100.0/29
+          router_a: 192.0.2.1
+          router_b: 198.51.100.1
+        requests/connectivity.md: |
+          app-a must reach app-b through the documented gateways.
+      acceptance_criteria:
+        - 能从前缀计算网络地址、主机范围和广播地址。
+        - 能依据目的地址解释最长前缀匹配与默认路由。
+        - 能从源、目标、网关和返回路径形成可验证假设。
+        - 能在变化拓扑中独立定位地址或路由错误。
+      safety_boundaries:
+        - 不修改本机 IP、DNS、网关、防火墙或路由表。
+        - 仅使用文档保留地址与回环地址，不扫描外部网络。
+        - 所有输出先移除真实接口名、MAC、主机名和私有地址。
+      core_concepts:
+        - IPv4 地址、CIDR、网络地址、广播地址与主机范围
+        - 网关、路由表、最长前缀匹配与默认路由
+        - 正向路径、返回路径和分层验证
+      friday_variation: 新副本把 office_b 改为更小子网并加入一条更具体路由；学习者必须重新计算地址边界并判断实际选路。
+    missions:
+      - codename: Address Roles
+        scenario: 工单把网络地址、主机地址和网关地址混用，导致模拟主机配置无效。
+        learning_goal: 根据 CIDR 判断地址角色和可分配边界。
+        concept_prompt: 位于子网广播地址上的模拟主机能否作为普通主机地址使用？
+        guided_practice: 学习者先预测每个地址角色再自行计算；教练按概念、留空计算骨架、步骤拆解递进，不直接交付当前答案，最后要求解释实际计算。
+        independent_delivery: 教练换一个前缀和候选地址；学习者独立给出计算方法、预测、结果、解释，并写 2–4 句英语地址审查意见。
+      - codename: Subnet Allocation
+        scenario: 两类服务需要隔离地址空间，分配方案可能重叠或浪费无法满足后续容量。
+        learning_goal: 用需求数量和前缀边界设计不重叠的小型子网。
+        concept_prompt: 两个 CIDR 起始地址不同是否足以证明它们不重叠？
+        guided_practice: 先由学习者写出容量目标和重叠预测，再选择计算方式；提示按概念、留空骨架、完整计算拆解升级，学习者必须解释边界。
+        independent_delivery: 新条件增加保留地址并缩小地址池；学习者无完整命令独立分配、验证和解释，再用 2–4 句英语交付规划。
+      - codename: Route Choice
+        scenario: 路由表同时包含默认路由和更具体路由，同事按出现顺序猜测数据包出口。
+        learning_goal: 用目的地址和最长前缀匹配解释路由选择。
+        concept_prompt: 更具体路由排在默认路由后面时，数据包是否一定走默认路由？
+        guided_practice: 学习者先预测每个目的地址的匹配结果，再自行核对静态表；教练只逐级提供概念、留空匹配骨架和完整推理拆解。
+        independent_delivery: 教练新增一条覆盖部分地址的路由；学习者独立选择、预测、验证和解释，并写 2–4 句英语 route handoff。
+      - codename: Return Path Incident
+        scenario: 正向路径文档看似正确，但响应无法返回源主机，团队只检查了出站网关。
+        learning_goal: 将连通性拆为正向与返回路径并定位缺失证据。
+        concept_prompt: 请求能够到达目标是否足以证明双向通信一定成功？
+        guided_practice: 学习者先画出双向路径并预测故障点，再使用离线拓扑验证；教练按概念、留空路径骨架、完整拆解递进，不替其给出根因。
+        independent_delivery: 新条件把缺失项移到另一个网关；学习者独立提出假设、验证、结果和解释，并写 2–4 句英语 incident update。
+      - codename: Routing Boss
+        scenario: 交接人需要从新副本独立审查拓扑、地址分配和双向路由，给出可执行但不触碰真实网络的修正建议。
+        learning_goal: 综合 CIDR、选路和返回路径完成安全的网络基础门禁。
+        concept_prompt: 未验证目标地址属于哪个子网时，直接建议修改默认路由是否安全？
+        guided_practice: 教练只说明连通目标与禁止项；学习者先预测并规划，提示仍按概念、留空骨架、完整拆解升级，完整提示后的复现不算独立。
+        independent_delivery: 使用 friday_variation，不提供完整命令或答案；学习者独立给出计算、预测、结果、解释和修正建议，并用 2–4 句英语交付。
+
+  - week: 9
+    project:
+      id: loopback-name-service-diagnosis
+      goal: 在仅绑定回环地址的实验服务中建立 DNS、端口、TCP/UDP 与应用协议的分层诊断方法。
+      environment: private/labs/YYYY-Www/ 中的离线 DNS 记录、回环服务和连接证据；不监听外部接口、不扫描网络。
+      starting_state: 教练提供模拟名称记录、服务清单和一个名称正确但端口错误的故障；学习者逐日形成分层证据链。
+      seed_files:
+        README.md: |
+          # Loopback name and port lab
+          All listeners must stay on 127.0.0.1.
+        dns/records.yml: |
+          api.lab.test: 127.0.0.1
+          metrics.lab.test: 127.0.0.1
+        services/expected.yml: |
+          api:
+            protocol: tcp
+            port: 18080
+          metrics:
+            protocol: tcp
+            port: 19090
+      acceptance_criteria:
+        - 能区分名称解析结果、网络地址、端口、传输协议和应用协议。
+        - 能用回环监听与客户端结果证明端口状态，不把超时等同于单一根因。
+        - 能根据 DNS、socket 和应用证据逐层缩小故障范围。
+        - 能在变化端口与记录条件下独立诊断并交接。
+      safety_boundaries:
+        - 服务只绑定 127.0.0.1，不使用特权端口，不更改系统 hosts 或 DNS。
+        - 不扫描外部地址，不关闭防火墙，不终止非实验进程。
+        - 展示监听信息前移除真实 PID、用户名、主机名和非回环地址。
+      core_concepts:
+        - DNS 名称、记录、解析器与缓存
+        - socket、端口、监听地址、TCP 与 UDP
+        - 分层诊断与证据的充分性
+      friday_variation: 新副本把一个服务从 TCP 改为 UDP 概念案例并让名称指向不同回环地址；学习者必须重新判断每层应观察什么，不能沿用旧端口结论。
+    missions:
+      - codename: Name Resolution Map
+        scenario: 同事把名称存在、解析成功和服务可用视为同一件事，无法定位失败层次。
+        learning_goal: 区分查询名称、返回记录和后续连接目标。
+        concept_prompt: 名称正确解析为回环地址是否能证明目标端口已有服务监听？
+        guided_practice: 学习者先预测离线记录能证明什么，再选择只读检查；教练按概念、留空查询骨架、字段拆解递进，最后要求说明证据边界。
+        independent_delivery: 教练更换记录类型与目标；学习者独立选择方法、预测、结果和解释，并写 2–4 句英语 DNS handoff。
+      - codename: Listener Evidence
+        scenario: 客户端报告连接失败，但团队没有确认服务绑定地址和目标端口是否一致。
+        learning_goal: 将监听地址、端口和进程证据与客户端目标对应起来。
+        concept_prompt: 服务只监听另一个端口时，目标端口的连接失败是否应归因于 DNS？
+        guided_practice: 学习者先写预期 socket 四元信息并预测检查结果，再自行观察；阻塞时教练依次给概念、留空骨架和输出字段拆解，不隐藏脱敏后的错误。
+        independent_delivery: 新条件变成服务监听正确端口但不同回环地址；学习者无完整命令独立验证、解释并写 2–4 句英语状态更新。
+      - codename: TCP UDP Boundary
+        scenario: 工单只写了端口号，没有说明 TCP 或 UDP，检查结果因此互相矛盾。
+        learning_goal: 理解端口号必须与传输协议和地址共同确定 socket。
+        concept_prompt: 相同数字端口上的 TCP 监听能否证明 UDP 服务也已就绪？
+        guided_practice: 学习者先预测两个协议的独立状态，再自行设计安全回环观察；教练按概念、留空骨架、协议字段拆解升级提示。
+        independent_delivery: 教练交换预期协议并保持端口号不变；学习者独立提交方法、预测、结果、解释和 2–4 句英语诊断。
+      - codename: Layered Protocol Incident
+        scenario: 名称、地址和端口均可达，但客户端发送了服务不理解的应用协议内容。
+        learning_goal: 识别传输连接成功与应用请求成功之间的边界。
+        concept_prompt: TCP 建连成功是否足以证明应用层请求格式正确？
+        guided_practice: 学习者先列出各层成功条件并预测故障层，再对本地样本逐层验证；教练只逐级给概念、留空诊断骨架和完整推理拆解。
+        independent_delivery: 新条件使用正确协议但错误请求目标；学习者独立定位、提供预测、证据和解释，并写 2–4 句英语 incident update。
+      - codename: Name Port Boss
+        scenario: 接手人从裸远程新副本启动不同回环服务，必须独立判断名称、传输层和应用层的真实状态。
+        learning_goal: 用最小、安全、可重复证据完成 DNS 与端口综合诊断。
+        concept_prompt: 在未确认协议类型前，只凭端口号相同能否判定配置一致？
+        guided_practice: 教练只准备环境和验收标准，学习者先预测并规划；提示按概念、留空骨架、完整拆解递进，完整提示后的同题不作为独立证据。
+        independent_delivery: 使用 friday_variation 且不给完整命令；学习者独立给出方法、预测、脱敏结果、解释和修正建议，并写 2–4 句英语交付。
+
+  - week: 10
+    project:
+      id: local-http-tls-service
+      goal: 在回环 Web 服务中理解 HTTP 请求响应和 TLS 身份验证，并用分层证据诊断安全连接故障。
+      environment: private/labs/YYYY-Www/ 的本地回环 HTTP/HTTPS 实验；证书仅为短期实验材料，不访问真实生产端点。
+      starting_state: 教练提供响应契约、路由说明和证书需求；逐日引入状态码、重定向、主机名与信任差异。
+      seed_files:
+        README.md: |
+          # Local HTTP and TLS lab
+          Bind only to loopback and trust no lab certificate system-wide.
+        app/routes.yml: |
+          health_path: /health
+          expected_status: 200
+          redirect_path: /old-health
+        tls/requirements.md: |
+          The test certificate must identify api.lab.test and remain lab-only.
+      acceptance_criteria:
+        - 能解释 URL、方法、路径、请求头、状态码、响应头和响应体的作用。
+        - 能区分 TCP、TLS 握手、证书身份与 HTTP 应用响应。
+        - 能在本地证书不受信任时安全验证而不污染系统信任库。
+        - 能在变化路由或主机名条件下独立定位故障并交接。
+      safety_boundaries:
+        - 所有服务只绑定回环地址，不使用真实域名或生产证书。
+        - 不把实验 CA 加入系统信任库，不记录或提交私钥，不关闭证书验证作为交付方案。
+        - 不访问外部服务；错误证据脱敏后保留用于解释。
+      core_concepts:
+        - HTTP 请求行、头、状态码、响应体与重定向
+        - HTTPS、TLS 握手、证书链、主机名与信任
+        - 网络层、传输层、安全层和应用层诊断
+      friday_variation: 新副本把健康路径和证书标识同时改变，但端口保持不变；学习者必须分别证明 HTTP 路由问题与 TLS 身份问题。
+    missions:
+      - codename: Request Anatomy
+        scenario: 健康检查失败，工单只给出 URL，未区分方法、主机、端口和路径。
+        learning_goal: 把 HTTP 请求拆成可独立验证的组成部分。
+        concept_prompt: 主机和端口正确但路径错误时，服务能否返回非成功状态码？
+        guided_practice: 学习者先预测各请求组成对结果的影响，再自行检查本地契约；提示按概念、留空请求骨架、字段拆解递进，不直接给当前完整命令。
+        independent_delivery: 教练更换方法或路径之一；学习者独立构造请求、预测、观察结果和解释，并写 2–4 句英语 HTTP update。
+      - codename: Response Evidence
+        scenario: 客户端只说“有返回”，但团队不知道状态码、响应头和响应体是否符合验收契约。
+        learning_goal: 使用完整响应证据判断成功、重定向和应用错误。
+        concept_prompt: 收到响应体是否必然表示 HTTP 状态为成功？
+        guided_practice: 学习者先写验收字段和预测，再选择只读请求方式；教练逐级给概念、留空骨架、输出拆解，最后由学习者说明每项证据。
+        independent_delivery: 新条件返回相似正文但错误状态码；学习者无完整命令独立验证、解释，并写 2–4 句英语 review note。
+      - codename: TLS Identity
+        scenario: 本地 TLS 服务可握手，但证书标识与请求主机名不一致，不能用“端口能连”判断安全。
+        learning_goal: 区分加密通道、证书信任和服务身份匹配。
+        concept_prompt: 证书由已知实验 CA 签发时，主机名不匹配是否仍应视为身份验证成功？
+        guided_practice: 学习者先预测握手各门禁，再观察不含私钥的证书信息；教练按概念、留空检查骨架、字段拆解升级，禁止把关闭验证当修复。
+        independent_delivery: 教练改为主机名正确但签发链未知；学习者独立判断、提供预测、结果和解释，并写 2–4 句英语 TLS handoff。
+      - codename: Redirect Incident
+        scenario: HTTP 入口返回重定向，跟随后的 HTTPS 请求因身份问题失败，团队只看到了最终错误。
+        learning_goal: 重建每一跳的 URL、状态和 TLS 门禁形成时间线。
+        concept_prompt: 自动跟随重定向后只看到最终失败，是否足以证明第一跳没有正常响应？
+        guided_practice: 学习者先预测每一跳，再自行保留分段证据；教练仅逐级给概念、留空时间线骨架和完整拆解，不替学习者写根因。
+        independent_delivery: 新条件加入第二次重定向和错误路径；学习者独立定位，提交预测、结果、解释与 2–4 句英语 incident update。
+      - codename: HTTP TLS Boss
+        scenario: 新接手人必须从裸远程新副本启动本地服务并独立证明 URL、HTTP 响应和 TLS 身份是否满足契约。
+        learning_goal: 综合请求响应与 TLS 证据完成安全的 Web 链路诊断。
+        concept_prompt: 当 HTTP 内容正确但证书身份失败时，服务是否达到 HTTPS 验收标准？
+        guided_practice: 教练只准备本地材料和安全边界，学习者先预测并规划；支援按概念、留空骨架、完整拆解递进，完整提示后的同题结果不计独立掌握。
+        independent_delivery: 使用 friday_variation 且无完整命令；学习者独立提交请求或检查方法、预测、脱敏结果、解释和结论，并写 2–4 句英语交付。
+
+  - week: 11
+    project:
+      id: batch-job-evidence-chain
+      goal: 用日志、标准输出、标准错误和退出码重建一个本地批处理任务的故障证据链。
+      environment: private/labs/YYYY-Www/ 中的静态日志与无害 PowerShell 检查脚本；不读取真实服务日志、不修改系统计划任务。
+      starting_state: 教练提供一次成功运行和一次失败运行的交错日志，以及会对无效配置返回非零退出码的本地检查脚本。
+      seed_files:
+        README.md: |
+          # Batch job evidence chain
+          Diagnose the supplied local samples only.
+        config/job.conf: |
+          source=input/sample.txt
+          destination=output/result.txt
+        logs/job.log: |
+          2026-01-01T00:00:00Z INFO run=101 start
+          2026-01-01T00:00:01Z INFO run=101 complete exit=0
+          2026-01-02T00:00:00Z INFO run=102 start
+          2026-01-02T00:00:01Z ERROR run=102 destination_missing exit=2
+        scripts/check-config.ps1: |
+          param([string]$ConfigPath)
+          if (-not (Test-Path -LiteralPath $ConfigPath)) { Write-Error "config_missing"; exit 2 }
+          Write-Output "config_present"
+          exit 0
+      acceptance_criteria:
+        - 能按运行标识和时间重建事件序列，不混合不同执行实例。
+        - 能区分 stdout、stderr、日志级别和进程退出码各自证明的事实。
+        - 能提出可证伪假设并以最小安全实验验证。
+        - 能在新日志噪声和退出码条件下独立诊断与交接。
+      safety_boundaries:
+        - 只运行种子脚本和本地样本，不修改真实服务、计划任务或日志目录。
+        - 不把错误输出丢弃；展示前脱敏路径、账号、令牌和基础设施标识。
+        - 不根据单行 ERROR 自动执行修复，先确认运行实例与影响。
+      core_concepts:
+        - 时间线、运行关联标识与日志级别
+        - stdout、stderr、退出码与调用方判断
+        - 症状、假设、验证、根因和恢复证据
+      friday_variation: 新副本加入一个退出码为零但业务结果缺失的运行，以及与故障无关的 ERROR 噪声；学习者必须避免把退出码或错误关键字当成唯一结论。
+    missions:
+      - codename: Timeline Reconstruction
+        scenario: 多次任务运行的日志交错在同一文件，值班人把早期错误归到最新运行。
+        learning_goal: 使用时间和运行标识重建单次执行的可靠时间线。
+        concept_prompt: 两行日志时间相近但运行标识不同，是否可以视为同一次执行？
+        guided_practice: 学习者先预测目标运行包含哪些事件，再自行筛选样本；教练按概念、留空搜索骨架、字段拆解递进，最后要求解释排除的噪声。
+        independent_delivery: 教练加入无序和重复日志；学习者独立重建时间线，提交方法、预测、结果、解释及 2–4 句英语事件摘要。
+      - codename: Exit Contract
+        scenario: 上游只检查是否出现 ERROR 文本，没有依据脚本退出契约判断自动化结果。
+        learning_goal: 将退出码视为进程接口，同时验证它与业务结果是否一致。
+        concept_prompt: 退出码为零是否单独足以证明预期输出文件已经产生？
+        guided_practice: 学习者先预测有效与无效输入的输出通道和退出码，再自行执行安全样本；提示按概念、留空骨架、脚本分支拆解升级。
+        independent_delivery: 新条件使用存在但内容无效的配置；学习者无完整命令独立验证，提交预测、实际输出、退出码解释和 2–4 句英语 handoff。
+      - codename: Stream Diagnosis
+        scenario: 自动化日志只有普通输出，失败诊断实际上写入了错误通道并被调用方遗漏。
+        learning_goal: 观察并解释 stdout 与 stderr，而不是默认隐藏错误文本。
+        concept_prompt: 只保存 stdout 时，进程失败是否可能留下空诊断文件？
+        guided_practice: 学习者先预测两个通道内容，再设计本地捕获；教练按概念、留空重定向骨架、符号拆解递进，并要求保留脱敏错误用于分析。
+        independent_delivery: 教练改变脚本使警告和结果分属不同通道；学习者独立捕获、预测、验证、解释并写 2–4 句英语诊断说明。
+      - codename: Hypothesis Test
+        scenario: 日志显示目标目录缺失，但根因可能是路径配置、运行目录或种子文件之一，不能直接猜修复。
+        learning_goal: 把症状转换成一个可证伪假设并设计最小验证。
+        concept_prompt: 能重现“目标不存在”是否已经证明配置文件中的路径就是根因？
+        guided_practice: 学习者先写单一假设和预期证据，再执行只读或可恢复实验；教练按概念、留空实验骨架、完整推理拆解支援。
+        independent_delivery: 新条件制造相同症状但不同原因；学习者独立提出假设、动作、预测、结果和解释，并写 2–4 句英语 incident update。
+      - codename: Evidence Boss
+        scenario: 新接手人从裸远程新副本面对含噪日志和变化脚本，必须独立给出可复核根因与恢复检查。
+        learning_goal: 综合时间线、输出通道、退出契约和假设验证完成基础排障。
+        concept_prompt: 只看到预期退出码但没有验证业务结果时，任务是否可以宣布恢复？
+        guided_practice: 教练只给影响和验收标准，学习者先预测并规划；提示按概念、留空骨架、完整拆解递进，完整提示后的同题不计独立证据。
+        independent_delivery: 使用 friday_variation 且不给完整命令；学习者独立提交方法、预测、脱敏结果、解释、恢复验证及 2–4 句英语交接。
+
+  - week: 12
+    project:
+      id: linux-troubleshooting-runbook
+      goal: 把前几周的系统与网络诊断方法整理成另一位工程师可在安全本地环境复现的 Linux 排障 Runbook。
+      environment: private/labs/YYYY-Www/ 中的 WSL 或等价本地 sandbox、静态案例和本地裸远程；不操作真实服务。
+      starting_state: 教练提供一份缺少前置条件、预期结果和回滚说明的 Runbook 草稿，以及三个可安全复现的案例证据。
+      seed_files:
+        README.md: |
+          # Linux troubleshooting runbook project
+          The runbook must be reproducible in a local sandbox.
+        runbook/troubleshoot.md: |
+          # Troubleshooting
+          Check the service and fix the problem.
+        cases/symptoms.yml: |
+          case_a: permission_denied
+          case_b: process_not_listening
+          case_c: name_resolves_but_http_fails
+      acceptance_criteria:
+        - Runbook 明确前置条件、影响、安全边界、检查顺序、预期与分支判断。
+        - 每个修复步骤都有验证、失败处理和可行回滚，而不是命令清单。
+        - 另一份全新副本可以仅依据文档重现诊断并得到相同结论。
+        - 英文交付准确说明结果、证据、剩余风险和下一步。
+      safety_boundaries:
+        - 仅使用本地案例和 sandbox，不重启真实服务、不提权、不改真实网络。
+        - 文档不包含个人信息、私有路径、凭据、真实仓库或基础设施标识。
+        - 教练验证可复现性但不替学习者撰写最终 Runbook 内容。
+      core_concepts:
+        - Runbook 前置条件、决策点、预期结果与停止条件
+        - 观察、假设、验证、修复、回滚和复验
+        - 最小权限、可重复性与交接读者视角
+      friday_variation: 新副本把三个案例的表面症状互换并移除一项工具依赖；学习者必须依靠决策证据而不是固定命令顺序完成复现。
+    missions:
+      - codename: Runbook Contract
+        scenario: 草稿只有“检查并修复”的命令意图，接手人不知道适用环境、成功标准或何时停止。
+        learning_goal: 定义 Runbook 的读者、前置条件、输入、输出和安全停止点。
+        concept_prompt: 没有预期结果的检查步骤能否让接手人判断应该继续还是停止？
+        guided_practice: 学习者先预测接手人最先缺失的判断信息，再重写结构；教练按概念提示、留空文档骨架、完整章节拆解递进，不代写当前内容。
+        independent_delivery: 教练提供一个不同工具缺失的案例；学习者独立定义契约、验证可读性并解释结果，再写 2–4 句英语 Runbook introduction。
+      - codename: Decision Path
+        scenario: 相同“服务不可用”症状可能来自进程、端口、DNS 或 HTTP，线性命令清单会误导修复。
+        learning_goal: 用低风险证据和判断分支组织诊断顺序。
+        concept_prompt: 在尚未确认进程和监听状态时，直接修改 DNS 是否符合最小风险顺序？
+        guided_practice: 学习者先预测最便宜且最能分层的证据，再画决策路径；教练按概念、留空分支骨架、完整推理拆解递进。
+        independent_delivery: 新条件中 DNS 正常但 HTTP 路径错误；学习者无完整命令独立设计路径、验证和解释，并写 2–4 句英语 decision note。
+      - codename: Safe Repair Step
+        scenario: 草稿提出修改权限或重启服务，但没有变更范围、回滚和复验，无法用于值班。
+        learning_goal: 把诊断结论转换成范围明确、可回滚、可验证的修复步骤。
+        concept_prompt: 修复后症状消失但未验证原验收目标，是否可以关闭事件？
+        guided_practice: 学习者先写预期状态、最小变更和回滚预测，再在 sandbox 验证；教练按概念、留空步骤骨架、完整拆解递进。
+        independent_delivery: 教练制造相同症状但限制不能重启；学习者独立选择替代方案，提交预测、动作、结果、解释和 2–4 句英语 change record。
+      - codename: Peer Reproduction
+        scenario: 作者本机可以执行 Runbook，但接手人的全新副本缺少隐含目录和前置工具。
+        learning_goal: 以陌生读者视角发现隐藏依赖并证明文档可重复。
+        concept_prompt: 作者记得手工准备过的目录但文档未写出时，成功复现能否证明 Runbook 完整？
+        guided_practice: 学习者先预测新副本会在哪一步失败，再让教练仅执行文档所写内容；提示按概念、留空验收骨架、失败证据拆解升级。
+        independent_delivery: 新条件移除另一个隐含依赖；学习者独立修订、预测、复现、解释，并用 2–4 句英语说明兼容性改进。
+      - codename: Runbook Boss
+        scenario: 新工程师只拿到裸远程的新副本和变化案例，必须依靠 Runbook 完成诊断、恢复与交接。
+        learning_goal: 独立交付经过新环境验证的 Linux 排障手册和周复盘证据。
+        concept_prompt: 当 Runbook 只在原始案例上成功时，是否足以证明它能处理同类变化故障？
+        guided_practice: 教练只准备新副本、故障和验收边界，学习者先预测并规划；任何提示按概念、留空骨架、完整拆解递进，完整提示后的案例不算独立验证。
+        independent_delivery: 使用 friday_variation 且不给完整命令；学习者独立提交预测、动作、实际结果、解释、Runbook 证据和 2–4 句英语最终交付。
+
+  - week: 13
+    project:
+      id: foundation-gate-incident
+      goal: 在全新本地环境中独立完成权限、进程、网络和 HTTP 组合故障的基础阶段复测，并做路线规定的技术演示。
+      environment: private/labs/YYYY-Www/ 中的本地裸远程、全新工作副本、回环服务和非特权 sandbox；所有门禁证据来自安全本地实验。
+      starting_state: 教练提供服务契约、故障注入说明和空白交接记录；案例同时含一个根因和多个无关症状，学习者必须自行建立证据链。
+      seed_files:
+        README.md: |
+          # Foundation gate incident
+          Diagnose and recover the local loopback service without elevated privileges.
+        service/contract.yml: |
+          bind: 127.0.0.1
+          port: 18081
+          health_path: /health
+          expected_status: 200
+        incident/brief.md: |
+          The local health check fails after a handoff. Preserve evidence before changing state.
+        handoff/final.md: |
+          # Final handoff
+          Outcome, evidence, risk, and next action are pending.
+      acceptance_criteria:
+        - 无完整命令提示独立完成环境基线、单一假设、最小修复、回滚说明和复验。
+        - 权限、进程、监听、名称与 HTTP 证据形成一致链路，且能排除噪声。
+        - 总结性证据包含预测、学习者动作、实际结果和解释，达到门禁要求方可进入下一阶段。
+        - 完成路线规定的技术演示和 2–4 句英语书面交接；日常训练不要求录音或发音证据。
+      safety_boundaries:
+        - 不使用管理员权限，不修改真实服务、系统网络、系统信任或学习系统仓库。
+        - 只绑定回环地址，不执行外部扫描，不创建云资源或外部 GitHub 资源。
+        - 不降低评分或阶段门禁；证据不足时安排重教或复测并延长路线。
+      core_concepts:
+        - 文件与目录权限、进程和服务边界
+        - IP、DNS、端口、HTTP 与 TLS 分层诊断
+        - Git 证据、Runbook、最小修复和英文异步交接
+      friday_variation: 新副本把根因从不可执行脚本换成正确进程监听错误端口，同时保留误导性的旧权限错误日志；必须从实时证据重新判断。
+    missions:
+      - codename: Gate Preflight
+        scenario: 基础门禁开始前，必须确认实验边界、服务契约、可用工具和证据保存位置，不能边做边猜验收标准。
+        learning_goal: 独立建立安全基线并把成功标准转换为可观察证据。
+        concept_prompt: 未确认健康路径和预期状态码时，仅看到端口监听能否定义门禁成功？
+        guided_practice: 学习者先预测需要哪些证据并自行规划；教练按概念、留空清单骨架、完整标准拆解递进，完整提示只算形成性支援。
+        independent_delivery: 教练更换一个契约字段；学习者无完整命令独立建立基线，提交预测、方法、结果、解释和 2–4 句英语 preflight note。
+      - codename: Integrated Triage
+        scenario: 权限警告、旧日志和健康检查失败同时出现，学习者必须区分实时症状与历史噪声。
+        learning_goal: 以时间、层次和影响为依据选择第一条高价值检查。
+        concept_prompt: 旧日志出现 permission denied 是否足以证明当前健康检查仍由权限导致？
+        guided_practice: 学习者先选一条可证伪假设并预测证据，再执行最小检查；教练只按概念、留空诊断骨架、完整推理拆解支援。
+        independent_delivery: 新条件把噪声换成 DNS 警告；学习者独立进行分层诊断，提交动作、预测、结果、解释及 2–4 句英语 incident brief。
+      - codename: Minimal Recovery
+        scenario: 已定位根因，但多个操作都能暂时恢复服务，门禁要求最小影响、可回滚且不提权的方案。
+        learning_goal: 根据证据选择修复范围并验证原始契约而非只验证命令成功。
+        concept_prompt: 一个需要扩大权限但能恢复服务的方案是否优于无需提权的最小配置修正？
+        guided_practice: 学习者先预测修复、影响和回滚后的状态，再执行安全方案；教练按概念、留空变更骨架、完整拆解递进，不替学习者选择。
+        independent_delivery: 新条件禁止修改原文件而允许替换实验副本；学习者独立修复、预测、验证、解释，并写 2–4 句英语 change update。
+      - codename: Technical Handoff
+        scenario: 远程团队需要仅凭书面证据和技术演示理解影响、根因、修复、验证与剩余风险。
+        learning_goal: 把命令输出转化为简洁、可审查的技术叙事，并准备路线规定的演示。
+        concept_prompt: 交接只粘贴成功输出而不解释它验证了什么，是否足以让接手人复核结论？
+        guided_practice: 学习者先讲出证据与结论的对应关系，再组织演示；教练按概念、留空叙事骨架、完整结构拆解支援，不代写最终英文。
+        independent_delivery: 教练要求面向不同接手角色重写重点；学习者独立交付证据解释、实际结果和剩余风险，并写 2–4 句英语 handoff，不要求录音证据。
+      - codename: Foundation Gate Boss
+        scenario: 最终复测在裸远程全新副本中注入变化故障，旧工作区、固定命令和完整提示均不可作为掌握证明。
+        learning_goal: 独立完成基础阶段综合事故并以真实证据决定通过、重教或复测。
+        concept_prompt: 如果变化题需要完整命令提示才能完成，是否已经达到独立门禁？
+        guided_practice: 教练仅负责准备、观察和验收；若学习者阻塞，提示仍按概念、留空骨架、完整拆解递进，但一旦给出完整提示就必须另做无提示变化题。
+        independent_delivery: 使用 friday_variation，完全不给当前完整命令；学习者独立提交命令或方法、预测、实际结果、解释、回滚与复验，并写 2–4 句英语最终交付和完成技术演示。
+
 starter_weeks:
   - week: 1
     missions:

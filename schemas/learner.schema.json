@@ -58,7 +58,7 @@
           "required": ["style", "streak_basis", "backlog_order"],
           "additionalProperties": false,
           "properties": {
-            "style": {"const": "incident_mission"},
+            "style": {"enum": ["incident_mission", "cognitive_apprenticeship"]},
             "streak_basis": {"const": "completed_evidence_task"},
             "backlog_order": {"const": "today_first_then_oldest"}
           }

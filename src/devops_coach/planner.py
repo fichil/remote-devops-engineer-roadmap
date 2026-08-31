@@ -64,6 +64,21 @@ MISSION_ARCHETYPES = (
     },
 )
 
+COGNITIVE_WORKFLOW = "cognitive_apprenticeship_v1"
+COGNITIVE_CHECKPOINT_TITLES = {
+    "briefing": "概念与预测",
+    "lab": "引导练习",
+    "written_handoff": "独立迁移与交付",
+}
+HINT_LEVELS = {0, 1, 2, 3}
+SUMMATIVE_EVIDENCE_FIELDS = (
+    "prediction",
+    "learner_action",
+    "observed_result",
+    "interpretation",
+    "handoff",
+)
+
 
 def now_text() -> str:
     return datetime.now().astimezone().isoformat(timespec="seconds")
@@ -124,17 +139,46 @@ def focus_for_week(phase: dict[str, Any], week: int) -> dict[str, Any]:
     return next(item for item in phase["weekly_focus"] if item["week"] == week)
 
 
+def cognitive_task_content(
+    roadmap: dict[str, Any], week: int, slot: int
+) -> dict[str, dict[str, Any]]:
+    """Return one concrete cognitive-apprenticeship mission and its weekly project.
+
+    Weeks after the four starter weeks deliberately have no generic fallback. A missing
+    blueprint is a curriculum blocker, because an invented scenario would return the coach
+    to the vague copy-and-paste exercises this workflow replaces.
+    """
+    if not 0 <= slot < 5:
+        raise ValueError("Training mission slot must be between 0 and 4")
+    blueprint = next(
+        (
+            item
+            for item in roadmap.get("training_blueprints", [])
+            if int(item.get("week", 0)) == week
+        ),
+        None,
+    )
+    if blueprint is None:
+        raise ValueError(
+            f"Missing training blueprint for curriculum week {week}; "
+            "refusing to generate a generic mission"
+        )
+    missions = blueprint.get("missions", [])
+    if len(missions) != 5:
+        raise ValueError(f"Training blueprint for week {week} must contain five missions")
+    return {"project": dict(blueprint["project"]), "mission": dict(missions[slot])}
+
+
 def mission_for_slot(
     roadmap: dict[str, Any], focus: dict[str, Any], week: int, slot: int
-) -> dict[str, str]:
+) -> dict[str, Any]:
     for starter in roadmap.get("starter_weeks", []):
         if starter["week"] == week:
             return dict(starter["missions"][slot])
-    archetype = MISSION_ARCHETYPES[slot]
-    return {
-        key: value.format(topic_zh=focus["title_zh"], topic_en=focus["title_en"])
-        for key, value in archetype.items()
-    }
+    content = cognitive_task_content(roadmap, week, slot)
+    mission = content["mission"]
+    mission["weekly_project"] = content["project"]
+    return mission
 
 
 def _gate_execution(
@@ -159,8 +203,18 @@ def _review_date(score: int, base: date) -> str | None:
     return None
 
 
-def _checkpoint(checkpoint_id: str, title: str, instruction: str) -> dict[str, Any]:
-    return {
+def _checkpoint(
+    checkpoint_id: str,
+    title: str,
+    instruction: str,
+    *,
+    assessment: str | None = None,
+    success_criteria: str | None = None,
+    coach_action: str | None = None,
+    learner_action: str | None = None,
+    hint_policy: str | None = None,
+) -> dict[str, Any]:
+    checkpoint = {
         "id": checkpoint_id,
         "title": title,
         "instruction": instruction,
@@ -170,6 +224,20 @@ def _checkpoint(checkpoint_id: str, title: str, instruction: str) -> dict[str, A
         "artifacts": [],
         "next_review": None,
     }
+    if assessment is not None:
+        checkpoint.update(
+            {
+                "assessment": assessment,
+                "success_criteria": success_criteria,
+                "coach_action": coach_action,
+                "learner_action": learner_action,
+                "hint_policy": hint_policy,
+                "hint_level_used": None,
+                "independent": False,
+                "evidence_details": None,
+            }
+        )
+    return checkpoint
 
 
 def _adapt_instruction(instruction: str, mode: str) -> str:
@@ -185,43 +253,101 @@ def _new_mission_task(
     scheduled_for: date,
     week: int,
     phase: dict[str, Any],
-    mission: dict[str, str],
+    mission: dict[str, Any],
     queue_order: int,
     adaptation_mode: str,
     gate_mode: str,
     weekly_review: bool,
 ) -> dict[str, Any]:
+    cognitive = "learning_goal" in mission
     if gate_mode == "remediation":
         gate_text = str(phase["gate"])
-        mission = {
-            "codename": "Gate Reteach" if not weekly_review else "Gate Retest",
-            "scenario": "日历主题已经前进，但上一阶段门禁尚未通过，不能启动下一阶段实作。",
-            "objective": f"围绕“{gate_text}”补齐证据并重新接受门禁检查。",
-            "lab": f"复现上一阶段门禁：{gate_text}；保存成功证据、失败诊断和独立变化结果。",
-            "english_output": (
-                "Write the gate status, strongest evidence, remaining gap, and next action."
+        if cognitive:
+            mission = {
+                **mission,
+                "codename": (
+                    f"Gate {'Retest' if weekly_review else 'Reteach'} · "
+                    f"{mission['codename']}"
+                ),
+                "scenario": (
+                    "日历主题已前进，但上一阶段门禁未通过，不能启动下一阶段实作。"
+                    f"当前使用既有门禁蓝图重教或复测：{mission['scenario']}"
+                ),
+                "learning_goal": (
+                    f"围绕门禁“{gate_text}”重新完成：{mission['learning_goal']}"
+                ),
+            }
+        else:
+            mission = {
+                "codename": "Gate Reteach" if not weekly_review else "Gate Retest",
+                "scenario": "日历主题已经前进，但上一阶段门禁尚未通过，不能启动下一阶段实作。",
+                "objective": f"围绕“{gate_text}”补齐证据并重新接受门禁检查。",
+                "lab": f"复现上一阶段门禁：{gate_text}；保存成功证据、失败诊断和独立变化结果。",
+                "english_output": (
+                    "Write the gate status, strongest evidence, remaining gap, and next action."
+                ),
+            }
+    if cognitive:
+        hint_policy = "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。"
+        checkpoints = [
+            _checkpoint(
+                "briefing",
+                COGNITIVE_CHECKPOINT_TITLES["briefing"],
+                _adapt_instruction(mission["concept_prompt"], adaptation_mode),
+                assessment="formative",
+                success_criteria="用自己的话解释心智模型，并在执行前给出一个可检验预测。",
+                coach_action="先用中文解释概念和命令组成，然后只提出一个目标相关问题。",
+                learner_action="解释当前概念并写出一个可检验预测，不复制现成答案。",
+                hint_policy=hint_policy,
             ),
-        }
-    checkpoints = [
-        _checkpoint(
-            "briefing",
-            "事件简报",
-            _adapt_instruction(
-                "写出已知事实、主要风险、缺失信息和第一条可验证假设。",
-                adaptation_mode,
+            _checkpoint(
+                "lab",
+                COGNITIVE_CHECKPOINT_TITLES["lab"],
+                _adapt_instruction(mission["guided_practice"], adaptation_mode),
+                assessment="formative",
+                success_criteria="先选择下一步并预测结果，再执行、观察并解释；该阶段不计分。",
+                coach_action="等待学习者先决策和预测，再按提示层级逐级帮助并脱敏检查输出。",
+                learner_action="选择或补全命令，先预测后执行，并用自己的话解释实际结果。",
+                hint_policy=hint_policy,
             ),
-        ),
-        _checkpoint(
-            "lab",
-            "实战处理",
-            _adapt_instruction(mission["lab"], adaptation_mode),
-        ),
-        _checkpoint(
-            "written_handoff",
-            "英文书面交接",
-            _adapt_instruction(mission["english_output"], adaptation_mode),
-        ),
-    ]
+            _checkpoint(
+                "written_handoff",
+                COGNITIVE_CHECKPOINT_TITLES["written_handoff"],
+                _adapt_instruction(mission["independent_delivery"], adaptation_mode),
+                assessment="summative",
+                success_criteria=(
+                    "在变化条件下独立提交预测、学习者动作、实际结果、解释，以及 "
+                    "2–4 句真实英文 PR 评论或交接。"
+                ),
+                coach_action="提供变化条件但不给完整命令；只验证证据并按 0–5 分总结评价。",
+                learner_action="独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
+                hint_policy="不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
+            ),
+        ]
+        project = mission["weekly_project"]
+        task_title = f"{mission['codename']}：{mission['learning_goal']}"
+    else:
+        checkpoints = [
+            _checkpoint(
+                "briefing",
+                "事件简报",
+                _adapt_instruction(
+                    "写出已知事实、主要风险、缺失信息和第一条可验证假设。",
+                    adaptation_mode,
+                ),
+            ),
+            _checkpoint(
+                "lab",
+                "实战处理",
+                _adapt_instruction(mission["lab"], adaptation_mode),
+            ),
+            _checkpoint(
+                "written_handoff",
+                "英文书面交接",
+                _adapt_instruction(mission["english_output"], adaptation_mode),
+            ),
+        ]
+        task_title = f"{mission['codename']}：{mission['objective']}"
     task = {
         "id": task_id,
         "created_on": scheduled_for.isoformat(),
@@ -229,7 +355,7 @@ def _new_mission_task(
         "curriculum_week": week,
         "phase": str(phase["id"]),
         "section": "mission",
-        "title": f"{mission['codename']}：{mission['objective']}",
+        "title": task_title,
         "scenario": mission["scenario"],
         "status": "queued",
         "score": None,
@@ -242,6 +368,15 @@ def _new_mission_task(
         "carryover_activated_on": None,
         "checkpoints": checkpoints,
     }
+    if cognitive:
+        task.update(
+            {
+                "workflow_version": COGNITIVE_WORKFLOW,
+                "weekly_project_id": str(project["id"]),
+                "learning_goal": str(mission["learning_goal"]),
+                "success_criteria": list(project["acceptance_criteria"]),
+            }
+        )
     if weekly_review and (gate_mode == "remediation" or week == phase["week_end"]):
         task["gate_id"] = str(phase["id"])
     return task
@@ -306,15 +441,55 @@ def _start_task(task: dict[str, Any]) -> dict[str, Any] | None:
     return _first_unfinished(task)
 
 
+def _has_summative_evidence_details(value: Any) -> bool:
+    return isinstance(value, dict) and all(
+        isinstance(value.get(field), str) and value[field].strip()
+        for field in SUMMATIVE_EVIDENCE_FIELDS
+    )
+
+
+def _assessment_scores(task: dict[str, Any]) -> list[int]:
+    checkpoints = task.get("checkpoints", [])
+    if task.get("workflow_version") == COGNITIVE_WORKFLOW:
+        return [
+            int(checkpoint["score"])
+            for checkpoint in checkpoints
+            if checkpoint.get("assessment") == "summative"
+            and checkpoint.get("score") is not None
+        ]
+    return [
+        int(checkpoint["score"])
+        for checkpoint in checkpoints
+        if checkpoint.get("score") is not None
+    ]
+
+
 def task_has_complete_evidence(task: dict[str, Any]) -> bool:
     checkpoints = task.get("checkpoints", [])
-    return bool(
+    complete = bool(
         task.get("status") == "done"
         and task.get("evidence")
         and checkpoints
         and all(
             checkpoint.get("status") == "done" and checkpoint.get("evidence")
             for checkpoint in checkpoints
+        )
+    )
+    if not complete or task.get("workflow_version") != COGNITIVE_WORKFLOW:
+        return complete
+    summative = [
+        checkpoint
+        for checkpoint in checkpoints
+        if checkpoint.get("assessment") == "summative"
+    ]
+    return bool(
+        summative
+        and all(
+            checkpoint.get("status") == "done"
+            and checkpoint.get("score") is not None
+            and checkpoint.get("evidence")
+            and _has_summative_evidence_details(checkpoint.get("evidence_details"))
+            for checkpoint in summative
         )
     )
 
@@ -399,7 +574,9 @@ def render_master_plan(learner: dict[str, Any], roadmap: dict[str, Any]) -> str:
         "## 执行规则",
         "",
         "- 周一至周五每天定量完成一个完整运维任务；周六、周日完全休息。",
-        "- 每个标准任务固定包含事件简报、实战处理、英文书面交接三个检查点。",
+        "- 每个标准任务依次包含概念与预测、引导练习、独立迁移与交付三个检查点。",
+        "- 前两阶段用于形成性反馈且不评分；只有无完整命令提示的独立迁移阶段按 0–5 分评价。",
+        "- 教练先解释心智模型并逐级提示；学习者必须先预测，再执行并解释真实结果。",
         "- 每个工作日先完成当天计划任务；旧任务不得抢占当天主任务。",
         "- 当天主任务完成后默认停止；用户明确要求继续时，最多再处理一个最早遗留任务。",
         "- 完整任务取得全部证据后自动通过 Ready PR、CI 和 squash merge 发布；可选遗留单独发布。",
@@ -627,6 +804,9 @@ def ensure_week_plan(root: Path, week_value: str) -> tuple[Path, bool]:
     calendar_phase = phase_for_week(roadmap, week)
     focus = focus_for_week(calendar_phase, week)
     execution_phase, gate_mode = _gate_execution(roadmap, progress, calendar_phase)
+    content_week = (
+        int(execution_phase["week_end"]) if gate_mode == "remediation" else week
+    )
     adaptation_mode = progress["adaptation"]["mode"]
     next_order = (
         max(
@@ -640,11 +820,11 @@ def ensure_week_plan(root: Path, week_value: str) -> tuple[Path, bool]:
         task_id = f"{week_value}-{slot + 1:02d}-mission"
         if task_id in progress["tasks"]:
             raise ValueError(f"Task already exists without weekly plan metadata: {task_id}")
-        mission = mission_for_slot(roadmap, focus, week, slot)
+        mission = mission_for_slot(roadmap, focus, content_week, slot)
         task = _new_mission_task(
             task_id,
             monday + timedelta(days=slot),
-            week,
+            content_week,
             execution_phase,
             mission,
             next_order + slot,
@@ -654,6 +834,12 @@ def ensure_week_plan(root: Path, week_value: str) -> tuple[Path, bool]:
         )
         progress["tasks"][task_id] = task
         new_ids.append(task_id)
+
+    if any(
+        progress["tasks"][task_id].get("workflow_version") == COGNITIVE_WORKFLOW
+        for task_id in new_ids
+    ):
+        progress["workflow_version"] = COGNITIVE_WORKFLOW
 
     execution_slots = list(new_ids)
     relative = Path("plans") / "weeks" / f"{week_value}.md"
@@ -697,7 +883,7 @@ def _aggregate_task(task: dict[str, Any]) -> None:
         status = "in_progress"
     else:
         status = "queued"
-    scores = [item["score"] for item in checkpoints if item["score"] is not None]
+    scores = _assessment_scores(task)
     evidence = [item["evidence"] for item in checkpoints if item.get("evidence")]
     artifacts = sorted(
         {
@@ -765,14 +951,18 @@ def record_checkpoint(
     task_id: str,
     checkpoint_id: str,
     status: str,
-    score: int,
-    evidence: str,
+    score: int | None = None,
+    evidence: str = "",
     recorded_on: date | None = None,
     artifacts: Sequence[str | Path] = (),
+    *,
+    hint_level_used: int | None = None,
+    independent: bool = False,
+    evidence_details: dict[str, str | None] | None = None,
 ) -> dict[str, Any]:
     if status not in {"in_progress", "done", "blocked"}:
         raise ValueError("Record status must be in_progress, done, or blocked")
-    if not 0 <= score <= 5:
+    if score is not None and not 0 <= score <= 5:
         raise ValueError("Score must be between 0 and 5")
     if not evidence.strip():
         raise ValueError("Recorded checkpoints require evidence")
@@ -795,15 +985,54 @@ def record_checkpoint(
         raise KeyError(f"Unknown checkpoint {checkpoint_id} for task {task_id}") from exc
     if checkpoint["status"] == "done":
         raise ValueError(f"Checkpoint {checkpoint_id} is already done")
+    assessment = checkpoint.get("assessment", "legacy")
+    if assessment == "formative" and score is not None:
+        raise ValueError("Formative checkpoints do not accept a score")
+    if assessment in {"legacy", "summative"} and score is None:
+        raise ValueError(f"{assessment.capitalize()} checkpoints require a score")
+    if hint_level_used is not None and hint_level_used not in HINT_LEVELS:
+        raise ValueError("Hint level must be 0, 1, 2, 3, or omitted")
+    details = (
+        {
+            field: (
+                str(evidence_details.get(field)).strip()
+                if evidence_details and evidence_details.get(field) is not None
+                else None
+            )
+            for field in SUMMATIVE_EVIDENCE_FIELDS
+        }
+        if evidence_details is not None
+        else checkpoint.get("evidence_details")
+    )
+    if assessment == "summative" and status == "done":
+        if not _has_summative_evidence_details(details):
+            raise ValueError(
+                "A completed summative checkpoint requires prediction, learner_action, "
+                "observed_result, interpretation, and handoff evidence"
+            )
+        if score is not None and score >= 4 and (
+            not independent or hint_level_used != 0
+        ):
+            raise ValueError(
+                "Scores 4-5 require an independent variation with hint_level_used=0"
+            )
     checkpoint.update(
         {
             "status": status,
             "score": score,
             "evidence": evidence.strip(),
             "artifacts": normalized_artifacts or list(checkpoint.get("artifacts", [])),
-            "next_review": _review_date(score, base),
+            "next_review": _review_date(score, base) if score is not None else None,
         }
     )
+    if assessment != "legacy":
+        checkpoint.update(
+            {
+                "hint_level_used": hint_level_used,
+                "independent": independent,
+                "evidence_details": details,
+            }
+        )
     previous_status = task["status"]
     _aggregate_task(task)
     if task["status"] == "done":
@@ -825,8 +1054,8 @@ def record_checkpoint(
                 }
             )
         gate_id = task.get("gate_id")
-        checkpoint_scores = [item.get("score") for item in task["checkpoints"]]
-        if gate_id and all(score is not None and score >= 4 for score in checkpoint_scores):
+        checkpoint_scores = _assessment_scores(task)
+        if gate_id and checkpoint_scores and all(score >= 4 for score in checkpoint_scores):
             progress["phase_gates"][gate_id] = {
                 "status": "passed",
                 "score": min(checkpoint_scores),
@@ -873,6 +1102,15 @@ def _first_unfinished(task: dict[str, Any]) -> dict[str, Any] | None:
 def _evidence_standard(checkpoint: dict[str, Any] | None) -> str | None:
     if not checkpoint:
         return None
+    if checkpoint.get("assessment") == "formative":
+        if checkpoint["id"] == "briefing":
+            return "学习者本人的概念解释和执行前预测；形成性阶段不评分。"
+        return "学习者选择的动作、执行前预测、脱敏实际结果和本人解释；形成性阶段不评分。"
+    if checkpoint.get("assessment") == "summative":
+        return (
+            "变化题的预测、学习者动作、实际结果、解释和 2–4 句英文交接；"
+            "4–5 分还要求独立完成且提示级别为 0。"
+        )
     if checkpoint["id"] == "briefing":
         return "学习者本人写出的事实、风险、缺失信息和可验证假设。"
     if checkpoint["id"] == "lab":
@@ -945,6 +1183,45 @@ def _week_summary(
         **status,
         "adaptation": dict(progress["adaptation"]),
     }
+
+
+def _weekly_project_for_task(
+    roadmap: dict[str, Any], task: dict[str, Any] | None
+) -> dict[str, Any] | None:
+    if not task or task.get("workflow_version") != COGNITIVE_WORKFLOW:
+        return None
+    content = cognitive_task_content(roadmap, int(task["curriculum_week"]), 0)
+    project = content["project"]
+    if str(project["id"]) != str(task.get("weekly_project_id")):
+        raise ValueError(
+            f"Task {task['id']} weekly project does not match its training blueprint"
+        )
+    scheduled_for = date.fromisoformat(str(task["scheduled_for"]))
+    lab_week = scheduled_for.strftime("%G-W%V")
+    located = {
+        key: (
+            value.replace("YYYY-Www", lab_week)
+            if isinstance(value, str)
+            else [
+                item.replace("YYYY-Www", lab_week) if isinstance(item, str) else item
+                for item in value
+            ]
+            if isinstance(value, list)
+            else value
+        )
+        for key, value in project.items()
+    }
+    lab_root = f"private/labs/{lab_week}"
+    located.update(
+        {
+            "lab_week": lab_week,
+            "lab_root": lab_root,
+            "worktree": f"{lab_root}/work",
+            "local_remote": f"{lab_root}/origin.git",
+            "friday_reproduction": f"{lab_root}/friday-reproduction",
+        }
+    )
+    return located
 
 
 def today_overview(
@@ -1047,9 +1324,15 @@ def today_overview(
     write_json(progress_path, progress)
     refresh_week_plan(root, week_value)
     if active_task_kind == "primary":
-        completion_standard = (
-            "今日计划任务的全部检查点均为 done，且每个检查点都有可复核证据。"
-        )
+        if active_task and active_task.get("workflow_version") == COGNITIVE_WORKFLOW:
+            completion_standard = (
+                "概念与预测、引导练习、独立迁移与交付均为 done；"
+                "总结性阶段包含完整结构化证据和英文书面交付。"
+            )
+        else:
+            completion_standard = (
+                "今日计划任务的全部检查点均为 done，且每个检查点都有可复核证据。"
+            )
     elif active_task_kind == "carryover":
         completion_standard = (
             "当前可选遗留任务的全部检查点均为 done，且每个检查点都有可复核证据；"
@@ -1080,6 +1363,9 @@ def today_overview(
                     "id": active_task["id"],
                     "title": active_task["title"],
                     "status": active_task["status"],
+                    "scenario": active_task.get("scenario"),
+                    "learning_goal": active_task.get("learning_goal"),
+                    "weekly_project": _weekly_project_for_task(roadmap, active_task),
                 }
                 if active_task
                 else None
@@ -1091,6 +1377,11 @@ def today_overview(
                     "title": checkpoint["title"],
                     "instruction": checkpoint["instruction"],
                     "status": checkpoint["status"],
+                    "coach_action": checkpoint.get("coach_action"),
+                    "learner_action": checkpoint.get("learner_action"),
+                    "hint_policy": checkpoint.get("hint_policy"),
+                    "assessment": checkpoint.get("assessment", "legacy"),
+                    "success_criteria": checkpoint.get("success_criteria"),
                 }
                 if checkpoint
                 else None
@@ -1177,6 +1468,16 @@ def render_today_text(overview: dict[str, Any]) -> str:
                 f"- 所需证据：{today['evidence_required']}",
             ]
         )
+        if checkpoint.get("assessment") != "legacy":
+            lines.extend(
+                [
+                    f"- 场景：{task['scenario']}",
+                    f"- 学习目标：{task['learning_goal']}",
+                    f"- 教练动作：{checkpoint['coach_action']}",
+                    f"- 学习者动作：{checkpoint['learner_action']}",
+                    f"- 提示策略：{checkpoint['hint_policy']}",
+                ]
+            )
         return "\n".join(lines)
     lines.extend(
         [
@@ -1188,6 +1489,16 @@ def render_today_text(overview: dict[str, Any]) -> str:
             f"- 所需证据：{today['evidence_required']}",
         ]
     )
+    if checkpoint.get("assessment") != "legacy":
+        lines.extend(
+            [
+                f"- 场景：{task['scenario']}",
+                f"- 学习目标：{task['learning_goal']}",
+                f"- 教练动作：{checkpoint['coach_action']}",
+                f"- 学习者动作：{checkpoint['learner_action']}",
+                f"- 提示策略：{checkpoint['hint_policy']}",
+            ]
+        )
     return "\n".join(lines)
 
 
