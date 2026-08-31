@@ -148,34 +148,197 @@ def test_weekend_today_is_read_only_rest(project_copy: Path) -> None:
     assert not (project_copy / "plans" / "weeks" / "2026-W31.md").exists()
 
 
-def test_calendar_theme_advances_but_phase_gate_blocks_next_phase(
+def test_calendar_theme_advances_but_phase_gate_uses_concrete_retest_blueprint(
     project_copy: Path,
 ) -> None:
-    _, created = ensure_week_plan(project_copy, "2026-W44")
+    path, created = ensure_week_plan(project_copy, "2026-W44")
     state = load_json(project_copy / "state" / "progress.json")
     plan = state["weekly_plans"]["2026-W44"]
 
     assert created is True
+    assert path.exists()
     assert plan["week"] == 14
     assert plan["calendar_phase"] == "systems_automation"
     assert plan["execution_phase"] == "foundations"
     assert plan["gate_mode"] == "remediation"
-    assert all(
-        state["tasks"][task_id]["title"].startswith(("Gate Reteach", "Gate Retest"))
-        for task_id in plan["new_task_ids"]
+    tasks = [state["tasks"][task_id] for task_id in plan["new_task_ids"]]
+    assert all(task["curriculum_week"] == 13 for task in tasks)
+    assert all(task["weekly_project_id"] == "foundation-gate-incident" for task in tasks)
+    assert all(task["title"].startswith("Gate ") for task in tasks)
+    assert len({task["learning_goal"] for task in tasks}) == 5
+    assert tasks[-1]["gate_id"] == "foundations"
+
+
+def test_remediation_gate_passes_only_from_independent_summative_score(
+    project_copy: Path,
+) -> None:
+    target = date(2026, 10, 30)
+    ensure_week_plan(project_copy, "2026-W44")
+    task_id = "2026-W44-05-mission"
+    record_checkpoint(
+        project_copy,
+        task_id,
+        "briefing",
+        "done",
+        None,
+        "learner concept explanation and prediction",
+        target,
+    )
+    record_checkpoint(
+        project_copy,
+        task_id,
+        "lab",
+        "done",
+        None,
+        "guided practice result and explanation",
+        target,
+        hint_level_used=2,
+    )
+    record_checkpoint(
+        project_copy,
+        task_id,
+        "written_handoff",
+        "done",
+        4,
+        "independent changed-condition evidence",
+        target,
+        hint_level_used=0,
+        independent=True,
+        evidence_details={
+            "prediction": "The changed listener will fail the old health check.",
+            "learner_action": "I selected and ran a new layered verification.",
+            "observed_result": "The process listened on the changed port.",
+            "interpretation": "The old endpoint was stale, not the process state.",
+            "handoff": "The service is healthy on the new port. The old check is stale.",
+        },
+    )
+    state = load_json(project_copy / "state" / "progress.json")
+
+    assert state["tasks"][task_id]["score"] == 4
+    assert state["phase_gates"]["foundations"] == {
+        "status": "passed",
+        "score": 4,
+        "evidence": state["tasks"][task_id]["evidence"],
+    }
+    before = (project_copy / "state" / "progress.json").read_bytes()
+    with pytest.raises(ValueError, match="Missing training blueprint.*week 15"):
+        ensure_week_plan(project_copy, "2026-W45")
+    assert (project_copy / "state" / "progress.json").read_bytes() == before
+
+
+def test_missing_training_blueprint_blocks_without_generic_tasks_or_writes(
+    project_copy: Path,
+) -> None:
+    state_path = project_copy / "state" / "progress.json"
+    state = load_json(state_path)
+    state["phase_gates"]["foundations"] = {
+        "status": "passed",
+        "score": 4,
+        "evidence": "verified foundation gate",
+    }
+    write_json(state_path, state)
+    before = state_path.read_bytes()
+
+    with pytest.raises(ValueError, match="Missing training blueprint.*week 14"):
+        ensure_week_plan(project_copy, "2026-W44")
+
+    assert state_path.read_bytes() == before
+    assert not (project_copy / "plans" / "weeks" / "2026-W44.md").exists()
+
+
+def test_cognitive_week_uses_blueprint_and_today_exposes_teaching_contract(
+    project_copy: Path,
+) -> None:
+    ensure_week_plan(project_copy, "2026-W35")
+    overview = today_overview(project_copy, date(2026, 8, 24))
+    state = load_json(project_copy / "state" / "progress.json")
+    task = state["tasks"]["2026-W35-01-mission"]
+
+    assert state["workflow_version"] == "cognitive_apprenticeship_v1"
+    assert task["workflow_version"] == "cognitive_apprenticeship_v1"
+    assert task["weekly_project_id"] == "local-git-change-control"
+    assert [item["title"] for item in task["checkpoints"]] == [
+        "概念与预测",
+        "引导练习",
+        "独立迁移与交付",
+    ]
+    assert [item["assessment"] for item in task["checkpoints"]] == [
+        "formative",
+        "formative",
+        "summative",
+    ]
+    active = overview["today"]["active_task"]
+    checkpoint = overview["today"]["next_checkpoint"]
+    assert active["scenario"]
+    assert active["learning_goal"] == task["learning_goal"]
+    assert active["weekly_project"]["id"] == task["weekly_project_id"]
+    assert active["weekly_project"]["lab_week"] == "2026-W35"
+    assert active["weekly_project"]["lab_root"] == "private/labs/2026-W35"
+    assert active["weekly_project"]["worktree"].endswith("/work")
+    assert "YYYY-Www" not in active["weekly_project"]["environment"]
+    assert checkpoint["assessment"] == "formative"
+    assert checkpoint["coach_action"]
+    assert checkpoint["learner_action"]
+    assert checkpoint["hint_policy"]
+    assert checkpoint["success_criteria"]
+
+
+def test_cognitive_scoring_requires_independent_structured_summative_evidence(
+    project_copy: Path,
+) -> None:
+    target = date(2026, 8, 24)
+    ensure_week_plan(project_copy, "2026-W35")
+    task_id = "2026-W35-01-mission"
+
+    with pytest.raises(ValueError, match="do not accept a score"):
+        record_checkpoint(
+            project_copy, task_id, "briefing", "done", 4, "copied answer", target
+        )
+    record_checkpoint(
+        project_copy, task_id, "briefing", "done", None, "own prediction", target
+    )
+    record_checkpoint(
+        project_copy, task_id, "lab", "done", None, "guided evidence", target,
+        hint_level_used=2,
+    )
+    details = {
+        "prediction": "The branch will be ahead by one commit.",
+        "learner_action": "I selected and ran the comparison command.",
+        "observed_result": "The output showed one local-only commit.",
+        "interpretation": "The local commit has not reached the remote.",
+        "handoff": "The branch is one commit ahead. Please review before push.",
+    }
+    with pytest.raises(ValueError, match="independent variation"):
+        record_checkpoint(
+            project_copy,
+            task_id,
+            "written_handoff",
+            "done",
+            4,
+            "structured independent evidence",
+            target,
+            hint_level_used=1,
+            independent=True,
+            evidence_details=details,
+        )
+
+    task = record_checkpoint(
+        project_copy,
+        task_id,
+        "written_handoff",
+        "done",
+        4,
+        "structured independent evidence",
+        target,
+        hint_level_used=0,
+        independent=True,
+        evidence_details=details,
     )
 
-    gate_task = plan["new_task_ids"][-1]
-    _complete_task(project_copy, gate_task, date(2026, 10, 30))
-    state = load_json(project_copy / "state" / "progress.json")
-    assert state["phase_gates"]["foundations"]["status"] == "passed"
-
-    ensure_week_plan(project_copy, "2026-W45")
-    state = load_json(project_copy / "state" / "progress.json")
-    next_plan = state["weekly_plans"]["2026-W45"]
-    assert next_plan["calendar_phase"] == "systems_automation"
-    assert next_plan["execution_phase"] == "systems_automation"
-    assert next_plan["gate_mode"] == "normal"
+    assert task["status"] == "done"
+    assert task["score"] == 4
+    assert task["checkpoints"][0]["score"] is None
+    assert task["checkpoints"][1]["score"] is None
 
 
 def test_primary_stops_by_default_and_explicit_continue_starts_oldest_carryover(

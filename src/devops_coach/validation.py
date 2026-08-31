@@ -7,7 +7,14 @@ from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-from devops_coach.planner import focus_for_week, phase_for_week, render_master_plan
+from devops_coach.planner import (
+    COGNITIVE_WORKFLOW,
+    SUMMATIVE_EVIDENCE_FIELDS,
+    focus_for_week,
+    phase_for_week,
+    render_master_plan,
+    task_has_complete_evidence,
+)
 from devops_coach.storage import load_json, load_yaml
 
 FORBIDDEN_ACTIVE_KEYS = {
@@ -99,6 +106,19 @@ def validate_project(root: Path) -> list[str]:
         if len(starter.get("missions", [])) != 5:
             errors.append(f"roadmap: starter week {starter.get('week')} must contain 5 missions")
 
+    blueprints = roadmap.get("training_blueprints", [])
+    blueprint_weeks = [item.get("week") for item in blueprints]
+    if blueprint_weeks != list(range(5, 14)):
+        errors.append("roadmap: training_blueprints must contain weeks 5 through 13 in order")
+    project_ids = [item.get("project", {}).get("id") for item in blueprints]
+    if len(project_ids) != len(set(project_ids)):
+        errors.append("roadmap: training blueprint project ids must be unique")
+    for blueprint in blueprints:
+        if len(blueprint.get("missions", [])) != 5:
+            errors.append(
+                f"roadmap: training blueprint week {blueprint.get('week')} must contain 5 missions"
+            )
+
     schedule = learner.get("learner", {}).get("schedule", {})
     expected_schedule = {
         "weekday_missions": 1,
@@ -141,6 +161,75 @@ def validate_project(root: Path) -> list[str]:
             errors.append(
                 f"progress: passed gate {gate_id} requires score 4/5 or higher and evidence"
             )
+
+    cognitive_tasks = [
+        task
+        for task in progress.get("tasks", {}).values()
+        if task.get("workflow_version") == COGNITIVE_WORKFLOW
+    ]
+    if cognitive_tasks and progress.get("workflow_version") != COGNITIVE_WORKFLOW:
+        errors.append("progress: cognitive tasks require the cognitive workflow version")
+    for task in cognitive_tasks:
+        task_id = task.get("id", "<unknown>")
+        for field in ("weekly_project_id", "learning_goal", "success_criteria"):
+            if not task.get(field):
+                errors.append(f"progress: cognitive task {task_id} requires {field}")
+        checkpoints = task.get("checkpoints", [])
+        assessments = [item.get("assessment") for item in checkpoints]
+        if (
+            len(assessments) != 3
+            or any(value not in {"legacy", "formative"} for value in assessments[:2])
+            or assessments[-1:] != ["summative"]
+        ):
+            errors.append(
+                f"progress: cognitive task {task_id} requires formative stages "
+                "followed by summative"
+            )
+        for checkpoint in checkpoints:
+            checkpoint_id = checkpoint.get("id", "<unknown>")
+            for field in (
+                "success_criteria",
+                "coach_action",
+                "learner_action",
+                "hint_policy",
+                "independent",
+            ):
+                if field not in checkpoint or checkpoint.get(field) in {None, ""}:
+                    errors.append(
+                        f"progress: cognitive checkpoint {task_id}/{checkpoint_id} requires {field}"
+                    )
+            assessment = checkpoint.get("assessment")
+            if assessment == "legacy" and not (
+                checkpoint.get("status") == "done" and checkpoint.get("evidence")
+            ):
+                errors.append(
+                    f"progress: legacy checkpoint {task_id}/{checkpoint_id} "
+                    "must preserve done evidence"
+                )
+            if assessment == "formative" and checkpoint.get("score") is not None:
+                errors.append(
+                    f"progress: formative checkpoint {task_id}/{checkpoint_id} cannot be scored"
+                )
+            if assessment == "summative" and checkpoint.get("status") == "done":
+                details = checkpoint.get("evidence_details")
+                if not isinstance(details, dict) or any(
+                    not isinstance(details.get(field), str) or not details[field].strip()
+                    for field in SUMMATIVE_EVIDENCE_FIELDS
+                ):
+                    errors.append(
+                        f"progress: summative checkpoint {task_id}/{checkpoint_id} "
+                        "requires structured evidence"
+                    )
+                if checkpoint.get("score") in {4, 5} and (
+                    checkpoint.get("independent") is not True
+                    or checkpoint.get("hint_level_used") != 0
+                ):
+                    errors.append(
+                        f"progress: score 4-5 for {task_id}/{checkpoint_id} "
+                        "requires independent work with hint level 0"
+                    )
+        if task.get("status") == "done" and not task_has_complete_evidence(task):
+            errors.append(f"progress: cognitive task {task_id} lacks complete summative evidence")
 
     master_path = root / "plans" / "master-plan.md"
     expected_master = render_master_plan(learner, roadmap)

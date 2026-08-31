@@ -4,8 +4,25 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from devops_coach.planner import ensure_week_plan, parse_iso_week, refresh_week_plan
+from devops_coach.planner import (
+    COGNITIVE_WORKFLOW,
+    ensure_week_plan,
+    parse_iso_week,
+    refresh_week_plan,
+)
 from devops_coach.storage import load_json, write_json
+
+
+def _task_score(task: dict[str, Any]) -> int | None:
+    if task.get("workflow_version") != COGNITIVE_WORKFLOW:
+        return task.get("score")
+    scores = [
+        checkpoint["score"]
+        for checkpoint in task.get("checkpoints", [])
+        if checkpoint.get("assessment") == "summative"
+        and checkpoint.get("score") is not None
+    ]
+    return round(sum(scores) / len(scores)) if scores else None
 
 
 def _priority(tasks: list[dict[str, Any]]) -> str:
@@ -14,7 +31,7 @@ def _priority(tasks: list[dict[str, Any]]) -> str:
             task
             for task in tasks
             if task["status"] == "blocked"
-            or (task.get("score") is not None and task["score"] <= 2)
+            or (_task_score(task) is not None and _task_score(task) <= 2)
             or task["status"] != "done"
         ),
         None,
@@ -42,12 +59,14 @@ def review_week(root: Path, week_value: str) -> tuple[Path, dict[str, Any]]:
         if task_id in progress["tasks"] and progress["tasks"][task_id]["status"] != "cancelled"
     ]
     done = [task for task in tasks if task["status"] == "done"]
-    scores = [task["score"] for task in tasks if task.get("score") is not None]
+    scores = [score for task in tasks if (score := _task_score(task)) is not None]
     completion = len(done) / len(tasks) if tasks else 0.0
     mean_score = sum(scores) / len(scores) if scores else 0.0
     blockers = [task["id"] for task in tasks if task["status"] == "blocked"]
     low_scores = [
-        task["id"] for task in tasks if task.get("score") is not None and task["score"] <= 2
+        task["id"]
+        for task in tasks
+        if (score := _task_score(task)) is not None and score <= 2
     ]
 
     if completion < 0.70 or low_scores:

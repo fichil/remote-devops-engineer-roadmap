@@ -22,6 +22,29 @@ def _complete(project: Path, task_id: str, day: date, score: int = 4) -> None:
         )
 
 
+def _complete_cognitive(project: Path, task_id: str, day: date, score: int = 4) -> None:
+    record_checkpoint(project, task_id, "briefing", "done", None, "own prediction", day)
+    record_checkpoint(project, task_id, "lab", "done", None, "guided practice", day)
+    record_checkpoint(
+        project,
+        task_id,
+        "written_handoff",
+        "done",
+        score,
+        "independent variation",
+        day,
+        hint_level_used=0,
+        independent=True,
+        evidence_details={
+            "prediction": "Expected branch difference.",
+            "learner_action": "Selected and ran a read-only comparison.",
+            "observed_result": "Observed the expected branch difference.",
+            "interpretation": "The result confirms the prediction.",
+            "handoff": "The comparison passed. The change is ready for review.",
+        },
+    )
+
+
 def test_low_completion_changes_content_to_reteach_not_quantity(
     project_copy: Path,
 ) -> None:
@@ -86,3 +109,26 @@ def test_high_completion_adds_independent_variation_with_same_quantity(
         for task_id in next_ids
     )
     assert "load_factor" not in state["adaptation"]
+
+
+def test_cognitive_review_uses_only_summative_scores(project_copy: Path) -> None:
+    ensure_week_plan(project_copy, "2026-W35")
+    monday = date(2026, 8, 24)
+    for index in range(4):
+        _complete_cognitive(
+            project_copy,
+            f"2026-W35-{index + 1:02d}-mission",
+            monday + timedelta(days=index),
+        )
+
+    _, summary = review_week(project_copy, "2026-W35")
+    state = load_json(project_copy / "state" / "progress.json")
+
+    assert summary["completion_rate"] == 0.8
+    assert summary["mean_score"] == 4
+    assert summary["low_score_tasks"] == []
+    assert summary["adaptation_mode"] == "stretch"
+    for task_id in state["weekly_plans"]["2026-W35"]["new_task_ids"][:4]:
+        task = state["tasks"][task_id]
+        assert task["score"] == 4
+        assert [item["score"] for item in task["checkpoints"]] == [None, None, 4]

@@ -7,7 +7,12 @@ from collections.abc import Sequence
 from datetime import date
 from pathlib import Path
 
-from devops_coach.migration import migrate_to_schema_2
+from devops_coach.lab import prepare_friday_reproduction, prepare_week_lab, week_lab_status
+from devops_coach.migration import (
+    COGNITIVE_WORKFLOW_VERSION,
+    migrate_to_schema_2,
+    migrate_to_training_workflow,
+)
 from devops_coach.planner import (
     ensure_master_plan,
     ensure_week_plan,
@@ -32,8 +37,23 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     migrate_parser = subparsers.add_parser("migrate", help="Migrate active data")
-    migrate_parser.add_argument("--to-schema", type=int, choices=(2,), required=True)
+    migrate_target = migrate_parser.add_mutually_exclusive_group(required=True)
+    migrate_target.add_argument("--to-schema", type=int, choices=(2,))
+    migrate_target.add_argument(
+        "--to-training",
+        choices=(COGNITIVE_WORKFLOW_VERSION,),
+        help="Migrate active missions to the cognitive-apprenticeship workflow",
+    )
     migrate_parser.add_argument("--dry-run", action="store_true")
+
+    lab_parser = subparsers.add_parser("lab", help="Prepare or inspect a local weekly lab")
+    lab_subparsers = lab_parser.add_subparsers(dest="lab_action", required=True)
+    for action in ("prepare", "status", "reproduce"):
+        action_parser = lab_subparsers.add_parser(action)
+        action_parser.add_argument("--week", required=True)
+        action_parser.add_argument("--json", action="store_true")
+        if action == "reproduce":
+            action_parser.add_argument("--date", type=date.fromisoformat, default=date.today())
 
     plan_parser = subparsers.add_parser("plan", help="Generate durable planning documents")
     plan_subparsers = plan_parser.add_subparsers(dest="plan_kind", required=True)
@@ -56,8 +76,15 @@ def build_parser() -> argparse.ArgumentParser:
     record_parser.add_argument(
         "--status", choices=("in_progress", "done", "blocked"), required=True
     )
-    record_parser.add_argument("--score", type=int, choices=range(0, 6), required=True)
+    record_parser.add_argument("--score", type=int, choices=range(0, 6))
     record_parser.add_argument("--evidence", required=True)
+    record_parser.add_argument("--hint-level", type=int, choices=range(0, 4))
+    record_parser.add_argument("--independent", action="store_true")
+    record_parser.add_argument("--prediction")
+    record_parser.add_argument("--learner-action")
+    record_parser.add_argument("--observed-result")
+    record_parser.add_argument("--interpretation")
+    record_parser.add_argument("--handoff")
     record_parser.add_argument(
         "--artifact",
         action="append",
@@ -88,8 +115,26 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     root = args.root.resolve()
     if args.command == "migrate":
-        summary = migrate_to_schema_2(root, dry_run=args.dry_run)
+        if args.to_training:
+            summary = migrate_to_training_workflow(root, dry_run=args.dry_run)
+        else:
+            summary = migrate_to_schema_2(root, dry_run=args.dry_run)
         print(json.dumps(summary, ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "lab":
+        if args.lab_action == "prepare":
+            payload = prepare_week_lab(root, args.week)
+        elif args.lab_action == "status":
+            payload = week_lab_status(root, args.week)
+        else:
+            payload = prepare_friday_reproduction(root, args.week, args.date)
+        if args.json:
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        else:
+            print(
+                f"Lab {payload['status']}: {payload['week']} "
+                f"({payload.get('lab_root', 'unknown path')})"
+            )
         return 0
     if args.command == "plan":
         if args.plan_kind == "master":
@@ -114,6 +159,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.score,
             args.evidence,
             artifacts=args.artifact,
+            hint_level_used=args.hint_level,
+            independent=args.independent,
+            evidence_details={
+                "prediction": args.prediction,
+                "learner_action": args.learner_action,
+                "observed_result": args.observed_result,
+                "interpretation": args.interpretation,
+                "handoff": args.handoff,
+            },
         )
         payload: dict[str, object] = {"task": task}
         if task["status"] == "done":

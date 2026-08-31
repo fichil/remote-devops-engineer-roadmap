@@ -28,3 +28,30 @@ def test_validation_rejects_time_fields_in_active_state(project_copy: Path) -> N
     errors = validate_project(project_copy)
 
     assert any("time-based field is forbidden" in error for error in errors)
+
+
+def test_validation_enforces_cognitive_assessment_invariants(project_copy: Path) -> None:
+    ensure_week_plan(project_copy, "2026-W35")
+    state_path = project_copy / "state" / "progress.json"
+    state = load_json(state_path)
+    task = state["tasks"]["2026-W35-01-mission"]
+    task["checkpoints"][0]["score"] = 4
+    task["checkpoints"][2].update(
+        {
+            "status": "done",
+            "score": 5,
+            "evidence": "unstructured copied result",
+            "hint_level_used": 2,
+            "independent": False,
+        }
+    )
+    write_json(state_path, state)
+
+    errors = validate_project(project_copy)
+
+    assert any("formative checkpoint" in error and "cannot be scored" in error for error in errors)
+    assert any(
+        "summative checkpoint" in error and "structured evidence" in error
+        for error in errors
+    )
+    assert any("requires independent work with hint level 0" in error for error in errors)

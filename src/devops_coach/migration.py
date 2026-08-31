@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from devops_coach.storage import load_json, load_yaml, write_json
+from devops_coach.storage import load_json, load_yaml, write_json, write_text
 
 ACTIVE_STATUSES = {"queued", "in_progress", "blocked"}
 SPECIAL_QUEUE = (
@@ -25,6 +25,8 @@ POLICY_BACKLOG_TASK_IDS = (
     "2026-W34-04-mission",
     "2026-W34-05-mission",
 )
+COGNITIVE_WORKFLOW_VERSION = "cognitive_apprenticeship_v1"
+COGNITIVE_ARCHIVE_NAME = "progress-pre-cognitive-apprenticeship-v1.json"
 
 
 def _calendar_week(start: date, target: date) -> int:
@@ -419,6 +421,266 @@ def migrate_to_schema_2(root: Path, dry_run: bool = False) -> dict[str, Any]:
             ),
             encoding="utf-8",
             newline="\n",
+        )
+    return summary
+
+
+def _cognitive_blueprint_content(
+    roadmap: dict[str, Any], week: int, slot: int
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Return one concrete weekly project and mission; generic fallbacks are forbidden."""
+    from devops_coach.planner import cognitive_task_content
+
+    content = cognitive_task_content(roadmap, week, slot)
+    return content["project"], content["mission"]
+
+
+def _task_mission_slot(task: dict[str, Any]) -> int:
+    task_id = str(task.get("id", ""))
+    match = re.search(r"-W\d{2}-(0[1-5])-mission$", task_id)
+    if match:
+        return int(match.group(1)) - 1
+    scheduled_for = task.get("scheduled_for")
+    if scheduled_for:
+        weekday = date.fromisoformat(str(scheduled_for)).weekday()
+        if 0 <= weekday <= 4:
+            return weekday
+    raise ValueError(f"Cannot determine the weekday mission slot for task {task_id}")
+
+
+def _checkpoint_success_criteria(checkpoint_id: str, assessment: str) -> str:
+    if assessment == "legacy":
+        return "历史证据已保留，不重新提问或重新评分。"
+    if checkpoint_id == "briefing":
+        return "用自己的话解释心智模型，并在执行前给出一个可检验预测。"
+    if checkpoint_id == "lab":
+        return "先选择下一步并预测结果，再执行、观察并解释；该阶段不计分。"
+    return (
+        "在变化条件下独立完成任务，提交预测、学习者动作、实际结果、解释，"
+        "并写出 2–4 句英文 PR 评论或交接。"
+    )
+
+
+def _new_checkpoint_metadata(checkpoint: dict[str, Any], assessment: str) -> None:
+    checkpoint["assessment"] = assessment
+    checkpoint["hint_level_used"] = None
+    checkpoint["independent"] = False
+    checkpoint["evidence_details"] = None
+    checkpoint["success_criteria"] = _checkpoint_success_criteria(
+        str(checkpoint.get("id", "")), assessment
+    )
+    if assessment == "legacy":
+        checkpoint["coach_action"] = "保留历史证据，不要求学习者重复作答。"
+        checkpoint["learner_action"] = "无需重复已经完成并验证的历史检查点。"
+        checkpoint["hint_policy"] = "历史记录不推断提示级别或独立完成状态。"
+    elif checkpoint.get("id") == "briefing":
+        checkpoint["coach_action"] = "先用中文解释概念和命令组成，然后只提出一个目标相关问题。"
+        checkpoint["learner_action"] = "解释当前概念并写出一个可检验预测，不复制现成答案。"
+        checkpoint["hint_policy"] = (
+            "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。"
+        )
+    elif checkpoint.get("id") == "lab":
+        checkpoint["coach_action"] = (
+            "等待学习者先决策和预测，再按提示层级逐级帮助并脱敏检查输出。"
+        )
+        checkpoint["learner_action"] = (
+            "选择或补全命令，先预测后执行，并用自己的话解释实际结果。"
+        )
+        checkpoint["hint_policy"] = (
+            "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。"
+        )
+    else:
+        checkpoint["coach_action"] = (
+            "提供变化条件但不给完整命令；只验证证据并按 0–5 分总结评价。"
+        )
+        checkpoint["learner_action"] = (
+            "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。"
+        )
+        checkpoint["hint_policy"] = (
+            "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。"
+        )
+
+
+def _transform_active_task_to_cognitive_workflow(
+    task: dict[str, Any], roadmap: dict[str, Any]
+) -> dict[str, int]:
+    week = int(task["curriculum_week"])
+    slot = _task_mission_slot(task)
+    project, mission = _cognitive_blueprint_content(roadmap, week, slot)
+    acceptance = project.get("acceptance_criteria")
+    if not isinstance(acceptance, list) or not acceptance or not all(
+        isinstance(item, str) and item.strip() for item in acceptance
+    ):
+        raise ValueError(
+            f"Training blueprint for curriculum week {week} needs acceptance criteria"
+        )
+
+    task["workflow_version"] = COGNITIVE_WORKFLOW_VERSION
+    task["weekly_project_id"] = str(project["id"])
+    task["learning_goal"] = str(mission["learning_goal"])
+    task["success_criteria"] = list(acceptance)
+    task["scenario"] = str(mission["scenario"])
+    task["title"] = f"{mission['codename']}：{mission['learning_goal']}"
+    preserved_briefing = any(
+        checkpoint.get("id") == "briefing"
+        and checkpoint.get("status") == "done"
+        and checkpoint.get("evidence")
+        for checkpoint in task.get("checkpoints", [])
+    )
+
+    preserved = 0
+    converted = 0
+    for checkpoint in task.get("checkpoints", []):
+        if checkpoint.get("status") == "done" and checkpoint.get("evidence"):
+            # Historical verified work remains exactly as recorded; metadata only prevents
+            # the new coach from asking the learner to repeat it.
+            _new_checkpoint_metadata(checkpoint, "legacy")
+            preserved += 1
+            continue
+
+        checkpoint_id = checkpoint.get("id")
+        if checkpoint_id == "briefing":
+            checkpoint["title"] = "概念与预测"
+            checkpoint["instruction"] = str(mission["concept_prompt"])
+            assessment = "formative"
+        elif checkpoint_id == "lab":
+            checkpoint["title"] = "引导练习"
+            checkpoint["instruction"] = str(mission["guided_practice"])
+            assessment = "formative"
+        elif checkpoint_id == "written_handoff":
+            checkpoint["title"] = "独立迁移与交付"
+            checkpoint["instruction"] = str(mission["independent_delivery"])
+            assessment = "summative"
+        else:
+            raise ValueError(
+                f"Unsupported checkpoint {checkpoint_id!r} in cognitive task {task['id']}"
+            )
+        # An incomplete legacy checkpoint has no mastery value in the new workflow.
+        checkpoint["score"] = None
+        checkpoint["next_review"] = None
+        _new_checkpoint_metadata(checkpoint, assessment)
+        if checkpoint_id == "lab" and preserved_briefing:
+            concepts = "、".join(str(item) for item in project.get("core_concepts", []))
+            checkpoint["instruction"] = (
+                f"概念桥接：教练先用中文讲清 {concepts} 的关系；随后只问这一题："
+                f"{mission['concept_prompt']} 学习者回答并给出预测后，再进入引导练习："
+                f"{mission['guided_practice']}"
+            )
+            checkpoint["coach_action"] = (
+                "先讲清周项目所需的对象关系，再只提出 instruction 中的一个判断题；"
+                "收到学习者预测后才进入引导练习。"
+            )
+            checkpoint["learner_action"] = (
+                "先用自己的话回答一个判断题并给出可检验预测，再选择引导练习的下一步。"
+            )
+        converted += 1
+    summative = [
+        checkpoint
+        for checkpoint in task.get("checkpoints", [])
+        if checkpoint.get("assessment") == "summative"
+    ]
+    summative_scores = [
+        int(checkpoint["score"])
+        for checkpoint in summative
+        if checkpoint.get("score") is not None
+    ]
+    task["score"] = min(summative_scores) if summative_scores else None
+    summative_reviews = [
+        str(checkpoint["next_review"])
+        for checkpoint in summative
+        if checkpoint.get("next_review")
+    ]
+    task["next_review"] = min(summative_reviews) if summative_reviews else None
+    return {"preserved": preserved, "converted": converted}
+
+
+def transform_training_workflow(
+    progress: dict[str, Any], roadmap: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    if progress.get("schema_version") != 2:
+        raise ValueError("Progress schema v2 is required before migrating the training workflow")
+    migrated = deepcopy(progress)
+    migrated_ids: list[str] = []
+    preserved = 0
+    converted = 0
+    for task_id, task in migrated.get("tasks", {}).items():
+        if task.get("status") not in ACTIVE_STATUSES:
+            continue
+        if task.get("source") != "weekly-plan":
+            continue
+        if task.get("workflow_version") == COGNITIVE_WORKFLOW_VERSION:
+            continue
+        stats = _transform_active_task_to_cognitive_workflow(task, roadmap)
+        migrated_ids.append(task_id)
+        preserved += stats["preserved"]
+        converted += stats["converted"]
+    if migrated_ids:
+        migrated["workflow_version"] = COGNITIVE_WORKFLOW_VERSION
+    return migrated, {
+        "task_ids": migrated_ids,
+        "legacy_checkpoints_preserved": preserved,
+        "checkpoints_converted": converted,
+    }
+
+
+def migrate_to_training_workflow(root: Path, dry_run: bool = False) -> dict[str, Any]:
+    """Migrate active schema-v2 missions without recording or publishing evidence."""
+    state_path = root / "state" / "progress.json"
+    archive_path = root / "state" / "archive" / COGNITIVE_ARCHIVE_NAME
+    raw_state = state_path.read_bytes()
+    progress = load_json(state_path)
+    roadmap = load_yaml(root / "curriculum" / "roadmap.yml")
+    migrated, details = transform_training_workflow(progress, roadmap)
+    progress_would_change = migrated != progress
+    cognitive_weeks = sorted(
+        week_value
+        for week_value, plan in migrated.get("weekly_plans", {}).items()
+        if any(
+            migrated.get("tasks", {}).get(task_id, {}).get("workflow_version")
+            == COGNITIVE_WORKFLOW_VERSION
+            for task_id in plan.get("new_task_ids", [])
+        )
+    )
+    from devops_coach.planner import render_week_plan
+
+    expected_plans = {
+        week_value: render_week_plan(migrated, week_value)
+        for week_value in cognitive_weeks
+    }
+    plans_needing_sync = [
+        week_value
+        for week_value, expected in expected_plans.items()
+        if not (path := root / "plans" / "weeks" / f"{week_value}.md").exists()
+        or path.read_text(encoding="utf-8") != expected
+    ]
+    would_change = progress_would_change or bool(plans_needing_sync)
+    summary = {
+        "changed": would_change and not dry_run,
+        "would_change": would_change,
+        "dry_run": dry_run,
+        "workflow_version": COGNITIVE_WORKFLOW_VERSION,
+        "archive": archive_path.relative_to(root).as_posix(),
+        "weekly_plans_synced": plans_needing_sync,
+        **details,
+    }
+    if dry_run or not would_change:
+        return summary
+
+    if progress_would_change:
+        if archive_path.exists():
+            if archive_path.read_bytes() != raw_state:
+                raise ValueError(
+                    "Existing cognitive-apprenticeship archive differs from the migration source"
+                )
+        else:
+            archive_path.parent.mkdir(parents=True, exist_ok=True)
+            archive_path.write_bytes(raw_state)
+        migrated["updated_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
+        write_json(state_path, migrated)
+    for week_value in plans_needing_sync:
+        write_text(
+            root / "plans" / "weeks" / f"{week_value}.md",
+            expected_plans[week_value],
         )
     return summary
 

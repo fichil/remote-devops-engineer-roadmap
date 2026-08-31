@@ -22,7 +22,7 @@ learner:
     saturday_missions: 0
     sunday_missions: 0
   engagement:
-    style: incident_mission
+    style: cognitive_apprenticeship
     streak_basis: completed_evidence_task
     backlog_order: today_first_then_oldest
   publication:
