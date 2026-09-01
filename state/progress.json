@@ -71,6 +71,13 @@
       "evidence": "学习者判断：README-only 变更单下出现 deploy/app.conf 差异时，即使 CI 通过也不具备合并条件；修正后差异应只包含明确允许的 README.md 修改。 | 学习者以审查基线和候选分支为端点，检查完整分支差异，识别获授权 README 修改与越界 deploy/app.conf 修改，并区分 CI 检查和业务授权。 | 学习者独立审查新的分支变化题，识别 docs 目录中的 PowerShell 文件属于运行行为而非纯文档，并阻止未经授权的 -SkipChecks 修改合并。",
       "kind": "primary",
       "task_id": "2026-W36-02-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-01",
+      "evidence": "学习者独立完成事件简报：deploy/app.conf 第一次修改已暂存、第二次修改留在工作区并呈现 MM；识别普通 commit 可能遗漏第二次修改、commit -a 可能纳入第二次及其他已跟踪改动；确认缺失信息是预期提交范围与确切提交命令；提出可验证假设为 cached diff 显示第一次暂存差异、普通 diff 显示第二次工作区差异。 | Learner predicted and verified selective commit behavior in the W35 local lab; commit cf8bac1 recorded timeout=45 while timeout=60 remained unstaged. | Learner independently created commit 98dc332 containing only the approved verification result, verified an empty cached diff, and proved both unapproved edits remained in the working tree; the final English handoff was accurate after structured language scaffolding.",
+      "kind": "carryover",
+      "task_id": "2026-W35-02-mission"
     }
   ],
   "current_phase": "foundations",
@@ -1685,6 +1692,7 @@
     },
     "2026-W35-02-mission": {
       "artifacts": [],
+      "carryover_activated_on": "2026-09-01",
       "checkpoints": [
         {
           "artifacts": [],
@@ -1705,11 +1713,18 @@
           "title": "事件简报"
         },
         {
+          "artifacts": [],
           "assessment": "formative",
           "coach_action": "先讲清周项目所需的对象关系，再只提出 instruction 中的一个判断题；收到学习者预测后才进入引导练习。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "Learner predicted and verified selective commit behavior in the W35 local lab; commit cf8bac1 recorded timeout=45 while timeout=60 remained unstaged.",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "The learner explained that the first diff compares HEAD with the index and the second compares the index with the working tree; commit records the index snapshot, not the later unstaged edit.",
+            "learner_action": "Learner selected and ran git diff --cached -- deploy/app.conf and git diff -- deploy/app.conf, created commit cf8bac1 with a learner-authored git commit command, then verified with git show HEAD:deploy/app.conf, git diff --cached -- deploy/app.conf, and cat deploy/app.conf.",
+            "observed_result": "Before commit, cached diff showed timeout=30 to 45 and working-tree diff showed 45 to 60. After commit, HEAD and index contained timeout=45, cached diff had no output, git status showed an unstaged deploy/app.conf modification, and the working tree contained timeout=60.",
+            "prediction": "A normal commit will record timeout=45 from the index, while timeout=60 remains in the working tree."
+          },
+          "hint_level_used": 2,
           "hint_policy": "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。",
           "id": "lab",
           "independent": false,
@@ -1717,43 +1732,50 @@
           "learner_action": "先用自己的话回答一个判断题并给出可检验预测，再选择引导练习的下一步。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "先选择下一步并预测结果，再执行、观察并解释；该阶段不计分。",
           "title": "引导练习"
         },
         {
+          "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "Learner independently created commit 98dc332 containing only the approved verification result, verified an empty cached diff, and proved both unapproved edits remained in the working tree; the final English handoff was accurate after structured language scaffolding.",
+          "evidence_details": {
+            "handoff": "This commit contains the approved test result in notes/verification.txt. The unapproved production-deployment claim and the unapproved timeout=60 configuration change remain in the working tree. Next, review the scope before pushing or merging.",
+            "interpretation": "The learner explained that committed HEAD contains the approved content while the two unapproved changes remain in the working tree, proving that the commit scope follows authorization.",
+            "learner_action": "Learner selected the diff and show checks, authored and executed a normal index-based commit without -a or a pathspec, then verified HEAD, the cached diff, status, and both working-tree diffs.",
+            "observed_result": "Commit 98dc332 changed only notes/verification.txt by one insertion. HEAD contains the approved timeout=45 test result and not the unapproved claim; git diff --cached produced no output; status shows unstaged modifications for deploy/app.conf and notes/verification.txt; their diffs retain timeout=60 and the unapproved production-deployment claim.",
+            "prediction": "The new commit should contain only the approved notes verification result; the index should match HEAD; the unapproved production claim and timeout=60 configuration change should remain in the working tree."
+          },
+          "hint_level_used": 2,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "换成验证记录中一行获批、一行未获批的新条件；学习者无完整命令提示独立完成选择、预测、执行、验证和解释，再写 2–4 句英语说明提交范围。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-08",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立完成任务，提交预测、学习者动作、实际结果、解释，并写出 2–4 句英文 PR 评论或交接。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-01",
       "created_on": "2026-08-25",
       "curriculum_week": 5,
-      "evidence": "学习者独立完成事件简报：deploy/app.conf 第一次修改已暂存、第二次修改留在工作区并呈现 MM；识别普通 commit 可能遗漏第二次修改、commit -a 可能纳入第二次及其他已跟踪改动；确认缺失信息是预期提交范围与确切提交命令；提出可验证假设为 cached diff 显示第一次暂存差异、普通 diff 显示第二次工作区差异。",
+      "evidence": "学习者独立完成事件简报：deploy/app.conf 第一次修改已暂存、第二次修改留在工作区并呈现 MM；识别普通 commit 可能遗漏第二次修改、commit -a 可能纳入第二次及其他已跟踪改动；确认缺失信息是预期提交范围与确切提交命令；提出可验证假设为 cached diff 显示第一次暂存差异、普通 diff 显示第二次工作区差异。 | Learner predicted and verified selective commit behavior in the W35 local lab; commit cf8bac1 recorded timeout=45 while timeout=60 remained unstaged. | Learner independently created commit 98dc332 containing only the approved verification result, verified an empty cached diff, and proved both unapproved edits remained in the working tree; the final English handoff was accurate after structured language scaffolding.",
       "id": "2026-W35-02-mission",
       "learning_goal": "理解暂存是内容快照而不是“文件永久进入提交”的标签。",
-      "next_review": null,
+      "next_review": "2026-09-08",
       "phase": "foundations",
       "queue_order": 1050,
       "scenario": "第一次配置修改已获授权，随后出现尚未批准的第二次修改，提交必须只包含获授权内容。",
       "scheduled_for": "2026-08-25",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "in_progress",
+      "status": "done",
       "success_criteria": [
         "能根据实际差异区分工作区、暂存区和 HEAD 中的内容。",
         "能按变更目标选择明确文件与明确内容形成可审查提交。",
@@ -2454,7 +2476,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-01T13:29:27+08:00",
+  "updated_at": "2026-09-01T17:44:02+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
