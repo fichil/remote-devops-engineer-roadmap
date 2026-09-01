@@ -12,6 +12,7 @@ from devops_coach.lab import (
     week_lab_status,
 )
 from devops_coach.planner import ensure_week_plan
+from devops_coach.storage import load_json, write_json
 
 
 def _outside_private_snapshot(root: Path) -> dict[str, bytes]:
@@ -40,6 +41,63 @@ def test_week_lab_is_local_continuous_and_idempotent(project_copy: Path) -> None
     assert json.loads(before)["local_only"] is True
     assert week_lab_status(project_copy, "2026-W36")["status"] == "ready"
     assert _outside_private_snapshot(project_copy) == outside_before
+
+
+def test_week_lab_allows_preserved_completed_legacy_task_without_project_id(
+    project_copy: Path,
+) -> None:
+    ensure_week_plan(project_copy, "2026-W35")
+    state_path = project_copy / "state" / "progress.json"
+    state = load_json(state_path)
+    legacy = state["tasks"]["2026-W35-01-mission"]
+    legacy["status"] = "done"
+    legacy.pop("workflow_version")
+    legacy.pop("weekly_project_id")
+    write_json(state_path, state)
+    before = state_path.read_bytes()
+    assert legacy["status"] == "done"
+    assert "workflow_version" not in legacy
+    assert "weekly_project_id" not in legacy
+
+    outside_before = _outside_private_snapshot(project_copy)
+    first = prepare_week_lab(project_copy, "2026-W35")
+    second = prepare_week_lab(project_copy, "2026-W35")
+
+    assert first["created"] is True
+    assert second["created"] is False
+    assert first["curriculum_week"] == 5
+    assert first["project_id"] == "local-git-change-control"
+    assert state_path.read_bytes() == before
+    assert _outside_private_snapshot(project_copy) == outside_before
+
+
+def test_week_lab_rejects_missing_project_id_on_cognitive_task(
+    project_copy: Path,
+) -> None:
+    ensure_week_plan(project_copy, "2026-W35")
+    state_path = project_copy / "state" / "progress.json"
+    state = load_json(state_path)
+    state["tasks"]["2026-W35-02-mission"].pop("weekly_project_id")
+    write_json(state_path, state)
+
+    with pytest.raises(ValueError, match="missing weekly_project_id"):
+        prepare_week_lab(project_copy, "2026-W35")
+
+
+def test_week_lab_rejects_explicit_wrong_project_id_on_legacy_task(
+    project_copy: Path,
+) -> None:
+    ensure_week_plan(project_copy, "2026-W35")
+    state_path = project_copy / "state" / "progress.json"
+    state = load_json(state_path)
+    legacy = state["tasks"]["2026-W35-01-mission"]
+    legacy["status"] = "done"
+    legacy.pop("workflow_version")
+    legacy["weekly_project_id"] = "wrong-project"
+    write_json(state_path, state)
+
+    with pytest.raises(ValueError, match="wrong-project"):
+        prepare_week_lab(project_copy, "2026-W35")
 
 
 def test_friday_reproduction_uses_fresh_clone(project_copy: Path) -> None:

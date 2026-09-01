@@ -5,6 +5,7 @@ from datetime import date
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from devops_coach.planner import COGNITIVE_WORKFLOW
 from devops_coach.storage import load_json, load_yaml, write_json, write_text
 
 LAB_PROTOCOL_VERSION = 1
@@ -56,12 +57,26 @@ def _week_blueprint(root: Path, week_value: str) -> tuple[int, dict[str, Any]]:
         raise ValueError(
             f"No cognitive-apprenticeship blueprint exists for curriculum week {curriculum_week}"
         ) from exc
-    project_ids = {
-        str(progress["tasks"][task_id].get("weekly_project_id")) for task_id in task_ids
-    }
-    if project_ids != {str(blueprint["project"]["id"])}:
+    expected_project_id = str(blueprint["project"]["id"])
+    project_errors: list[str] = []
+    for task_id in task_ids:
+        task = progress["tasks"][task_id]
+        raw_project_id = task.get("weekly_project_id")
+        project_id = str(raw_project_id).strip() if raw_project_id is not None else ""
+        preserved_legacy = (
+            task.get("status") == "done"
+            and task.get("workflow_version") != COGNITIVE_WORKFLOW
+        )
+        if not project_id:
+            if not preserved_legacy:
+                project_errors.append(f"{task_id}: missing weekly_project_id")
+            continue
+        if project_id != expected_project_id:
+            project_errors.append(f"{task_id}: {project_id}")
+    if project_errors:
         raise ValueError(
-            f"Weekly plan {week_value} tasks do not match blueprint week {curriculum_week}"
+            f"Weekly plan {week_value} tasks do not match blueprint week "
+            f"{curriculum_week}: {project_errors}"
         )
     return curriculum_week, blueprint
 
