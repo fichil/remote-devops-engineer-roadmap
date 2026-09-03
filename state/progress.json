@@ -85,6 +85,13 @@
       "evidence": "Learner explained that the last commit alone cannot prove the full PR is in scope, predicted that the full comparison covers the PR change set, and correctly stated that new commits pushed to the same head branch update the existing PR commit set and diff. | Learner compared the complete guided branch range with the last commit, observed that the full range contained README.md and docs/peer-update.md while the last commit contained only docs/peer-update.md, and explained why a last-commit review misses earlier retained changes. | Learner independently compared the final commit with the complete base-to-head range, found an earlier out-of-scope deploy/app.conf change hidden by a docs-only final commit, rejected the merge, and completed an accurate English review after sentence-structure guidance.",
       "kind": "primary",
       "task_id": "2026-W36-03-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-03",
+      "evidence": "学习者解释退出码 0 只能证明只读命令成功执行，不能证明 CI、业务授权等门禁；并预测即使退出码为 0，只要返回的 PR 编号不是目标编号，业务核验仍应判定失败。 | 学习者在根仓库中自行构造并执行 gh pr view 7 的只读 JSON 查询，核对 PR 编号、base/head、head 提交、状态、检查结果和审查字段；随后将 MERGED 与审批、业务授权区分，并把结论收窄到可由输出直接支持的事实。查询前后本地 Git 仅保留既有的结构化进度与周计划修改。 | 独立变化题核验仓库当前是否启用合并后自动删除来源分支。学习者自行发现 deleteBranchOnMerge 字段、构造并执行只读查询，补充仓库身份后得到 false，并正确解释当前设置不能排除人员或自动化删除历史分支。英文交接由学习者本人完成。",
+      "kind": "primary",
+      "task_id": "2026-W36-04-mission"
     }
   ],
   "current_phase": "foundations",
@@ -1795,13 +1802,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W35-03-mission": {
+      "artifacts": [],
+      "carryover_activated_on": "2026-09-02",
       "checkpoints": [
         {
+          "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文解释概念和命令组成，然后只提出一个目标相关问题。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "Learner correctly predicted that commit -a can include an unrelated modification from another tracked file while still omitting a new untracked verification file, and concluded that it is unsafe when authorization permits only one file staged content.",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "Commit convenience flags do not define business scope; explicit authorization and index evidence must define what is committed.",
+            "learner_action": "Learner classified the tracked and untracked files against the proposed automatic commit behavior and made a merge-scope decision without running a command.",
+            "observed_result": "The learner identified both opposite failure modes: accidental inclusion of unrelated tracked content and omission of untracked content.",
+            "prediction": "The unrelated tracked modification can be included automatically, while the untracked verification file remains omitted; therefore the shortcut is unsafe for the authorized scope."
+          },
+          "hint_level_used": 1,
           "hint_policy": "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。",
           "id": "briefing",
           "independent": false,
@@ -1809,16 +1825,23 @@
           "learner_action": "解释当前概念并写出一个可检验预测，不复制现成答案。",
           "next_review": null,
           "score": null,
-          "status": "in_progress",
+          "status": "done",
           "success_criteria": "用自己的话解释心智模型，并在执行前给出一个可检验预测。",
           "title": "概念与预测"
         },
         {
+          "artifacts": [],
           "assessment": "formative",
           "coach_action": "等待学习者先决策和预测，再按提示层级逐级帮助并脱敏检查输出。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "Learner identified a staged authorized README change, two unstaged tracked changes, and one untracked verification file; compared index and working-tree content, selected a normal commit instead of commit -a, committed only README, and verified every excluded path remained outside the commit.",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "The learner explained that Git generic commit -a suggestion cannot override business authorization, which permits only the staged README content.",
+            "learner_action": "Learner selected and ran status, cached diff, working-tree diff, a learner-authored normal commit, and post-commit range, cached, working-tree, and status checks.",
+            "observed_result": "Commit c4af243 changed only README.md; the cached diff was empty afterward; deploy/app.conf and notes/verification.txt remained unstaged; notes/operator-check.txt remained untracked.",
+            "prediction": "A normal commit would record only the staged README change; commit -a would also include the two unrelated tracked changes while still omitting the untracked verification file."
+          },
+          "hint_level_used": 1,
           "hint_policy": "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。",
           "id": "lab",
           "independent": false,
@@ -1826,7 +1849,7 @@
           "learner_action": "选择或补全命令，先预测后执行，并用自己的话解释实际结果。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "先选择下一步并预测结果，再执行、观察并解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -1851,7 +1874,7 @@
       "completed_on": null,
       "created_on": "2026-08-26",
       "curriculum_week": 5,
-      "evidence": null,
+      "evidence": "Learner correctly predicted that commit -a can include an unrelated modification from another tracked file while still omitting a new untracked verification file, and concluded that it is unsafe when authorization permits only one file staged content. | Learner identified a staged authorized README change, two unstaged tracked changes, and one untracked verification file; compared index and working-tree content, selected a normal commit instead of commit -a, committed only README, and verified every excluded path remained outside the commit.",
       "id": "2026-W35-03-mission",
       "learning_goal": "根据业务授权选择提交范围，并识别快捷选项的夹带与遗漏风险。",
       "next_review": null,
@@ -2334,15 +2357,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W36-04-mission": {
+      "artifacts": [],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文解释概念和命令组成，然后只提出一个目标相关问题。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者解释退出码 0 只能证明只读命令成功执行，不能证明 CI、业务授权等门禁；并预测即使退出码为 0，只要返回的 PR 编号不是目标编号，业务核验仍应判定失败。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "命令可以正常退出，但错误目标的结果不能作为目标 PR 的有效证据。",
+            "learner_action": "用自己的话区分了命令执行成功与目标 PR 业务核验成功。",
+            "observed_result": null,
+            "prediction": "若查询退出码为 0，但输出的 PR 编号不是目标编号，则核验失败。"
+          },
+          "hint_level_used": 1,
           "hint_policy": "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。",
           "id": "briefing",
           "independent": false,
@@ -2350,7 +2380,7 @@
           "learner_action": "解释当前概念并写出一个可检验预测，不复制现成答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "用自己的话解释心智模型，并在执行前给出一个可检验预测。",
           "title": "概念与预测"
         },
@@ -2358,9 +2388,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "等待学习者先决策和预测，再按提示层级逐级帮助并脱敏检查输出。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在根仓库中自行构造并执行 gh pr view 7 的只读 JSON 查询，核对 PR 编号、base/head、head 提交、状态、检查结果和审查字段；随后将 MERGED 与审批、业务授权区分，并把结论收窄到可由输出直接支持的事实。查询前后本地 Git 仅保留既有的结构化进度与周计划修改。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "只能证明 PR 已合并以及名为 verify 的检查成功，不能由 MERGED 反推正式审批、全部必需门禁或业务授权范围正确。",
+            "learner_action": "学习者选择 gh pr view，并自行补全命令：gh pr view 7 --json number,url,state,baseRefName,headRefName,headRefOid,statusCheckRollup,reviewDecision,reviews。",
+            "observed_result": "目标 PR 编号为 7，state 为 MERGED，base 为 main；verify 检查为 COMPLETED/SUCCESS，另一项检查为 COMPLETED/NEUTRAL；reviewDecision 为空且 reviews 为空。本地 Git 状态未出现查询导致的新修改。",
+            "prediction": "查询应返回目标 PR 的识别、分支、提交、CI 与审查字段；只读 view 不应改变本地提交、分支、工作区或远端 PR。"
+          },
+          "hint_level_used": 2,
           "hint_policy": "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。",
           "id": "lab",
           "independent": false,
@@ -2368,7 +2404,7 @@
           "learner_action": "选择或补全命令，先预测后执行，并用自己的话解释实际结果。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "先选择下一步并预测结果，再执行、观察并解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -2376,36 +2412,42 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "独立变化题核验仓库当前是否启用合并后自动删除来源分支。学习者自行发现 deleteBranchOnMerge 字段、构造并执行只读查询，补充仓库身份后得到 false，并正确解释当前设置不能排除人员或自动化删除历史分支。英文交接由学习者本人完成。",
+          "evidence_details": {
+            "handoff": "This repository setting for deleting source branch when merged is disabled. But it does not prove the source branch will not be deleted when merged. The source branch may still be deleted by manual action or automation.",
+            "interpretation": "目标仓库当前未启用 GitHub 的合并后自动删除来源分支设置，但历史或未来来源分支仍可能被人员或其他自动化删除。",
+            "learner_action": "学习者执行 gh repo view --json deleteBranchOnMerge,nameWithOwner，并将仓库身份替换为稳定占位符。",
+            "observed_result": "同一份脱敏输出包含目标仓库身份和 deleteBranchOnMerge=false；查询前后本地 Git 没有出现查询导致的新修改。",
+            "prediction": "预测自动删除设置未启用，但执行前没有可靠依据，以实时只读结果为准。"
+          },
+          "hint_level_used": 1,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "改为核验另一个公开只读字段且不给完整查询；学习者独立选择方法，提交预测、脱敏结果和解释，并用 2–4 句英语说明证据局限。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-10",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立完成任务，提交预测、学习者动作、实际结果、解释，并写出 2–4 句英文 PR 评论或交接。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-03",
       "created_on": "2026-09-03",
       "curriculum_week": 6,
-      "evidence": null,
+      "evidence": "学习者解释退出码 0 只能证明只读命令成功执行，不能证明 CI、业务授权等门禁；并预测即使退出码为 0，只要返回的 PR 编号不是目标编号，业务核验仍应判定失败。 | 学习者在根仓库中自行构造并执行 gh pr view 7 的只读 JSON 查询，核对 PR 编号、base/head、head 提交、状态、检查结果和审查字段；随后将 MERGED 与审批、业务授权区分，并把结论收窄到可由输出直接支持的事实。查询前后本地 Git 仅保留既有的结构化进度与周计划修改。 | 独立变化题核验仓库当前是否启用合并后自动删除来源分支。学习者自行发现 deleteBranchOnMerge 字段、构造并执行只读查询，补充仓库身份后得到 false，并正确解释当前设置不能排除人员或自动化删除历史分支。英文交接由学习者本人完成。",
       "id": "2026-W36-04-mission",
       "learning_goal": "在查询前明确字段、隐私边界和失败诊断，而不是只回报退出码。",
-      "next_review": null,
+      "next_review": "2026-09-10",
       "phase": "foundations",
       "queue_order": 1057,
       "scenario": "本地证据已理解，团队要求只读确认真实 GitHub 默认分支、CI 和审批概念，不允许执行任何写操作。",
       "scheduled_for": "2026-09-03",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能解释本地分支、远程跟踪分支、默认分支和 PR 的关系。",
         "能以本地分支差异判断 Markdown 变更是否越过授权范围。",
@@ -2502,7 +2544,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-02T14:55:54+08:00",
+  "updated_at": "2026-09-03T17:59:20+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
