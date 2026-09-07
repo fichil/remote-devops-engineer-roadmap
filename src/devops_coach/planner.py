@@ -6,6 +6,12 @@ from pathlib import Path
 from typing import Any
 
 from devops_coach.storage import load_json, load_yaml, write_json, write_text
+from devops_coach.teaching import (
+    CHECKPOINT_TITLES as COGNITIVE_CHECKPOINT_TITLES,
+)
+from devops_coach.teaching import (
+    checkpoint_teaching,
+)
 
 ACTIVE_STATUSES = {"queued", "in_progress", "blocked"}
 STATUS_ZH = {
@@ -65,11 +71,7 @@ MISSION_ARCHETYPES = (
 )
 
 COGNITIVE_WORKFLOW = "cognitive_apprenticeship_v1"
-COGNITIVE_CHECKPOINT_TITLES = {
-    "briefing": "概念与预测",
-    "lab": "引导练习",
-    "written_handoff": "独立迁移与交付",
-}
+
 HINT_LEVELS = {0, 1, 2, 3}
 SUMMATIVE_EVIDENCE_FIELDS = (
     "prediction",
@@ -240,12 +242,7 @@ def _checkpoint(
     return checkpoint
 
 
-def _adapt_instruction(instruction: str, mode: str) -> str:
-    if mode == "reteach":
-        return instruction + " 先重教最弱点，拆成可验证的小步，再完成变化题。"
-    if mode == "stretch":
-        return instruction + " 完成基础要求后，再独立处理一个未给步骤的变化条件。"
-    return instruction
+
 
 
 def _new_mission_task(
@@ -287,66 +284,19 @@ def _new_mission_task(
                     "Write the gate status, strongest evidence, remaining gap, and next action."
                 ),
             }
+    # All newly generated tasks, including starter weeks, use unscored teaching.
+    checkpoints = [
+        _checkpoint(
+            checkpoint_id,
+            **checkpoint_teaching(checkpoint_id, mission, adaptation_mode),
+            assessment="summative" if checkpoint_id == "written_handoff" else "formative",
+        )
+        for checkpoint_id in COGNITIVE_CHECKPOINT_TITLES
+    ]
     if cognitive:
-        hint_policy = "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。"
-        checkpoints = [
-            _checkpoint(
-                "briefing",
-                COGNITIVE_CHECKPOINT_TITLES["briefing"],
-                _adapt_instruction(mission["concept_prompt"], adaptation_mode),
-                assessment="formative",
-                success_criteria="用自己的话解释心智模型，并在执行前给出一个可检验预测。",
-                coach_action="先用中文解释概念和命令组成，然后只提出一个目标相关问题。",
-                learner_action="解释当前概念并写出一个可检验预测，不复制现成答案。",
-                hint_policy=hint_policy,
-            ),
-            _checkpoint(
-                "lab",
-                COGNITIVE_CHECKPOINT_TITLES["lab"],
-                _adapt_instruction(mission["guided_practice"], adaptation_mode),
-                assessment="formative",
-                success_criteria="先选择下一步并预测结果，再执行、观察并解释；该阶段不计分。",
-                coach_action="等待学习者先决策和预测，再按提示层级逐级帮助并脱敏检查输出。",
-                learner_action="选择或补全命令，先预测后执行，并用自己的话解释实际结果。",
-                hint_policy=hint_policy,
-            ),
-            _checkpoint(
-                "written_handoff",
-                COGNITIVE_CHECKPOINT_TITLES["written_handoff"],
-                _adapt_instruction(mission["independent_delivery"], adaptation_mode),
-                assessment="summative",
-                success_criteria=(
-                    "在变化条件下独立提交预测、学习者动作、实际结果、解释，以及 "
-                    "2–4 句真实英文 PR 评论或交接。"
-                ),
-                coach_action="提供变化条件但不给完整命令；只验证证据并按 0–5 分总结评价。",
-                learner_action="独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-                hint_policy="不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
-            ),
-        ]
         project = mission["weekly_project"]
         task_title = f"{mission['codename']}：{mission['learning_goal']}"
     else:
-        checkpoints = [
-            _checkpoint(
-                "briefing",
-                "事件简报",
-                _adapt_instruction(
-                    "写出已知事实、主要风险、缺失信息和第一条可验证假设。",
-                    adaptation_mode,
-                ),
-            ),
-            _checkpoint(
-                "lab",
-                "实战处理",
-                _adapt_instruction(mission["lab"], adaptation_mode),
-            ),
-            _checkpoint(
-                "written_handoff",
-                "英文书面交接",
-                _adapt_instruction(mission["english_output"], adaptation_mode),
-            ),
-        ]
         task_title = f"{mission['codename']}：{mission['objective']}"
     task = {
         "id": task_id,
@@ -475,7 +425,10 @@ def task_has_complete_evidence(task: dict[str, Any]) -> bool:
             for checkpoint in checkpoints
         )
     )
-    if not complete or task.get("workflow_version") != COGNITIVE_WORKFLOW:
+    if not complete or (
+        task.get("workflow_version") != COGNITIVE_WORKFLOW
+        and not any(checkpoint.get("assessment") == "summative" for checkpoint in checkpoints)
+    ):
         return complete
     summative = [
         checkpoint
@@ -574,9 +527,13 @@ def render_master_plan(learner: dict[str, Any], roadmap: dict[str, Any]) -> str:
         "## 执行规则",
         "",
         "- 周一至周五每天定量完成一个完整运维任务；周六、周日完全休息。",
-        "- 每个标准任务依次包含概念与预测、引导练习、独立迁移与交付三个检查点。",
+        "- 每个标准任务依次包含讲解与示范、引导练习、独立迁移与交付三个检查点。",
         "- 前两阶段用于形成性反馈且不评分；只有无完整命令提示的独立迁移阶段按 0–5 分评价。",
-        "- 教练先解释心智模型并逐级提示；学习者必须先预测，再执行并解释真实结果。",
+        "- 新概念和陌生命令先完整讲解示范，再带练；已教过的内容才逐渐减少提示。",
+        "- 每个概念块最多一个有判断价值的问题，也可用操作后的解释检查理解，不连续填空。",
+        "- 预测只用于有意义的结果差异、范围选择或故障假设；不猜版本号，允许通过观察纠正。",
+        "- 普通只读查询不反复问配置变化；具体副作用先解释，区分运行状态与配置变更。",
+        "- 观察必须真实，教练解释不能记成学习者解释；说不懂时返回讲解与示范。",
         "- 每个工作日先完成当天计划任务；旧任务不得抢占当天主任务。",
         "- 当天主任务完成后默认停止；用户明确要求继续时，最多再处理一个最早遗留任务。",
         "- 完整任务取得全部证据后自动通过 Ready PR、CI 和 squash merge 发布；可选遗留单独发布。",
@@ -1104,15 +1061,15 @@ def _evidence_standard(checkpoint: dict[str, Any] | None) -> str | None:
         return None
     if checkpoint.get("assessment") == "formative":
         if checkpoint["id"] == "briefing":
-            return "学习者本人的概念解释和执行前预测；形成性阶段不评分。"
-        return "学习者选择的动作、执行前预测、脱敏实际结果和本人解释；形成性阶段不评分。"
+            return "讲解示范后的学习者自主解释或有意义的判断；形成性阶段不评分。"
+        return "学习者实际执行的动作、脱敏结果和本人解释；有判断价值时才要求预测，不评分。"
     if checkpoint.get("assessment") == "summative":
         return (
             "变化题的预测、学习者动作、实际结果、解释和 2–4 句英文交接；"
             "4–5 分还要求独立完成且提示级别为 0。"
         )
     if checkpoint["id"] == "briefing":
-        return "学习者本人写出的事实、风险、缺失信息和可验证假设。"
+        return "讲解示范后的学习者本人理解或操作后的自主解释。"
     if checkpoint["id"] == "lab":
         return "命令或代码、关键输出、验证结果，以及一次独立解释或变化。"
     if checkpoint["id"] == "written_handoff":
@@ -1326,7 +1283,7 @@ def today_overview(
     if active_task_kind == "primary":
         if active_task and active_task.get("workflow_version") == COGNITIVE_WORKFLOW:
             completion_standard = (
-                "概念与预测、引导练习、独立迁移与交付均为 done；"
+                "讲解与示范、引导练习、独立迁移与交付均为 done；"
                 "总结性阶段包含完整结构化证据和英文书面交付。"
             )
         else:

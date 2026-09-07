@@ -48,16 +48,25 @@ def _old_task(task_id: str, created_on: str, queue_order: int) -> dict[str, Any]
 
 def _complete_task(project: Path, task_id: str, completed_on: date, score: int = 4) -> None:
     state = load_json(project / "state" / "progress.json")
-    checkpoint_ids = [item["id"] for item in state["tasks"][task_id]["checkpoints"]]
-    for checkpoint_id in checkpoint_ids:
+    for checkpoint in state["tasks"][task_id]["checkpoints"]:
+        checkpoint_id = checkpoint["id"]
         record_checkpoint(
             project,
             task_id,
             checkpoint_id,
             "done",
-            score,
+            None if checkpoint.get("assessment") == "formative" else score,
             f"verified {task_id} {checkpoint_id}",
             completed_on,
+            hint_level_used=0,
+            independent=True,
+            evidence_details={
+                "prediction": "The selected scope should exclude unrelated items.",
+                "learner_action": "Ran the independently selected scope check.",
+                "observed_result": "Only target items were returned.",
+                "interpretation": "The selected scope matches the requested boundary.",
+                "handoff": "The scope check passed. Unrelated items were excluded.",
+            },
         )
 
 
@@ -88,8 +97,8 @@ def test_week_plan_creates_one_calendar_workweek(project_copy: Path) -> None:
     assert all(len(state["tasks"][task_id]["checkpoints"]) == 3 for task_id in plan["new_task_ids"])
     content = path.read_text(encoding="utf-8")
     assert "进程、服务与软件包" in content
-    assert "事件简报" in content
-    assert "英文书面交接" in content
+    assert "讲解与示范" in content
+    assert "独立迁移与交付" in content
 
 
 def test_week_plan_is_created_once_and_then_resumed(project_copy: Path) -> None:
@@ -258,7 +267,7 @@ def test_cognitive_week_uses_blueprint_and_today_exposes_teaching_contract(
     assert task["workflow_version"] == "cognitive_apprenticeship_v1"
     assert task["weekly_project_id"] == "local-git-change-control"
     assert [item["title"] for item in task["checkpoints"]] == [
-        "概念与预测",
+        "讲解与示范",
         "引导练习",
         "独立迁移与交付",
     ]
@@ -441,13 +450,13 @@ def test_record_requires_evidence_and_schedules_reteaching(project_copy: Path) -
     task = record_checkpoint(
         project_copy,
         task_id,
-        "briefing",
+        "written_handoff",
         "in_progress",
         2,
         "verified knowledge gap",
         date(2026, 7, 29),
     )
-    checkpoint = task["checkpoints"][0]
+    checkpoint = task["checkpoints"][2]
     assert checkpoint["next_review"] == "2026-07-31"
     assert task["status"] == "in_progress"
     assert not load_json(project_copy / "state" / "progress.json")["completion_log"]
@@ -469,10 +478,19 @@ def test_recorded_artifacts_are_repository_contained_and_follow_completion(
             task_id,
             checkpoint_id,
             "done",
-            4,
+            4 if checkpoint_id == "written_handoff" else None,
             f"verified {checkpoint_id}",
             target,
             artifacts=[artifact] if checkpoint_id == "lab" else (),
+            hint_level_used=0,
+            independent=True,
+            evidence_details={
+                "prediction": "The verification artifact should contain the result.",
+                "learner_action": "Selected and ran artifact verification.",
+                "observed_result": "The artifact contained the expected result.",
+                "interpretation": "The artifact supports this verification.",
+                "handoff": "Verification passed. The artifact is attached.",
+            },
         )
 
     state = load_json(project_copy / "state" / "progress.json")

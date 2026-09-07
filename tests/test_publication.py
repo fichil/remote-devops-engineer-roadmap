@@ -60,10 +60,19 @@ def _complete_primary(project: Path) -> None:
             task_id,
             checkpoint_id,
             "done",
-            4,
+            4 if checkpoint_id == "written_handoff" else None,
             f"verified {checkpoint_id}",
             target,
             artifacts=[artifact] if checkpoint_id == "lab" else (),
+            hint_level_used=0,
+            independent=True,
+            evidence_details={
+                "prediction": "The variation should preserve the result.",
+                "learner_action": "Ran an independently selected verification.",
+                "observed_result": "The variation passed verification.",
+                "interpretation": "The result confirms the selected approach.",
+                "handoff": "Verification passed. The evidence is attached.",
+            },
         )
 
 

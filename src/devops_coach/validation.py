@@ -169,9 +169,21 @@ def validate_project(root: Path) -> list[str]:
     ]
     if cognitive_tasks and progress.get("workflow_version") != COGNITIVE_WORKFLOW:
         errors.append("progress: cognitive tasks require the cognitive workflow version")
-    for task in cognitive_tasks:
+    assessed_tasks = cognitive_tasks + [
+        task for task in progress.get("tasks", {}).values()
+        if task.get("workflow_version") != COGNITIVE_WORKFLOW
+        and any(
+            checkpoint.get("assessment") in {"formative", "summative"}
+            for checkpoint in task.get("checkpoints", [])
+        )
+    ]
+    for task in assessed_tasks:
         task_id = task.get("id", "<unknown>")
-        for field in ("weekly_project_id", "learning_goal", "success_criteria"):
+        required_fields = (
+            ("weekly_project_id", "learning_goal", "success_criteria")
+            if task.get("workflow_version") == COGNITIVE_WORKFLOW else ()
+        )
+        for field in required_fields:
             if not task.get(field):
                 errors.append(f"progress: cognitive task {task_id} requires {field}")
         checkpoints = task.get("checkpoints", [])

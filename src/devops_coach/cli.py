@@ -12,6 +12,7 @@ from devops_coach.migration import (
     COGNITIVE_WORKFLOW_VERSION,
     migrate_to_schema_2,
     migrate_to_training_workflow,
+    refresh_teaching,
 )
 from devops_coach.planner import (
     ensure_master_plan,
@@ -43,6 +44,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--to-training",
         choices=(COGNITIVE_WORKFLOW_VERSION,),
         help="Migrate active missions to the cognitive-apprenticeship workflow",
+    )
+    migrate_target.add_argument(
+        "--refresh-teaching", action="store_true",
+        help="Refresh unfinished teaching text without changing evidence or assessments",
     )
     migrate_parser.add_argument("--dry-run", action="store_true")
 
@@ -115,7 +120,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     root = args.root.resolve()
     if args.command == "migrate":
-        if args.to_training:
+        if args.refresh_teaching:
+            summary = refresh_teaching(root, dry_run=args.dry_run)
+        elif args.to_training:
             summary = migrate_to_training_workflow(root, dry_run=args.dry_run)
         else:
             summary = migrate_to_schema_2(root, dry_run=args.dry_run)
