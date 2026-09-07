@@ -24,7 +24,7 @@ Remote DevOps roles commonly combine Linux, cloud infrastructure, Terraform, con
 - Maintains a human-readable [78-week master plan](plans/master-plan.md) and one living plan per calendar week.
 - Creates five new missions for each Monday–Friday week and keeps each mission assigned to its scheduled workday.
 - Starts today's scheduled mission first. After it is complete, one oldest carryover is optional only when the learner explicitly asks to continue.
-- Uses cognitive apprenticeship: concept and prediction, guided practice with fading hints, then an independently scored transfer and delivery.
+- Uses cognitive apprenticeship: explanation and demonstration, guided practice, then an independently scored transfer and delivery.
 - Treats copied commands and raw output as guided evidence only; mastery requires a learner-authored action, prediction, observed result, and interpretation.
 - Schedules weak skills for reteaching or retrieval and adapts content without changing the daily task quantity.
 - Counts a weekday streak only when a complete mission has evidence; weekends are skipped and missed weekdays break the streak.
@@ -55,6 +55,7 @@ Migration is idempotent. An existing schema-v1 progress file is archived byte-fo
 ```text
 python -m devops_coach migrate --to-schema 2 [--dry-run]
 python -m devops_coach migrate --to-training cognitive_apprenticeship_v1 [--dry-run]
+python -m devops_coach migrate --refresh-teaching [--dry-run]
 python -m devops_coach plan master
 python -m devops_coach plan week --week YYYY-Www
 python -m devops_coach today [--date YYYY-MM-DD] [--continue-carryover] [--json]
@@ -75,14 +76,16 @@ python -m devops_coach record `
   --checkpoint briefing `
   --status done `
   --hint-level 1 `
-  --evidence "Verified learner-authored concept explanation and prediction" `
+  --evidence "Verified learner-authored explanation after a demonstration" `
   --artifact evidence/week-05/git/briefing.md
 ```
 
+For teaching-only maintenance, see [Teaching refresh](docs/teaching-refresh.md). Preview first; raw state is backed up before changes. Completed work, in-progress evidence, scores, hints, review dates, and completion records remain unchanged. This maintenance is not authorized by daily learning publication.
+
 ## Cognitive apprenticeship
 
-- **Concept and prediction:** the coach explains one mental model in plain language and asks one decision question. This stage is formative and unscored.
-- **Guided practice:** the learner predicts, constructs the action with progressively smaller hints, runs it, and explains the result. A complete command from the coach makes that attempt guided rather than independent.
+- **Explanation and demonstration:** teach the purpose, object relationships, and an example first; fully explain unfamiliar commands. Use at most one meaningful question per concept block, or assess understanding through a post-operation explanation. This stage is formative and unscored.
+- **Guided practice:** after a demonstration, the learner runs the explained action and interprets real results. Fade hints only for previously taught content. Use predictions for meaningful outcome differences, scope choices, or fault hypotheses, not exact unknown versions. A wrong prediction can be corrected through safe observation; never invent observations or attribute a coach's explanation to the learner. Ordinary queries need no repeated configuration-change quiz; explain concrete side effects upfront. Return to explanation when the learner does not understand.
 - **Independent transfer and delivery:** the learner handles a changed condition without the complete command, explains the evidence, and writes a short authentic English PR comment or handoff. This is the only scored stage.
 
 Each week uses one ignored local project under `private/labs/YYYY-Www/`. Monday through Thursday share its working clone; Friday reproduces the outcome from a fresh clone of a local bare remote. GitHub learning is local-first and read-only by default; it never uses this learning-system checkout as the practice repository.
@@ -91,7 +94,7 @@ Each week uses one ignored local project under `private/labs/YYYY-Www/`. Monday 
 
 | Day | Required quota | Optional carryover | Required checkpoints |
 |---|---:|---:|---|
-| Monday–Friday | 1 scheduled mission | At most 1, after an explicit continue request | Concept and prediction, guided practice, independent transfer and delivery |
+| Monday–Friday | 1 scheduled mission | At most 1, after an explicit continue request | Explanation and demonstration, guided practice, independent transfer and delivery |
 | Saturday–Sunday | Rest | None | No generation, rescheduling, or backfill |
 
 All carryovers are shown, but they never displace today's scheduled mission. After the primary mission is complete, the coach stops by default. The learner can explicitly request one oldest carryover with `python -m devops_coach today --continue-carryover`. Both completions still count as one streak workday.

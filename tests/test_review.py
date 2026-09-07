@@ -16,9 +16,18 @@ def _complete(project: Path, task_id: str, day: date, score: int = 4) -> None:
             task_id,
             checkpoint["id"],
             "done",
-            score,
+            None if checkpoint.get("assessment") == "formative" else score,
             f"verified {checkpoint['id']}",
             day,
+            hint_level_used=0,
+            independent=True,
+            evidence_details={
+                "prediction": "The changed condition should pass verification.",
+                "learner_action": "Selected and ran verification independently.",
+                "observed_result": "The changed condition passed.",
+                "interpretation": "The result supports the selected approach.",
+                "handoff": "Verification passed. The evidence is ready for review.",
+            },
         )
 
 
@@ -55,7 +64,7 @@ def test_low_completion_changes_content_to_reteach_not_quantity(
         task_id,
         "briefing",
         "blocked",
-        2,
+        None,
         "environment blocker evidence",
         date(2026, 7, 29),
     )

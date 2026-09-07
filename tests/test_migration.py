@@ -327,7 +327,7 @@ def test_training_migration_preserves_history_and_converts_active_matrix(
             project_copy / "plans" / "weeks" / f"{week_value}.md"
         ).read_text(encoding="utf-8")
         assert "legacy weekly plan" not in weekly_plan
-        assert "概念与预测" in weekly_plan
+        assert "讲解与示范" in weekly_plan
 
     historical_briefings = {
         "2026-W35-02-mission",
@@ -347,7 +347,7 @@ def test_training_migration_preserves_history_and_converts_active_matrix(
 
     for task_id in ("2026-W35-03-mission", "2026-W35-05-mission"):
         briefing = migrated["tasks"][task_id]["checkpoints"][0]
-        assert briefing["title"] == "概念与预测"
+        assert briefing["title"] == "讲解与示范"
         assert briefing["assessment"] == "formative"
         assert briefing["score"] is None
         assert briefing["evidence"] is None
@@ -376,13 +376,14 @@ def test_training_migration_preserves_history_and_converts_active_matrix(
     ]
     assert "概念桥接" in w36_first_lab
     assert "本地仓库" in w36_first_lab
-    assert w36_first_lab.count("？") == 1
+    assert w36_first_lab.count("？") == 0
+    assert "示范陌生命令" in w36_first_lab
     assert "画出对象关系" in w36_first_lab
     assert "复制命令" in w36_first_lab
     assert validate_project(project_copy) == []
 
 
-def test_w36_01_reopens_with_concept_bridge_and_one_judgment(
+def test_w36_01_reopens_with_concept_bridge_and_demonstration(
     project_copy: Path,
 ) -> None:
     _prepare_cognitive_migration_source(project_copy)
@@ -394,9 +395,9 @@ def test_w36_01_reopens_with_concept_bridge_and_one_judgment(
     assert overview["today"]["active_task"]["id"] == "2026-W36-01-mission"
     assert checkpoint["id"] == "lab"
     assert checkpoint["assessment"] == "formative"
-    assert "先讲清周项目所需的对象关系" in checkpoint["coach_action"]
-    assert "先用自己的话回答一个判断题" in checkpoint["learner_action"]
-    assert checkpoint["instruction"].count("？") == 1
+    assert "先用中文讲用途、对象关系和例子" in checkpoint["coach_action"]
+    assert "执行已讲清的操作" in checkpoint["learner_action"]
+    assert checkpoint["instruction"].count("？") == 0
     assert "gh " not in checkpoint["instruction"]
 
 

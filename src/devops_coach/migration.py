@@ -448,57 +448,20 @@ def _task_mission_slot(task: dict[str, Any]) -> int:
     raise ValueError(f"Cannot determine the weekday mission slot for task {task_id}")
 
 
-def _checkpoint_success_criteria(checkpoint_id: str, assessment: str) -> str:
-    if assessment == "legacy":
-        return "历史证据已保留，不重新提问或重新评分。"
-    if checkpoint_id == "briefing":
-        return "用自己的话解释心智模型，并在执行前给出一个可检验预测。"
-    if checkpoint_id == "lab":
-        return "先选择下一步并预测结果，再执行、观察并解释；该阶段不计分。"
-    return (
-        "在变化条件下独立完成任务，提交预测、学习者动作、实际结果、解释，"
-        "并写出 2–4 句英文 PR 评论或交接。"
-    )
-
-
 def _new_checkpoint_metadata(checkpoint: dict[str, Any], assessment: str) -> None:
+    from devops_coach.teaching import teaching_metadata
+
     checkpoint["assessment"] = assessment
     checkpoint["hint_level_used"] = None
     checkpoint["independent"] = False
     checkpoint["evidence_details"] = None
-    checkpoint["success_criteria"] = _checkpoint_success_criteria(
-        str(checkpoint.get("id", "")), assessment
-    )
     if assessment == "legacy":
+        checkpoint["success_criteria"] = "历史证据已保留，不重新提问或重新评分。"
         checkpoint["coach_action"] = "保留历史证据，不要求学习者重复作答。"
         checkpoint["learner_action"] = "无需重复已经完成并验证的历史检查点。"
         checkpoint["hint_policy"] = "历史记录不推断提示级别或独立完成状态。"
-    elif checkpoint.get("id") == "briefing":
-        checkpoint["coach_action"] = "先用中文解释概念和命令组成，然后只提出一个目标相关问题。"
-        checkpoint["learner_action"] = "解释当前概念并写出一个可检验预测，不复制现成答案。"
-        checkpoint["hint_policy"] = (
-            "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。"
-        )
-    elif checkpoint.get("id") == "lab":
-        checkpoint["coach_action"] = (
-            "等待学习者先决策和预测，再按提示层级逐级帮助并脱敏检查输出。"
-        )
-        checkpoint["learner_action"] = (
-            "选择或补全命令，先预测后执行，并用自己的话解释实际结果。"
-        )
-        checkpoint["hint_policy"] = (
-            "按需依次使用概念提示、带空格命令骨架、完整拆解；完整提示后必须换题。"
-        )
     else:
-        checkpoint["coach_action"] = (
-            "提供变化条件但不给完整命令；只验证证据并按 0–5 分总结评价。"
-        )
-        checkpoint["learner_action"] = (
-            "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。"
-        )
-        checkpoint["hint_policy"] = (
-            "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。"
-        )
+        checkpoint.update(teaching_metadata(str(checkpoint["id"])))
 
 
 def _transform_active_task_to_cognitive_workflow(
@@ -538,23 +501,15 @@ def _transform_active_task_to_cognitive_workflow(
             preserved += 1
             continue
 
-        checkpoint_id = checkpoint.get("id")
-        if checkpoint_id == "briefing":
-            checkpoint["title"] = "概念与预测"
-            checkpoint["instruction"] = str(mission["concept_prompt"])
-            assessment = "formative"
-        elif checkpoint_id == "lab":
-            checkpoint["title"] = "引导练习"
-            checkpoint["instruction"] = str(mission["guided_practice"])
-            assessment = "formative"
-        elif checkpoint_id == "written_handoff":
-            checkpoint["title"] = "独立迁移与交付"
-            checkpoint["instruction"] = str(mission["independent_delivery"])
-            assessment = "summative"
-        else:
+        from devops_coach.teaching import checkpoint_teaching
+
+        checkpoint_id = str(checkpoint.get("id"))
+        if checkpoint_id not in {"briefing", "lab", "written_handoff"}:
             raise ValueError(
                 f"Unsupported checkpoint {checkpoint_id!r} in cognitive task {task['id']}"
             )
+        checkpoint.update(checkpoint_teaching(checkpoint_id, mission))
+        assessment = "summative" if checkpoint_id == "written_handoff" else "formative"
         # An incomplete legacy checkpoint has no mastery value in the new workflow.
         checkpoint["score"] = None
         checkpoint["next_review"] = None
@@ -562,16 +517,9 @@ def _transform_active_task_to_cognitive_workflow(
         if checkpoint_id == "lab" and preserved_briefing:
             concepts = "、".join(str(item) for item in project.get("core_concepts", []))
             checkpoint["instruction"] = (
-                f"概念桥接：教练先用中文讲清 {concepts} 的关系；随后只问这一题："
-                f"{mission['concept_prompt']} 学习者回答并给出预测后，再进入引导练习："
+                f"概念桥接：教练先用中文讲清 {concepts} 的关系并示范陌生命令；"
+                "保留已完成证据，不要求重复回答，随后带领实际操作："
                 f"{mission['guided_practice']}"
-            )
-            checkpoint["coach_action"] = (
-                "先讲清周项目所需的对象关系，再只提出 instruction 中的一个判断题；"
-                "收到学习者预测后才进入引导练习。"
-            )
-            checkpoint["learner_action"] = (
-                "先用自己的话回答一个判断题并给出可检验预测，再选择引导练习的下一步。"
             )
         converted += 1
     summative = [
@@ -682,6 +630,98 @@ def migrate_to_training_workflow(root: Path, dry_run: bool = False) -> dict[str,
             root / "plans" / "weeks" / f"{week_value}.md",
             expected_plans[week_value],
         )
+    return summary
+
+
+def refresh_teaching(root: Path, dry_run: bool = False) -> dict[str, Any]:
+    """Refresh only teaching fields, without invoking the legacy evidence migration."""
+    import hashlib
+    import json
+
+    from devops_coach.planner import mission_for_slot, render_master_plan, render_week_plan
+    from devops_coach.teaching import checkpoint_teaching, existing_adaptation
+
+    state_path = root / "state" / "progress.json"
+    raw_state = state_path.read_bytes()
+    progress = json.loads(raw_state)
+    if progress.get("schema_version") != 2:
+        raise ValueError("Progress schema v2 is required before refreshing teaching")
+    roadmap = load_yaml(root / "curriculum" / "roadmap.yml")
+    learner = load_yaml(root / "config" / "learner.yml")
+    refreshed = deepcopy(progress)
+    eligible_ids: set[str] = set()
+    changed_ids: list[str] = []
+    changed_checkpoints = 0
+    for task_id, task in refreshed.get("tasks", {}).items():
+        if task.get("status") not in ACTIVE_STATUSES or task.get("source") != "weekly-plan":
+            continue
+        unfinished = [
+            checkpoint for checkpoint in task.get("checkpoints", [])
+            if checkpoint.get("status") in ACTIVE_STATUSES
+        ]
+        if not unfinished:
+            continue
+        week = int(task["curriculum_week"])
+        slot = _task_mission_slot(task)
+        if task.get("workflow_version") == COGNITIVE_WORKFLOW_VERSION:
+            _, mission = _cognitive_blueprint_content(roadmap, week, slot)
+        else:
+            # Historical starter tasks keep their assessment model, not a new migration.
+            mission = mission_for_slot(roadmap, {}, week, slot)
+        eligible_ids.add(task_id)
+        task_changed = False
+        for checkpoint in unfinished:
+            teaching = checkpoint_teaching(
+                str(checkpoint["id"]), mission,
+                existing_adaptation(str(checkpoint.get("instruction", ""))),
+            )
+            if any(checkpoint.get(key) != value for key, value in teaching.items()):
+                checkpoint.update(teaching)
+                changed_checkpoints += 1
+                task_changed = True
+        if task_changed:
+            changed_ids.append(task_id)
+
+    # Prepare all text before writing anything, including in a dry run.
+    expected = {
+        root / "plans" / "weeks" / f"{week_value}.md": render_week_plan(refreshed, week_value)
+        for week_value, plan in refreshed.get("weekly_plans", {}).items()
+        if eligible_ids.intersection(plan.get("new_task_ids", []))
+    }
+    expected[root / "plans" / "master-plan.md"] = render_master_plan(learner, roadmap)
+    pending = {
+        path: content for path, content in expected.items()
+        if not path.exists() or path.read_text(encoding="utf-8") != content
+    }
+    backup = root / "private" / "backups" / "teaching-refresh" / (
+        hashlib.sha256(raw_state).hexdigest() + ".json"
+    )
+    would_change = bool(changed_ids or pending)
+    summary = {
+        "changed": would_change and not dry_run,
+        "would_change": would_change,
+        "dry_run": dry_run,
+        "task_ids": changed_ids,
+        "checkpoints_refreshed": changed_checkpoints,
+        "plans_synced": [path.relative_to(root).as_posix() for path in pending],
+        "backup": backup.relative_to(root).as_posix() if would_change else None,
+    }
+    if dry_run or not would_change:
+        return summary
+    if state_path.read_bytes() != raw_state:
+        raise ValueError("Progress changed while preparing teaching refresh; retry after review")
+    if backup.exists():
+        if backup.read_bytes() != raw_state:
+            raise ValueError("Teaching refresh backup differs from its source")
+    else:
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        with backup.open("xb") as stream:
+            stream.write(raw_state)
+    if changed_ids:
+        # Preserve even updated_at: this is teaching maintenance, not learner activity.
+        write_json(state_path, refreshed)
+    for path, content in pending.items():
+        write_text(path, content)
     return summary
 
 
