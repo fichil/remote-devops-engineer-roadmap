@@ -102,6 +102,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     publish_parser.add_argument("--date", type=date.fromisoformat)
     publish_parser.add_argument("--kind", choices=("primary", "carryover"))
+    publish_parser.add_argument(
+        "--task", help="Required task id for a specific carryover publication"
+    )
     publish_mode = publish_parser.add_mutually_exclusive_group(required=True)
     publish_mode.add_argument("--dry-run", action="store_true")
     publish_mode.add_argument("--apply", action="store_true")
@@ -190,6 +193,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                     date.today(),
                     completed["kind"],
                     apply=True,
+                    task_id=(
+                        completed["task_id"]
+                        if completed["kind"] == "carryover"
+                        else None
+                    ),
                 )
             except PublicationError as exc:
                 payload["publication"] = {
@@ -201,9 +209,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0
     if args.command == "publish":
+        if args.task and args.kind != "carryover":
+            print("--task is only valid with --kind carryover", file=sys.stderr)
+            return 2
         try:
             if args.recover:
-                results = recover_publications(root, target=args.date, kind=args.kind)
+                results = recover_publications(
+                    root, target=args.date, kind=args.kind, task_id=args.task
+                )
                 payload = {"status": "complete", "recovered": results}
             else:
                 if args.date is None or args.kind is None:
@@ -212,11 +225,15 @@ def main(argv: Sequence[str] | None = None) -> int:
                         file=sys.stderr,
                     )
                     return 2
+                if args.kind == "carryover" and not args.task:
+                    print("--task is required for a carryover publication", file=sys.stderr)
+                    return 2
                 payload = publish_completed_task(
                     root,
                     args.date,
                     args.kind,
                     apply=args.apply,
+                    task_id=args.task,
                 )
         except PublicationError as exc:
             payload = {"status": "blocked", "error": str(exc)}

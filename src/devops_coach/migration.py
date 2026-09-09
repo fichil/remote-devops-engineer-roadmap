@@ -345,7 +345,7 @@ def transform_learner_v1(config: dict[str, Any]) -> dict[str, Any]:
     result["schema_version"] = 2
     result["learner"]["schedule"] = {
         "weekday_missions": 1,
-        "optional_carryover_missions": 1,
+        "optional_carryover_missions": None,
         "saturday_missions": 0,
         "sunday_missions": 0,
     }
@@ -360,7 +360,7 @@ def transform_learner_v1(config: dict[str, Any]) -> dict[str, Any]:
         "base_branch": "main",
         "branch_prefix": "learn",
         "primary_per_workday": 1,
-        "optional_carryover_per_workday": 1,
+        "optional_carryover_per_workday": None,
         "recover_before_today": True,
     }
     return result

@@ -122,14 +122,12 @@ def validate_project(root: Path) -> list[str]:
     schedule = learner.get("learner", {}).get("schedule", {})
     expected_schedule = {
         "weekday_missions": 1,
-        "optional_carryover_missions": 1,
         "saturday_missions": 0,
         "sunday_missions": 0,
     }
-    if schedule != expected_schedule:
+    if {key: schedule.get(key) for key in expected_schedule} != expected_schedule:
         errors.append(
-            "schedule: weekdays require one primary mission, allow one optional carryover, "
-            "and weekends must have none"
+            "schedule: weekdays require one primary mission and weekends must have none"
         )
     backlog_order = learner.get("learner", {}).get("engagement", {}).get("backlog_order")
     if backlog_order != "today_first_then_oldest":
@@ -141,13 +139,18 @@ def validate_project(root: Path) -> list[str]:
         "base_branch": "main",
         "branch_prefix": "learn",
         "primary_per_workday": 1,
-        "optional_carryover_per_workday": 1,
         "recover_before_today": True,
     }
-    if publication != expected_publication:
+    if {key: publication.get(key) for key in expected_publication} != expected_publication:
         errors.append(
             "publication: completed primary and carryover tasks require separate Ready PRs, "
             "squash merge, and next-workday recovery"
+        )
+    if schedule.get("optional_carryover_missions") != publication.get(
+        "optional_carryover_per_workday"
+    ):
+        errors.append(
+            "carryover: schedule and publication limits must match; null means unlimited"
         )
 
     expected_gate_ids = [str(phase["id"]) for phase in phases]

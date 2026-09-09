@@ -10,6 +10,28 @@ def test_project_schemas_and_78_week_plan_are_valid(project_copy: Path) -> None:
     assert validate_project(project_copy) == []
 
 
+def test_matching_finite_carryover_limit_remains_valid(project_copy: Path) -> None:
+    ensure_week_plan(project_copy, "2026-W34")
+    config_path = project_copy / "config" / "learner.yml"
+    content = config_path.read_text(encoding="utf-8")
+    content = content.replace("optional_carryover_missions: null", "optional_carryover_missions: 2")
+    content = content.replace(
+        "optional_carryover_per_workday: null", "optional_carryover_per_workday: 2"
+    )
+    config_path.write_text(content, encoding="utf-8")
+
+    assert validate_project(project_copy) == []
+
+    config_path.write_text(
+        content.replace(
+            "optional_carryover_per_workday: 2", "optional_carryover_per_workday: 1"
+        ),
+        encoding="utf-8",
+    )
+    errors = validate_project(project_copy)
+    assert any("schedule and publication limits must match" in error for error in errors)
+
+
 def test_validation_detects_master_plan_drift(project_copy: Path) -> None:
     master = project_copy / "plans" / "master-plan.md"
     master.write_text(master.read_text(encoding="utf-8") + "drift\n", encoding="utf-8")
