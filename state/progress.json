@@ -106,6 +106,13 @@
       "evidence": "在目标目录仍位于 D:、D: 仅余 10 GiB、C: 有 500 GiB、需求为 20 GiB 的变化条件下，学习者判断不满足，并说明 C: 空间不会自动分配给 D: 使用。 | 学习者执行教练完整提供的只读目录映射命令，得到并经教练实时复核 Drive=D、Provider=FileSystem；随后独立解释目标目录位于 D: 文件系统，判断 20 GiB 写入能力应检查 D: 余量，C: 与该目标无关。 | 独立变化题目标为 C:\\Windows\\Temp，要求 120 GiB。学习者预测检查 C: 且约 60 多 GiB 不满足；独立运行只读 CIM 查询，观察 C: 为 NTFS、FreeGiB=62.23，经教练实时复核为 62.31 GiB；学习者给出 no-go 并建议将目标从 C: 改到 D:。英文交接可理解但存在 goal/gold/decides 及语序问题。",
       "kind": "primary",
       "task_id": "2026-W37-03-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-09",
+      "evidence": "Learner correctly predicted that commit -a can include an unrelated modification from another tracked file while still omitting a new untracked verification file, and concluded that it is unsafe when authorization permits only one file staged content. | Learner identified a staged authorized README change, two unstaged tracked changes, and one untracked verification file; compared index and working-tree content, selected a normal commit instead of commit -a, committed only README, and verified every excluded path remained outside the commit. | 独立变化题只授权 deploy/app.conf 的 timeout=45 到 60。学习者正确预测 commit -a 会夹带三个已跟踪修改并遗漏未跟踪文件，独立审查差异，并以路径限定提交创建 baf1ae5；实时复核该提交只包含 deploy/app.conf，其他两个已跟踪修改和一个未跟踪文件保留在工作区，远端未变化。学习者跳过了要求的暂存后暂停检查，并在提交后需要纠正 HEAD、索引、工作区比较关系与 push 授权边界，因此评分 3/5。",
+      "kind": "carryover",
+      "task_id": "2026-W35-03-mission"
     }
   ],
   "current_phase": "foundations",
@@ -1817,7 +1824,7 @@
     },
     "2026-W35-03-mission": {
       "artifacts": [],
-      "carryover_activated_on": "2026-09-02",
+      "carryover_activated_on": "2026-09-09",
       "checkpoints": [
         {
           "artifacts": [],
@@ -1868,38 +1875,45 @@
           "title": "引导练习"
         },
         {
+          "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "独立变化题只授权 deploy/app.conf 的 timeout=45 到 60。学习者正确预测 commit -a 会夹带三个已跟踪修改并遗漏未跟踪文件，独立审查差异，并以路径限定提交创建 baf1ae5；实时复核该提交只包含 deploy/app.conf，其他两个已跟踪修改和一个未跟踪文件保留在工作区，远端未变化。学习者跳过了要求的暂存后暂停检查，并在提交后需要纠正 HEAD、索引、工作区比较关系与 push 授权边界，因此评分 3/5。",
+          "evidence_details": {
+            "handoff": "This commit includes timeout setting change in conf. This commit renew excludes any else unrelated files. Next step is kept changes in local and wait for pending review and push authorization.",
+            "interpretation": "预测与结果一致，提交范围合规。空 cached diff 表示 HEAD 与索引相同，空目标 diff 表示该路径的索引与工作区相同；剩余三个路径未提交。跳过暂停审查可能导致遗漏或夹带修改，且无 push 授权。",
+            "learner_action": "独立运行状态与差异检查，并执行路径限定提交 git commit -m fix:timeout=45-to-60 -- deploy/app.conf；随后检查暂存区、目标路径、其余差异和状态。",
+            "observed_result": "提交 baf1ae5 只修改 deploy/app.conf，将 timeout 从 45 改为 60；README.md 与 notes/verification.txt 仍未暂存，notes/operator-check.txt 仍未跟踪；索引和目标工作区差异为空，origin/main 未变化。",
+            "prediction": "直接使用 git commit -a 不符合授权；它会提交三个已跟踪文件，不会提交未跟踪的 notes/operator-check.txt。"
+          },
+          "hint_level_used": 1,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "教练增加另一个已跟踪但无关的修改；学习者独立形成目标提交并提交前后验证，交付命令、预测、结果、解释及 2–4 句英语 PR 更新。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-16",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-09",
       "created_on": "2026-08-26",
       "curriculum_week": 5,
-      "evidence": "Learner correctly predicted that commit -a can include an unrelated modification from another tracked file while still omitting a new untracked verification file, and concluded that it is unsafe when authorization permits only one file staged content. | Learner identified a staged authorized README change, two unstaged tracked changes, and one untracked verification file; compared index and working-tree content, selected a normal commit instead of commit -a, committed only README, and verified every excluded path remained outside the commit.",
+      "evidence": "Learner correctly predicted that commit -a can include an unrelated modification from another tracked file while still omitting a new untracked verification file, and concluded that it is unsafe when authorization permits only one file staged content. | Learner identified a staged authorized README change, two unstaged tracked changes, and one untracked verification file; compared index and working-tree content, selected a normal commit instead of commit -a, committed only README, and verified every excluded path remained outside the commit. | 独立变化题只授权 deploy/app.conf 的 timeout=45 到 60。学习者正确预测 commit -a 会夹带三个已跟踪修改并遗漏未跟踪文件，独立审查差异，并以路径限定提交创建 baf1ae5；实时复核该提交只包含 deploy/app.conf，其他两个已跟踪修改和一个未跟踪文件保留在工作区，远端未变化。学习者跳过了要求的暂存后暂停检查，并在提交后需要纠正 HEAD、索引、工作区比较关系与 push 授权边界，因此评分 3/5。",
       "id": "2026-W35-03-mission",
       "learning_goal": "根据业务授权选择提交范围，并识别快捷选项的夹带与遗漏风险。",
-      "next_review": null,
+      "next_review": "2026-09-16",
       "phase": "foundations",
       "queue_order": 1051,
       "scenario": "仓库同时存在已跟踪配置修改和未跟踪验证文件，同事建议使用会扩大范围的快捷提交方式。",
       "scheduled_for": "2026-08-26",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "in_progress",
+      "status": "done",
       "success_criteria": [
         "能根据实际差异区分工作区、暂存区和 HEAD 中的内容。",
         "能按变更目标选择明确文件与明确内容形成可审查提交。",
@@ -3036,7 +3050,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-09T14:00:18+08:00",
+  "updated_at": "2026-09-09T15:34:47+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
