@@ -99,6 +99,13 @@
       "evidence": "学习者针对假设输出 Linux 6.x-microsoft-standard-WSL2 回答：Linux 内核，不能，还缺宿主机的 cpu 信息。正确识别输出所属层次，并预测仅凭该输出不能确定物理 CPU 型号，需要宿主机处理器信息。此为概念与预测的聊天证据，尚未执行系统采集。 | 引导练习已完成硬件、Windows 宿主和 WSL2 边界的只读采集。硬件：CPU Name 非空并经教练复核，学习者归入物理硬件层。Windows：Caption 为 Windows 11 专业版、Version 为 10.0.26200并经复核；学习者确认符合修正后的预测，归入宿主系统层。WSL2：学习者预测 Ubuntu 的详细列表需证明版本 2、属于 WSL2 虚拟化边界且配置不变；经历概念提示、空格骨架和完整命令提示后执行 wsl.exe --list --verbose，Ubuntu 行显示 Stopped、VERSION 2，学习者解释该结果能证明 WSL2 边界；教练复核 VERSION 2 且退出码 0。随后补齐 Linux 内核与 Ubuntu 发行版查询：学习者执行带练命令并提交内核 5.15.167.4-microsoft-standard-WSL2，以及 PRETTY_NAME=Ubuntu 22.04.5 LTS、VERSION_ID=22.04；教练只读复核一致，两次查询退出码均为 0。对于安装说明适用 Ubuntu 22.04 的场景，学习者选择 PRETTY_NAME，并解释：因为完整体现了系统和版本。代理警告已保留并由教练解释，不影响本地信息查询；未修改代理或系统配置。LTS 的英文展开由教练讲解，不计为学习者独立解释。 | 独立变化题：在两个临时 Linux 容器之间核对 Ubuntu 22.04 安装说明的发行版前提。学习者先选择 devops-w37-kernel-ubuntu，随后提交自行组合的 Alpine 与 Ubuntu 发行版查询及真实输出，教练复核一致。变化题未提供完整命令提示。学习者本人提交三句英文交接，表达 VERSION_ID 支持选择，并解释不同发行版容器可共享同一内核，所以仅凭内核不能判断安装说明适用性。评分 4/5：真实查询、目标选择与核心解释成立；英文拼写、用词及同时引用发行版身份和版本的精度有待改进。教练提供的术语修订不计为学习者原文。先前完整示范的 Alpine 内核查询仅属带练，不计独立操作。",
       "kind": "primary",
       "task_id": "2026-W37-01-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-09",
+      "evidence": "在目标目录仍位于 D:、D: 仅余 10 GiB、C: 有 500 GiB、需求为 20 GiB 的变化条件下，学习者判断不满足，并说明 C: 空间不会自动分配给 D: 使用。 | 学习者执行教练完整提供的只读目录映射命令，得到并经教练实时复核 Drive=D、Provider=FileSystem；随后独立解释目标目录位于 D: 文件系统，判断 20 GiB 写入能力应检查 D: 余量，C: 与该目标无关。 | 独立变化题目标为 C:\\Windows\\Temp，要求 120 GiB。学习者预测检查 C: 且约 60 多 GiB 不满足；独立运行只读 CIM 查询，观察 C: 为 NTFS、FreeGiB=62.23，经教练实时复核为 62.31 GiB；学习者给出 no-go 并建议将目标从 C: 改到 D:。英文交接可理解但存在 goal/gold/decides 及语序问题。",
+      "kind": "primary",
+      "task_id": "2026-W37-03-mission"
     }
   ],
   "current_phase": "foundations",
@@ -2661,15 +2668,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W37-02-mission": {
+      "artifacts": [],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者判断 no-go：两个并发 runner 的最低内存需求为 16 GiB，大于查询时 5.71 GiB 的空闲内存；判断使用当前可用量对比并发需求，而不是仅凭总内存。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 1,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -2677,7 +2691,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -2685,9 +2699,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在 Windows PowerShell 中成功运行教练完整讲解的 Win32_OperatingSystem 空闲内存查询，得到 FreeMemoryGiB=5.14；教练稍后只读复核为 5.15。学习者解释该字段显示剩余可用内存而不是硬件总内存，因此动态变化不能证明安装总容量变化。消息中的反斜杠是界面 Markdown 转义，并非学习者实际输入。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "学习者解释该值是剩余可用内存而非总内存；使用量变化会改变该字段，但不能据此推断硬件总容量改变。",
+            "learner_action": "运行 Get-CimInstance 的 Win32_OperatingSystem 查询，并用 Select-Object 计算 FreeMemoryGiB。",
+            "observed_result": "学习者输出 FreeMemoryGiB=5.14；稍后教练复核为 5.15。",
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -2695,7 +2715,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -2721,7 +2741,7 @@
       "completed_on": null,
       "created_on": "2026-09-08",
       "curriculum_week": 7,
-      "evidence": null,
+      "evidence": "学习者判断 no-go：两个并发 runner 的最低内存需求为 16 GiB，大于查询时 5.71 GiB 的空闲内存；判断使用当前可用量对比并发需求，而不是仅凭总内存。 | 学习者在 Windows PowerShell 中成功运行教练完整讲解的 Win32_OperatingSystem 空闲内存查询，得到 FreeMemoryGiB=5.14；教练稍后只读复核为 5.15。学习者解释该字段显示剩余可用内存而不是硬件总内存，因此动态变化不能证明安装总容量变化。消息中的反斜杠是界面 Markdown 转义，并非学习者实际输入。",
       "id": "2026-W37-02-mission",
       "learning_goal": "把资源量、当前可用量和工作负载最低需求分开比较。",
       "next_review": null,
@@ -2732,7 +2752,7 @@
       "score": null,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "in_progress",
       "success_criteria": [
         "能区分硬件资源、宿主操作系统、客户机与虚拟化层。",
         "能把 CPU、内存和存储证据与工作负载需求逐项对应。",
@@ -2745,15 +2765,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W37-03-mission": {
+      "artifacts": [],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "在目标目录仍位于 D:、D: 仅余 10 GiB、C: 有 500 GiB、需求为 20 GiB 的变化条件下，学习者判断不满足，并说明 C: 空间不会自动分配给 D: 使用。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "学习者正确理解目标目录受其所在文件系统可用空间约束；其他卷的余量不能直接计入。",
+            "learner_action": "学习者回答：不满足，C 的磁盘空间不会自动分给 D 盘用。",
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 1,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -2761,7 +2788,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -2769,9 +2796,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者执行教练完整提供的只读目录映射命令，得到并经教练实时复核 Drive=D、Provider=FileSystem；随后独立解释目标目录位于 D: 文件系统，判断 20 GiB 写入能力应检查 D: 余量，C: 与该目标无关。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "目标目录属于 D: 的文件系统存储边界，容量判断必须使用 D: 的可用空间，不能使用 C: 余量。",
+            "learner_action": "执行目录映射命令，并补充说明目标目录是 D: 上的文件系统目录。",
+            "observed_result": "Drive=D；Provider=FileSystem；教练实时只读复核一致。",
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -2779,7 +2812,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -2787,25 +2820,31 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "独立变化题目标为 C:\\Windows\\Temp，要求 120 GiB。学习者预测检查 C: 且约 60 多 GiB 不满足；独立运行只读 CIM 查询，观察 C: 为 NTFS、FreeGiB=62.23，经教练实时复核为 62.31 GiB；学习者给出 no-go 并建议将目标从 C: 改到 D:。英文交接可理解但存在 goal/gold/decides 及语序问题。",
+          "evidence_details": {
+            "handoff": "The goal disk remaining is lower than gold remaining. So the final decides is no-go. The suggestion is change goal disk to D :from C:",
+            "interpretation": "预测与实际一致；62.23 GiB 低于 120 GiB，最终结论为 no-go，因为目标磁盘剩余可用存储不满足要求。",
+            "learner_action": "独立使用 Get-CimInstance 查询 Win32_LogicalDisk，并将过滤目标改为 C:，选择 DeviceID、FileSystem 和换算后的 FreeGiB。",
+            "observed_result": "学习者观察 DeviceID=C:、FileSystem=NTFS、FreeGiB=62.23；教练稍后同范围复核为 62.31 GiB，动态差异不改变结论。",
+            "prediction": "应该查 C:；预计不会满足 120 GiB，因为学习者记得 C: 大约还剩 60 多 GiB。"
+          },
+          "hint_level_used": 0,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "教练把输出目录移到另一个实验路径；学习者独立判断文件系统与余量，提供预测、动作、结果、解释及 2–4 句英语结论。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
           "next_review": null,
-          "score": null,
-          "status": "queued",
+          "score": 4,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-09",
       "created_on": "2026-09-09",
       "curriculum_week": 7,
-      "evidence": null,
+      "evidence": "在目标目录仍位于 D:、D: 仅余 10 GiB、C: 有 500 GiB、需求为 20 GiB 的变化条件下，学习者判断不满足，并说明 C: 空间不会自动分配给 D: 使用。 | 学习者执行教练完整提供的只读目录映射命令，得到并经教练实时复核 Drive=D、Provider=FileSystem；随后独立解释目标目录位于 D: 文件系统，判断 20 GiB 写入能力应检查 D: 余量，C: 与该目标无关。 | 独立变化题目标为 C:\\Windows\\Temp，要求 120 GiB。学习者预测检查 C: 且约 60 多 GiB 不满足；独立运行只读 CIM 查询，观察 C: 为 NTFS、FreeGiB=62.23，经教练实时复核为 62.31 GiB；学习者给出 no-go 并建议将目标从 C: 改到 D:。英文交接可理解但存在 goal/gold/decides 及语序问题。",
       "id": "2026-W37-03-mission",
       "learning_goal": "将目标目录映射到实际文件系统，并比较可用空间与需求。",
       "next_review": null,
@@ -2813,10 +2852,10 @@
       "queue_order": 1061,
       "scenario": "工作负载需要临时制品空间，但报告把磁盘容量、卷容量和目录所在文件系统混为一谈。",
       "scheduled_for": "2026-09-09",
-      "score": null,
+      "score": 4,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能区分硬件资源、宿主操作系统、客户机与虚拟化层。",
         "能把 CPU、内存和存储证据与工作负载需求逐项对应。",
@@ -2997,7 +3036,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-07T17:08:40+08:00",
+  "updated_at": "2026-09-09T14:00:18+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
