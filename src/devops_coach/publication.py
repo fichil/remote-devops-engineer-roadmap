@@ -8,11 +8,13 @@ from datetime import date
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from devops_coach import publication_identity
 from devops_coach.planner import task_has_complete_evidence
 from devops_coach.storage import load_json, load_yaml
 
-LEDGER_PATH = Path("private") / "devops-coach" / "publication-ledger.json"
-PUBLICATION_KINDS = ("primary", "carryover")
+LEDGER_PATH = publication_identity.LEDGER_PATH
+LEDGER_SCHEMA_VERSION = publication_identity.LEDGER_SCHEMA_VERSION
+PUBLICATION_KINDS = publication_identity.PUBLICATION_KINDS
 
 
 class PublicationError(RuntimeError):
@@ -68,20 +70,27 @@ def _policy(root: Path) -> dict[str, Any]:
     return policy
 
 
-def publication_key(target: date, kind: str) -> str:
-    if kind not in PUBLICATION_KINDS:
-        raise PublicationError(f"Unknown publication kind: {kind}")
-    return f"{target.isoformat()}:{kind}"
+def publication_key(target: date, kind: str, task_id: str | None = None) -> str:
+    try:
+        return publication_identity.publication_key(target, kind, task_id)
+    except ValueError as exc:
+        raise PublicationError(str(exc)) from exc
 
 
-def publication_branch(policy: dict[str, Any], target: date, kind: str) -> str:
-    suffix = "" if kind == "primary" else "-carryover"
-    return f"{policy['branch_prefix']}/{target.isoformat()}{suffix}"
+def publication_branch(
+    policy: dict[str, Any], target: date, kind: str, task_id: str | None = None
+) -> str:
+    try:
+        return publication_identity.publication_branch(policy, target, kind, task_id)
+    except ValueError as exc:
+        raise PublicationError(str(exc)) from exc
 
 
-def publication_subject(target: date, kind: str) -> str:
-    suffix = "" if kind == "primary" else " carryover"
-    return f"learn: complete {target.isoformat()}{suffix}"
+def publication_subject(target: date, kind: str, task_id: str | None = None) -> str:
+    try:
+        return publication_identity.publication_subject(target, kind, task_id)
+    except ValueError as exc:
+        raise PublicationError(str(exc)) from exc
 
 
 def _ledger_file(root: Path) -> Path:
@@ -89,19 +98,17 @@ def _ledger_file(root: Path) -> Path:
 
 
 def load_publication_ledger(root: Path) -> dict[str, Any]:
-    path = _ledger_file(root)
-    if not path.exists():
-        return {"schema_version": 1, "publications": {}}
-    value = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(value, dict) or not isinstance(value.get("publications"), dict):
-        raise PublicationError(f"Invalid publication ledger: {LEDGER_PATH.as_posix()}")
-    return value
+    try:
+        return publication_identity.load_publication_ledger(root)
+    except ValueError as exc:
+        raise PublicationError(str(exc)) from exc
 
 
 def _write_ledger(root: Path, ledger: dict[str, Any]) -> None:
     path = _ledger_file(root)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(".tmp")
+    ledger["schema_version"] = LEDGER_SCHEMA_VERSION
     temporary.write_text(
         json.dumps(ledger, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
@@ -129,14 +136,17 @@ def _safe_relative(value: str) -> str:
 
 
 def _eligible_completion(
-    progress: dict[str, Any], target: date, kind: str
+    progress: dict[str, Any], target: date, kind: str, task_id: str | None = None
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if target.weekday() >= 5:
         raise PublicationError("Routine learning publications are forbidden on weekends")
+    if kind == "carryover" and not task_id:
+        raise PublicationError("A carryover publication requires a task id")
     matches = [
         item
         for item in progress.get("completion_log", [])
         if item.get("date") == target.isoformat() and item.get("kind") == kind
+        and (task_id is None or item.get("task_id") == task_id)
     ]
     if len(matches) != 1:
         raise PublicationError(
@@ -210,12 +220,13 @@ def inspect_publication(
     target: date,
     kind: str,
     *,
+    task_id: str | None = None,
     runner: CommandRunner | None = None,
 ) -> dict[str, Any]:
     root = root.resolve()
     policy = _policy(root)
     progress = load_json(root / "state" / "progress.json")
-    completion, task = _eligible_completion(progress, target, kind)
+    completion, task = _eligible_completion(progress, target, kind, task_id)
     active_runner = runner or CommandRunner(root)
     dirty = _dirty_paths(active_runner)
     allowed = _allowed_learning_paths(progress)
@@ -226,15 +237,23 @@ def inspect_publication(
             + ", ".join(unknown)
         )
     changed = sorted(dirty & allowed)
-    key = publication_key(target, kind)
-    ledger_entry = load_publication_ledger(root)["publications"].get(key, {})
+    ledger = load_publication_ledger(root)
+    key, ledger_entry = publication_identity.resolve_publication_entry(
+        ledger, target, kind, completion["task_id"]
+    )
+    branch = ledger_entry.get("branch") or publication_branch(
+        policy,
+        target,
+        kind,
+        completion["task_id"] if kind == "carryover" else None,
+    )
     return {
         "publication_key": key,
         "date": target.isoformat(),
         "kind": kind,
         "task_id": completion["task_id"],
         "task_title": task["title"],
-        "branch": publication_branch(policy, target, kind),
+        "branch": branch,
         "base_branch": policy["base_branch"],
         "changed_paths": changed,
         "unknown_paths": unknown,
@@ -379,7 +398,9 @@ def _prepare_commit(
             "Staged paths differ from the explicit publication set: "
             f"expected={sorted(expected)}, staged={sorted(cached)}"
         )
-    subject = publication_subject(target, kind)
+    subject = publication_subject(
+        target, kind, plan["task_id"] if kind == "carryover" else None
+    )
     runner.run(
         [
             "git",
@@ -406,7 +427,11 @@ def _ensure_pr(
         if existing.get("state") == "CLOSED":
             raise PublicationError("The publication pull request was closed without merging")
         return existing
-    title = publication_subject(date.fromisoformat(plan["date"]), plan["kind"])
+    title = publication_subject(
+        date.fromisoformat(plan["date"]),
+        plan["kind"],
+        plan["task_id"] if plan["kind"] == "carryover" else None,
+    )
     body = (
         "Evidence-backed DevOps coaching publication.\n\n"
         f"- Task: `{plan['task_id']}`\n"
@@ -514,12 +539,15 @@ def publish_completed_task(
     kind: str,
     *,
     apply: bool,
+    task_id: str | None = None,
     runner: CommandRunner | None = None,
     run_checks: bool = True,
 ) -> dict[str, Any]:
     root = root.resolve()
     active_runner = runner or CommandRunner(root)
-    plan = inspect_publication(root, target, kind, runner=active_runner)
+    plan = inspect_publication(
+        root, target, kind, task_id=task_id, runner=active_runner
+    )
     key = plan["publication_key"]
     existing = load_publication_ledger(root)["publications"].get(key, {})
     if existing.get("status") == "complete":
@@ -566,6 +594,7 @@ def recover_publications(
     *,
     target: date | None = None,
     kind: str | None = None,
+    task_id: str | None = None,
     runner: CommandRunner | None = None,
     run_checks: bool = True,
 ) -> list[dict[str, Any]]:
@@ -573,20 +602,41 @@ def recover_publications(
     _policy(root)
     progress = load_json(root / "state" / "progress.json")
     ledger = load_publication_ledger(root)["publications"]
-    candidates: list[tuple[date, str]] = []
-    for item in progress.get("completion_log", []):
+    pending: list[tuple[date, str, str, int, str | None]] = []
+    for index, item in enumerate(progress.get("completion_log", [])):
         item_kind = item.get("kind")
         if item_kind not in PUBLICATION_KINDS:
             continue
         item_date = date.fromisoformat(item["date"])
-        if target and item_date != target:
-            continue
-        if kind and item_kind != kind:
-            continue
-        key = publication_key(item_date, item_kind)
-        if ledger.get(key, {}).get("status") != "complete":
-            candidates.append((item_date, item_kind))
-    candidates.sort(key=lambda item: (item[0], PUBLICATION_KINDS.index(item[1])))
+        item_task_id = str(item.get("task_id", ""))
+        _key, entry = publication_identity.resolve_publication_entry(
+            {"publications": ledger}, item_date, item_kind, item_task_id
+        )
+        if entry.get("status") != "complete":
+            pending.append(
+                (item_date, item_kind, item_task_id, index, entry.get("status"))
+            )
+    pending.sort(
+        key=lambda item: (item[0], PUBLICATION_KINDS.index(item[1]), item[3])
+    )
+    frozen_statuses = {"committed", "pushed", "pr_ready", "merged"}
+    if any(
+        status not in frozen_statuses
+        for _, _, _, _, status in pending[:-1]
+    ):
+        raise PublicationError(
+            "Multiple unpublished completions are not isolated; "
+            "manual publication review is required"
+        )
+    candidates = [
+        item
+        for item in pending
+        if (target is None or item[0] == target)
+        and (kind is None or item[1] == kind)
+        and (task_id is None or item[2] == task_id)
+    ]
+    if candidates and pending.index(candidates[0]) > 0:
+        raise PublicationError("Recover earlier incomplete publications before this selection")
     active_runner = runner or CommandRunner(root)
     return [
         publish_completed_task(
@@ -594,8 +644,9 @@ def recover_publications(
             item_date,
             item_kind,
             apply=True,
+            task_id=item_task_id if item_kind == "carryover" else None,
             runner=active_runner,
             run_checks=run_checks,
         )
-        for item_date, item_kind in candidates
+        for item_date, item_kind, item_task_id, _, _ in candidates
     ]

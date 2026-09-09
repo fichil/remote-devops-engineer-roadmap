@@ -13,6 +13,11 @@ from devops_coach.planner import (
     record_checkpoint,
     today_overview,
 )
+from devops_coach.publication_identity import (
+    LEDGER_PATH,
+    legacy_publication_key,
+    publication_key,
+)
 from devops_coach.storage import load_json, write_json
 
 
@@ -68,6 +73,30 @@ def _complete_task(project: Path, task_id: str, completed_on: date, score: int =
                 "handoff": "The scope check passed. Unrelated items were excluded.",
             },
         )
+
+
+def _mark_publication_complete(
+    project: Path,
+    target: date,
+    task_id: str,
+    kind: str,
+    *,
+    legacy: bool = False,
+) -> None:
+    path = project / LEDGER_PATH
+    ledger = load_json(path) if path.exists() else {"schema_version": 2, "publications": {}}
+    key = (
+        legacy_publication_key(target, kind)
+        if legacy
+        else publication_key(target, kind, task_id if kind == "carryover" else None)
+    )
+    ledger["publications"][key] = {
+        "date": target.isoformat(),
+        "kind": kind,
+        "status": "complete",
+        "task_id": task_id,
+    }
+    write_json(path, ledger)
 
 
 def _forbidden_key(value: Any) -> bool:
@@ -362,6 +391,7 @@ def test_primary_stops_by_default_and_explicit_continue_starts_oldest_carryover(
     first = today_overview(project_copy, target)
     task_id = first["today"]["active_task"]["id"]
     _complete_task(project_copy, task_id, target)
+    _mark_publication_complete(project_copy, target, task_id, "primary")
 
     resumed = today_overview(project_copy, target)
     state = load_json(state_path)
@@ -380,14 +410,21 @@ def test_primary_stops_by_default_and_explicit_continue_starts_oldest_carryover(
     assert state["tasks"]["old-1"]["status"] == "in_progress"
 
 
-def test_carryover_requires_primary_and_daily_limit_is_two(project_copy: Path) -> None:
+def test_carryover_requires_publication_and_allows_three_with_explicit_requests(
+    project_copy: Path,
+) -> None:
     state_path = project_copy / "state" / "progress.json"
     state = load_json(state_path)
     state["tasks"]["old-1"] = _old_task("old-1", "2026-07-27", 1)
     state["tasks"]["old-2"] = _old_task("old-2", "2026-07-28", 2)
+    state["tasks"]["old-3"] = _old_task("old-3", "2026-07-28", 3)
     write_json(state_path, state)
     target = date(2026, 7, 29)
     today_overview(project_copy, target)
+    state = load_json(state_path)
+    state["tasks"]["2026-W31-01-mission"]["status"] = "cancelled"
+    state["tasks"]["2026-W31-02-mission"]["status"] = "cancelled"
+    write_json(state_path, state)
 
     before = state_path.read_bytes()
     with pytest.raises(ValueError, match="primary task"):
@@ -396,6 +433,16 @@ def test_carryover_requires_primary_and_daily_limit_is_two(project_copy: Path) -
 
     primary_id = "2026-W31-03-mission"
     _complete_task(project_copy, primary_id, target)
+
+    blocked = today_overview(project_copy, target)
+    assert blocked["today"]["optional_carryover_available"] is False
+    assert blocked["today"]["publication_pending_task_ids"] == [primary_id]
+    before = state_path.read_bytes()
+    with pytest.raises(ValueError, match="recover publication"):
+        today_overview(project_copy, target, continue_carryover=True)
+    assert state_path.read_bytes() == before
+
+    _mark_publication_complete(project_copy, target, primary_id, "primary")
 
     before = state_path.read_bytes()
     with pytest.raises(ValueError, match="--continue-carryover"):
@@ -410,27 +457,80 @@ def test_carryover_requires_primary_and_daily_limit_is_two(project_copy: Path) -
         )
     assert state_path.read_bytes() == before
 
-    today_overview(project_copy, target, continue_carryover=True)
-    _complete_task(project_copy, "old-1", target)
+    for index, task_id in enumerate(("old-1", "old-2", "old-3"), start=1):
+        today_overview(project_copy, target, continue_carryover=True)
+        _complete_task(project_copy, task_id, target)
+        completed = load_json(state_path)
+        stopped = today_overview(project_copy, target)
+
+        assert stopped["today"]["active_task"] is None
+        assert stopped["today"]["optional_carryover_limit"] is None
+        assert stopped["today"]["optional_carryover_completed_count"] == index
+        assert stopped["today"]["optional_carryover_completed_task_ids"] == [
+            f"old-{item}" for item in range(1, index + 1)
+        ]
+        assert stopped["today"]["optional_carryover_complete"] is True
+        assert stopped["today"]["publication_pending_task_ids"] == [task_id]
+
+        if task_id != "old-3":
+            before = state_path.read_bytes()
+            with pytest.raises(ValueError, match="recover publication"):
+                today_overview(project_copy, target, continue_carryover=True)
+            assert state_path.read_bytes() == before
+
+        _mark_publication_complete(
+            project_copy,
+            target,
+            task_id,
+            "carryover",
+            legacy=task_id == "old-1",
+        )
+
+        if task_id != "old-3":
+            available = today_overview(project_copy, target)
+            assert available["today"]["active_task"] is None
+            assert available["today"]["optional_carryover_available"] is True
+
     completed = load_json(state_path)
     assert [item["task_id"] for item in completed["completion_log"]] == [
         primary_id,
         "old-1",
+        "old-2",
+        "old-3",
     ]
     assert completion_streak(completed, target, target) == (1, 1)
+    finished = today_overview(project_copy, target)
+    assert finished["today"]["optional_carryover_available"] is False
 
-    before = state_path.read_bytes()
-    with pytest.raises(ValueError, match="--continue-carryover"):
-        record_checkpoint(
-            project_copy,
-            "old-2",
-            "work",
-            "done",
-            4,
-            "verified third task rejection",
-            target,
-        )
-    assert state_path.read_bytes() == before
+
+def test_matching_finite_carryover_limit_is_still_enforced(project_copy: Path) -> None:
+    config_path = project_copy / "config" / "learner.yml"
+    content = config_path.read_text(encoding="utf-8")
+    content = content.replace("optional_carryover_missions: null", "optional_carryover_missions: 1")
+    content = content.replace(
+        "optional_carryover_per_workday: null", "optional_carryover_per_workday: 1"
+    )
+    config_path.write_text(content, encoding="utf-8")
+
+    state_path = project_copy / "state" / "progress.json"
+    state = load_json(state_path)
+    state["tasks"]["old-1"] = _old_task("old-1", "2026-07-27", 1)
+    state["tasks"]["old-2"] = _old_task("old-2", "2026-07-28", 2)
+    write_json(state_path, state)
+    target = date(2026, 7, 29)
+    today_overview(project_copy, target)
+    primary_id = "2026-W31-03-mission"
+    _complete_task(project_copy, primary_id, target)
+    _mark_publication_complete(project_copy, target, primary_id, "primary")
+    today_overview(project_copy, target, continue_carryover=True)
+    _complete_task(project_copy, "old-1", target)
+    _mark_publication_complete(project_copy, target, "old-1", "carryover")
+
+    overview = today_overview(project_copy, target)
+    assert overview["today"]["optional_carryover_limit"] == 1
+    assert overview["today"]["optional_carryover_available"] is False
+    with pytest.raises(ValueError, match="configured optional carryover limit"):
+        today_overview(project_copy, target, continue_carryover=True)
 
 
 def test_record_requires_evidence_and_schedules_reteaching(project_copy: Path) -> None:

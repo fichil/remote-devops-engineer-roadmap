@@ -4,11 +4,13 @@ import json
 import subprocess
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 from devops_coach.planner import ensure_week_plan, record_checkpoint, today_overview
 from devops_coach.publication import (
+    LEDGER_PATH,
     CommandResult,
     CommandRunner,
     PublicationError,
@@ -76,10 +78,53 @@ def _complete_primary(project: Path) -> None:
         )
 
 
+def _old_task(task_id: str, scheduled_for: str, queue_order: int) -> dict[str, Any]:
+    return {
+        "id": task_id,
+        "created_on": scheduled_for,
+        "scheduled_for": scheduled_for,
+        "curriculum_week": 1,
+        "phase": "foundations",
+        "section": "legacy",
+        "title": f"Old task {task_id}",
+        "status": "queued",
+        "score": None,
+        "evidence": None,
+        "completed_on": None,
+        "next_review": None,
+        "queue_order": queue_order,
+        "source": "test",
+        "carryover_activated_on": None,
+        "checkpoints": [
+            {
+                "id": "work",
+                "title": "历史任务",
+                "instruction": "Complete the old task.",
+                "status": "queued",
+                "score": None,
+                "evidence": None,
+                "next_review": None,
+            }
+        ],
+    }
+
+
+def _complete_carryover(project: Path, target: date, task_id: str) -> None:
+    record_checkpoint(
+        project,
+        task_id,
+        "work",
+        "done",
+        4,
+        f"verified {task_id}",
+        target,
+    )
+
+
 class FakeGitHubRunner(CommandRunner):
     def __init__(self, root: Path, *, fail_checks_once: bool = False):
         super().__init__(root)
-        self.pr: dict[str, object] | None = None
+        self.prs: dict[str, dict[str, object]] = {}
         self.fail_checks_once = fail_checks_once
         self.labels: list[str] = []
 
@@ -95,20 +140,34 @@ class FakeGitHubRunner(CommandRunner):
         if args[0] != "gh":
             return super().run(args, check=check)
         if args[1:3] == ["pr", "list"]:
-            return self._result(args, json.dumps([self.pr] if self.pr else []), check=check)
+            branch = args[args.index("--head") + 1]
+            pr = self.prs.get(branch)
+            return self._result(args, json.dumps([pr] if pr else []), check=check)
         if args[1:3] == ["pr", "create"]:
             head = super().run(["git", "rev-parse", "HEAD"]).stdout.strip()
-            self.pr = {
-                "number": 1,
+            branch = args[args.index("--head") + 1]
+            number = len(self.prs) + 1
+            pr = {
+                "number": number,
                 "state": "OPEN",
                 "isDraft": False,
-                "url": "https://example.invalid/pr/1",
+                "url": f"https://example.invalid/pr/{number}",
                 "headRefOid": head,
             }
-            return self._result(args, str(self.pr["url"]) + "\n", check=check)
+            self.prs[branch] = pr
+            return self._result(args, str(pr["url"]) + "\n", check=check)
         if args[1:3] == ["pr", "view"]:
-            assert self.pr is not None
-            return self._result(args, json.dumps(self.pr), check=check)
+            identifier = args[3]
+            pr = next(
+                (
+                    item
+                    for item in self.prs.values()
+                    if str(item["number"]) == identifier or item["url"] == identifier
+                ),
+                None,
+            )
+            assert pr is not None
+            return self._result(args, json.dumps(pr), check=check)
         if args[1:3] == ["label", "list"]:
             return self._result(
                 args,
@@ -124,15 +183,16 @@ class FakeGitHubRunner(CommandRunner):
                 return self._result(args, returncode=1, check=check)
             return self._result(args, "all checks passed\n", check=check)
         if args[1:3] == ["pr", "merge"]:
-            assert self.pr is not None
+            number = int(args[3])
+            pr = next(item for item in self.prs.values() if item["number"] == number)
             branch = super().run(["git", "branch", "--show-current"]).stdout.strip()
             super().run(["git", "push", "origin", "HEAD:main"])
             super().run(["git", "push", "origin", "--delete", branch])
-            self.pr.update(
+            pr.update(
                 {
                     "state": "MERGED",
                     "mergedAt": "2026-07-29T12:00:00Z",
-                    "mergeCommit": {"oid": self.pr["headRefOid"]},
+                    "mergeCommit": {"oid": pr["headRefOid"]},
                 }
             )
             return self._result(args, check=check)
@@ -190,3 +250,135 @@ def test_publication_rejects_unknown_changes_and_recovers_one_pr(
         run_checks=False,
     )
     assert repeated["already_complete"] is True
+
+
+def test_three_carryovers_use_independent_publications(project_copy: Path) -> None:
+    state_path = project_copy / "state" / "progress.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    for index in range(1, 4):
+        task_id = f"old-{index}"
+        state["tasks"][task_id] = _old_task(task_id, "2026-07-28", index)
+    state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    _prepare_repository(project_copy)
+    _complete_primary(project_copy)
+    target = date(2026, 7, 29)
+    runner = FakeGitHubRunner(project_copy)
+    publish_completed_task(
+        project_copy,
+        target,
+        "primary",
+        apply=True,
+        runner=runner,
+        run_checks=False,
+    )
+
+    results: list[dict[str, Any]] = []
+    for index in range(1, 4):
+        task_id = f"old-{index}"
+        overview = today_overview(project_copy, target, continue_carryover=True)
+        assert overview["today"]["active_task"]["id"] == task_id
+        _complete_carryover(project_copy, target, task_id)
+        results.append(
+            publish_completed_task(
+                project_copy,
+                target,
+                "carryover",
+                task_id=task_id,
+                apply=True,
+                runner=runner,
+                run_checks=False,
+            )
+        )
+
+    keys = [result["publication_key"] for result in results]
+    branches = [result["branch"] for result in results]
+    assert keys == [
+        "2026-07-29:carryover:old-1",
+        "2026-07-29:carryover:old-2",
+        "2026-07-29:carryover:old-3",
+    ]
+    assert len(set(branches)) == 3
+    assert all(branch.startswith("learn/2026-07-29-carryover-old-") for branch in branches)
+    assert len(runner.prs) == 4
+    ledger = load_publication_ledger(project_copy)
+    assert ledger["schema_version"] == 2
+    assert all(ledger["publications"][key]["status"] == "complete" for key in keys)
+    assert recover_publications(project_copy, runner=runner, run_checks=False) == []
+
+
+def test_recovery_refuses_multiple_unfrozen_completions(project_copy: Path) -> None:
+    _prepare_repository(project_copy)
+    _complete_primary(project_copy)
+    state_path = project_copy / "state" / "progress.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state["completion_log"].append(
+        {
+            "date": "2026-07-29",
+            "task_id": "unexpected-second-task",
+            "kind": "carryover",
+            "evidence": "unexpected unisolated evidence",
+            "artifacts": [],
+        }
+    )
+    state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    with pytest.raises(PublicationError, match="not isolated"):
+        recover_publications(
+            project_copy,
+            runner=FakeGitHubRunner(project_copy),
+            run_checks=False,
+        )
+
+
+def test_legacy_carryover_key_is_reused_without_republication(project_copy: Path) -> None:
+    state_path = project_copy / "state" / "progress.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state["tasks"]["old-1"] = _old_task("old-1", "2026-07-28", 1)
+    state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    _prepare_repository(project_copy)
+    _complete_primary(project_copy)
+    target = date(2026, 7, 29)
+    runner = FakeGitHubRunner(project_copy)
+    publish_completed_task(
+        project_copy,
+        target,
+        "primary",
+        apply=True,
+        runner=runner,
+        run_checks=False,
+    )
+    today_overview(project_copy, target, continue_carryover=True)
+    _complete_carryover(project_copy, target, "old-1")
+    published = publish_completed_task(
+        project_copy,
+        target,
+        "carryover",
+        task_id="old-1",
+        apply=True,
+        runner=runner,
+        run_checks=False,
+    )
+
+    ledger_path = project_copy / LEDGER_PATH
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    entry = ledger["publications"].pop(published["publication_key"])
+    ledger["publications"]["2026-07-29:carryover"] = entry
+    ledger["schema_version"] = 1
+    ledger_path.write_text(json.dumps(ledger, ensure_ascii=False, indent=2), encoding="utf-8")
+    pr_count = len(runner.prs)
+
+    repeated = publish_completed_task(
+        project_copy,
+        target,
+        "carryover",
+        task_id="old-1",
+        apply=True,
+        runner=runner,
+        run_checks=False,
+    )
+    assert repeated["already_complete"] is True
+    assert repeated["publication_key"] == "2026-07-29:carryover"
+    assert len(runner.prs) == pr_count
+    assert recover_publications(project_copy, runner=runner, run_checks=False) == []

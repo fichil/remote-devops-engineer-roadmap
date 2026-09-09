@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from devops_coach.publication_identity import PUBLICATION_KINDS, publication_is_complete
 from devops_coach.storage import load_json, load_yaml, write_json, write_text
 from devops_coach.teaching import (
     CHECKPOINT_TITLES as COGNITIVE_CHECKPOINT_TITLES,
@@ -382,6 +383,34 @@ def _completion_items(progress: dict[str, Any], target: date) -> list[dict[str, 
     ]
 
 
+def _optional_carryover_limit(learner: dict[str, Any]) -> int | None:
+    value = learner["learner"]["schedule"].get("optional_carryover_missions", 1)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError("optional_carryover_missions must be null or a non-negative integer")
+    return value
+
+
+def _limit_allows_more(limit: int | None, completed_count: int) -> bool:
+    return limit is None or completed_count < limit
+
+
+def _pending_publication_task_ids(
+    root: Path, target: date, completed_items: Sequence[dict[str, Any]]
+) -> list[str]:
+    pending: list[str] = []
+    for item in completed_items:
+        task_id = str(item.get("task_id", ""))
+        kind = item.get("kind")
+        if not task_id or kind not in PUBLICATION_KINDS:
+            pending.append(task_id or "<missing-task-id>")
+            continue
+        if not publication_is_complete(root, target, kind, task_id):
+            pending.append(task_id)
+    return pending
+
+
 def _start_task(task: dict[str, Any]) -> dict[str, Any] | None:
     if task["status"] == "queued":
         task["status"] = "in_progress"
@@ -535,7 +564,10 @@ def render_master_plan(learner: dict[str, Any], roadmap: dict[str, Any]) -> str:
         "- 普通只读查询不反复问配置变化；具体副作用先解释，区分运行状态与配置变更。",
         "- 观察必须真实，教练解释不能记成学习者解释；说不懂时返回讲解与示范。",
         "- 每个工作日先完成当天计划任务；旧任务不得抢占当天主任务。",
-        "- 当天主任务完成后默认停止；用户明确要求继续时，最多再处理一个最早遗留任务。",
+        (
+            "- 当天主任务完成后默认停止；用户每次明确要求继续时，只处理一个最早遗留任务。"
+            "该任务单独发布后再次停止，当天可再次明确要求继续且不限制遗留总数。"
+        ),
         "- 完整任务取得全部证据后自动通过 Ready PR、CI 和 squash merge 发布；可选遗留单独发布。",
         "- 日历主题每周前进；跨阶段时，未通过的先修门禁会改派重教或复测任务。",
         "- 日常英语只评价阅读和写作；通用口语与发音由 Duolingo 负责。",
@@ -594,7 +626,10 @@ def render_master_plan(learner: dict[str, Any], roadmap: dict[str, Any]) -> str:
             "## 遗留优先与内容适应",
             "",
             "- 每周仍生成五个新任务，并把它们固定为当周五个必做执行名额。",
-            "- 遗留任务按最早创建顺序排列，只能在当天主任务完成且用户明确要求后处理一项。",
+            (
+                "- 遗留任务按最早创建顺序排列；当天主任务及此前遗留均完成独立发布后，"
+                "每次明确要求只启动下一项，当天数量不限。"
+            ),
             "- 完成率低或出现 0–2 分项：下一周重教、拆小并加入变化题。",
             "- 完成率高、平均分至少 4 且无阻塞：任务数量不变，增加独立变化要求。",
             "- 周复盘只调整内容，不调整每日任务数量，也不使用历史时间数据。",
@@ -877,7 +912,7 @@ def normalize_artifact_paths(root: Path, artifacts: Sequence[str | Path]) -> lis
 
 
 def _recording_kind(
-    progress: dict[str, Any], task_id: str, target: date
+    progress: dict[str, Any], task_id: str, target: date, optional_limit: int | None
 ) -> tuple[str, dict[str, Any]]:
     week_value = target.strftime("%G-W%V")
     plan = progress.get("weekly_plans", {}).get(week_value)
@@ -897,9 +932,11 @@ def _recording_kind(
         raise ValueError("Only the oldest carryover can be recorded after today's primary task")
     if carryovers[0].get("carryover_activated_on") != target.isoformat():
         raise ValueError("Run today --continue-carryover before recording a carryover")
-    optional_completed = completed_ids - {primary["id"]}
-    if optional_completed:
-        raise ValueError("The optional carryover slot is already complete today")
+    optional_completed = sum(
+        item.get("kind") == "carryover" for item in _completion_items(progress, target)
+    )
+    if not _limit_allows_more(optional_limit, optional_completed):
+        raise ValueError("The configured optional carryover limit is already complete today")
     return "carryover", primary
 
 
@@ -935,7 +972,9 @@ def record_checkpoint(
     base = recorded_on or date.today()
     if base.weekday() >= 5:
         raise ValueError("A routine task cannot be recorded on a weekend rest day")
-    recording_kind, primary = _recording_kind(progress, task_id, base)
+    learner = load_yaml(root / "config" / "learner.yml")
+    optional_limit = _optional_carryover_limit(learner)
+    recording_kind, primary = _recording_kind(progress, task_id, base, optional_limit)
     try:
         checkpoint = next(item for item in task["checkpoints"] if item["id"] == checkpoint_id)
     except StopIteration as exc:
@@ -997,8 +1036,6 @@ def record_checkpoint(
         completed_ids = {item["task_id"] for item in completed_items}
         if recording_kind == "carryover" and primary["id"] not in completed_ids:
             raise ValueError("Today's primary task must be completed before a carryover")
-        if len(completed_ids) >= 2 and task_id not in completed_ids:
-            raise ValueError("At most one primary task and one carryover can complete today")
         task["completed_on"] = base.isoformat()
         if task_id not in completed_ids:
             progress["completion_log"].append(
@@ -1227,9 +1264,12 @@ def today_overview(
                 "active_task": None,
                 "active_task_kind": None,
                 "next_checkpoint": None,
-                "optional_carryover_limit": 0,
+                "optional_carryover_limit": _optional_carryover_limit(learner),
+                "optional_carryover_completed_count": 0,
+                "optional_carryover_completed_task_ids": [],
                 "optional_carryover_available": False,
                 "optional_carryover_complete": False,
+                "publication_pending_task_ids": [],
                 "completion_standard": "周末完全休息，不生成、补排或启动例行任务。",
                 "evidence_required": None,
             },
@@ -1252,14 +1292,23 @@ def today_overview(
     optional_completed_ids = [
         task_id for task_id in completed_ids if task_id != primary_task["id"]
     ]
-    if len(optional_completed_ids) > 1:
-        raise ValueError("More than one optional carryover is recorded for this workday")
     carryovers = carryover_tasks(progress, target)
-    optional_limit = int(
-        learner["learner"]["schedule"].get("optional_carryover_missions", 1)
+    optional_limit = _optional_carryover_limit(learner)
+    limit_allows_more = _limit_allows_more(optional_limit, len(optional_completed_ids))
+    pending_publication_ids = (
+        _pending_publication_task_ids(root, target, completed_items)
+        if primary_completed
+        else []
     )
     if continue_carryover and not primary_completed:
         raise ValueError("Complete today's primary task before continuing a carryover")
+    if continue_carryover and pending_publication_ids:
+        raise ValueError(
+            "Complete or recover publication before continuing a carryover: "
+            + ", ".join(pending_publication_ids)
+        )
+    if continue_carryover and carryovers and not limit_allows_more:
+        raise ValueError("The configured optional carryover limit is already complete today")
     active_task: dict[str, Any] | None = None
     active_task_kind: str | None = None
     checkpoint: dict[str, Any] | None = None
@@ -1269,13 +1318,16 @@ def today_overview(
         active_task = primary_task
         active_task_kind = "primary"
         checkpoint = _start_task(active_task)
-    elif continue_carryover and not optional_completed_ids and carryovers:
+    elif continue_carryover and carryovers and limit_allows_more:
         active_task = carryovers[0]
         active_task["carryover_activated_on"] = target.isoformat()
         active_task_kind = "carryover"
         checkpoint = _start_task(active_task)
     optional_available = bool(
-        primary_completed and not optional_completed_ids and carryovers and optional_limit
+        primary_completed
+        and not pending_publication_ids
+        and carryovers
+        and limit_allows_more
     )
     progress["updated_at"] = now_text()
     write_json(progress_path, progress)
@@ -1293,14 +1345,16 @@ def today_overview(
     elif active_task_kind == "carryover":
         completion_standard = (
             "当前可选遗留任务的全部检查点均为 done，且每个检查点都有可复核证据；"
-            "完成后今天结束。"
+            "完成并独立发布后默认停止；再次收到“继续处理遗留”才启动下一项。"
         )
-    elif optional_completed_ids:
-        completion_standard = "今日主任务和一个可选遗留均已有完整证据；今天结束。"
+    elif pending_publication_ids:
+        completion_standard = (
+            "已有任务取得完整证据但发布尚未闭环；恢复发布前不得启动下一项遗留。"
+        )
     elif optional_available:
         completion_standard = (
-            "今日主任务已有完整证据；默认停止。只有用户明确说“继续处理遗留”时，"
-            "才启动最早遗留的一项。"
+            f"今日主任务和 {len(optional_completed_ids)} 项遗留已有完整证据并完成发布；"
+            "默认停止。每次只有用户再次明确说“继续处理遗留”，才启动下一项最早遗留。"
         )
     else:
         completion_standard = "今日主任务已有完整证据，且当前没有可选遗留；今天结束。"
@@ -1344,8 +1398,11 @@ def today_overview(
                 else None
             ),
             "optional_carryover_limit": optional_limit,
+            "optional_carryover_completed_count": len(optional_completed_ids),
+            "optional_carryover_completed_task_ids": optional_completed_ids,
             "optional_carryover_available": optional_available,
             "optional_carryover_complete": bool(optional_completed_ids),
+            "publication_pending_task_ids": pending_publication_ids,
             "completion_standard": completion_standard,
             "evidence_required": _evidence_standard(checkpoint),
         },
@@ -1417,7 +1474,10 @@ def render_today_text(overview: dict[str, Any]) -> str:
             [
                 "- 每日定量：一个完整任务；今日主任务已完成。",
                 f"- 已完成任务：{today.get('completed_task')}",
-                "- 用户已明确继续；现在最多处理一个可选遗留任务。",
+                (
+                    "- 用户已明确继续；本次只处理下一项最早遗留，"
+                    "当日遗留总数不设上限。"
+                ),
                 f"- 最早遗留任务：{task['id']} — {task['title']}",
                 f"- 第一未完成检查点：{checkpoint['id']} / {checkpoint['title']}",
                 f"- 任务要求：{checkpoint['instruction']}",

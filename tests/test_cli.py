@@ -48,13 +48,63 @@ def test_today_cli_json_contains_project_week_and_today(
     assert len(payload["week"]["new_missions"]) == 5
     assert payload["today"]["quota"] == 1
     assert payload["today"]["active_task_kind"] == "primary"
-    assert payload["today"]["optional_carryover_limit"] == 1
+    assert payload["today"]["optional_carryover_limit"] is None
+    assert payload["today"]["optional_carryover_completed_count"] == 0
+    assert payload["today"]["optional_carryover_completed_task_ids"] == []
     assert payload["today"]["next_checkpoint"]
 
 
 def test_today_cli_accepts_explicit_carryover_flag() -> None:
     args = build_parser().parse_args(["today", "--continue-carryover"])
     assert args.continue_carryover is True
+
+
+def test_publish_cli_requires_task_for_specific_carryover(
+    project_copy: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    result = main(
+        [
+            "--root",
+            str(project_copy),
+            "publish",
+            "--date",
+            "2026-07-29",
+            "--kind",
+            "carryover",
+            "--dry-run",
+        ]
+    )
+
+    assert result == 2
+    assert "--task is required" in capsys.readouterr().err
+
+    args = build_parser().parse_args(
+        [
+            "publish",
+            "--date",
+            "2026-07-29",
+            "--kind",
+            "carryover",
+            "--task",
+            "old-1",
+            "--dry-run",
+        ]
+    )
+    assert args.task == "old-1"
+
+    result = main(
+        [
+            "--root",
+            str(project_copy),
+            "publish",
+            "--recover",
+            "--task",
+            "old-1",
+        ]
+    )
+    assert result == 2
+    assert "--kind carryover" in capsys.readouterr().err
 
 
 def test_today_cli_reports_weekend_rest_without_writing(

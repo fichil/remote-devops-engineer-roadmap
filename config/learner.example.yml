@@ -18,7 +18,7 @@ learner:
     credential_strategy: portfolio_first
   schedule:
     weekday_missions: 1
-    optional_carryover_missions: 1
+    optional_carryover_missions: null
     saturday_missions: 0
     sunday_missions: 0
   engagement:
@@ -31,7 +31,7 @@ learner:
     base_branch: main
     branch_prefix: learn
     primary_per_workday: 1
-    optional_carryover_per_workday: 1
+    optional_carryover_per_workday: null
     recover_before_today: true
   budget:
     monthly_usd: 20

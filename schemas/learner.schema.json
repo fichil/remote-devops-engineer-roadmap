@@ -48,7 +48,12 @@
           "additionalProperties": false,
           "properties": {
             "weekday_missions": {"const": 1},
-            "optional_carryover_missions": {"const": 1},
+            "optional_carryover_missions": {
+              "oneOf": [
+                {"type": "null"},
+                {"type": "integer", "minimum": 0}
+              ]
+            },
             "saturday_missions": {"const": 0},
             "sunday_missions": {"const": 0}
           }
@@ -73,7 +78,12 @@
             "base_branch": {"const": "main"},
             "branch_prefix": {"const": "learn"},
             "primary_per_workday": {"const": 1},
-            "optional_carryover_per_workday": {"const": 1},
+            "optional_carryover_per_workday": {
+              "oneOf": [
+                {"type": "null"},
+                {"type": "integer", "minimum": 0}
+              ]
+            },
             "recover_before_today": {"const": true}
           }
         },
