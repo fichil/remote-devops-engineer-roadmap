@@ -120,6 +120,13 @@
       "evidence": "学习者对明确标注为假设的容量场景自主判断：不批准虚拟机直接运行；8 GB 工作负载加 1.5 GB 客户系统预算合计 9.5 GB，超过当前可分配的 9 GB，且尚未考虑余量。计算与解释正确，此项为形成性证据，不评分。 | 带练证据：学习者选择容器，计算 8 + 0.3 + 0.5 = 8.8 < 9，并解释可信团队程序允许共享内核；随后按已完整讲解的只读 PowerShell 命令实际查询，提交 14.430980682373，正确解释为 Windows 宿主机可用内存。单位为 GiB，结果为动态快照，不代表容器配额。教练另行查询约 14.00 GiB，仅验证查询可执行及动态范围，不替代学习者结果。形成性阶段，不评分。 | Learner completed a changed-trust scenario without a complete-command hint: selected a VM, predicted sufficient memory, chose and executed the read-only query, reported a real host-memory snapshot and explained the separate-kernel requirement. Original two-sentence English handoff communicates choice, capacity comparison and further-verification boundary; grammar needs improvement. Scenario budgets are hypothetical, not measured VM overhead. No deployment or stability claim. A conditional Markdown backslash clarification did not supply the solution command.",
       "kind": "primary",
       "task_id": "2026-W37-04-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-10",
+      "evidence": "学习者独立完成交接事件简报：正确解释 deploy/app.conf 为已跟踪但未暂存、notes/verification.txt 为未跟踪；识别普通提交会遗漏内容及目标分支不明的风险；要求向同事、工单负责人或审批人确认提交范围、目标分支、timeout 目标、服务环境、验收证据与 push 授权；提出安全假设为这些问题未得到清晰回答且未完成只读检查前，当前 checkout 不具备 commit/push 条件。 | 学习者执行完整讲解的 git reset --soft HEAD^ 后报告无报错。教练实时验证当前练习分支由 baf1ae5 回到 c4af243，暂存区保留 deploy/app.conf 的 timeout 45 到 60，工作区配置与暂存区一致；README、验证说明的未暂存修改和未跟踪操作记录均保留，安全分支仍指向原提交。学习者起初将其解释为从 HEAD 搬回暂存区；经讲解纠正后，在 HEAD=30、暂存区=60 的变化条件下自主解释 cached diff 为 30 到 60，因为比较的是 HEAD 与暂存区。形成性证据，不评分。 | Learner independently selected and executed soft reset on the changed local history, preserving the approved configuration commit and all file contents. Verified HEAD baf1ae5, draft-only staged addition, unchanged original-file hashes and unchanged local remote. Learner correctly explained cached new-file status and completed a prospective supplemental worktree/index check plus three-sentence English handoff. Score 3: correct recovery, but original reset skipped the requested prediction and pause; later uncertainty is evidence for a separate check, not a backdated reset prediction.",
+      "kind": "carryover",
+      "task_id": "2026-W35-04-mission"
     }
   ],
   "current_phase": "foundations",
@@ -1934,7 +1941,7 @@
     },
     "2026-W35-04-mission": {
       "artifacts": [],
-      "carryover_activated_on": "2026-09-09",
+      "carryover_activated_on": "2026-09-10",
       "checkpoints": [
         {
           "artifacts": [],
@@ -1955,11 +1962,18 @@
           "title": "事件简报"
         },
         {
+          "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者执行完整讲解的 git reset --soft HEAD^ 后报告无报错。教练实时验证当前练习分支由 baf1ae5 回到 c4af243，暂存区保留 deploy/app.conf 的 timeout 45 到 60，工作区配置与暂存区一致；README、验证说明的未暂存修改和未跟踪操作记录均保留，安全分支仍指向原提交。学习者起初将其解释为从 HEAD 搬回暂存区；经讲解纠正后，在 HEAD=30、暂存区=60 的变化条件下自主解释 cached diff 为 30 到 60，因为比较的是 HEAD 与暂存区。形成性证据，不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 1,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -1967,43 +1981,50 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
         {
+          "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "Learner independently selected and executed soft reset on the changed local history, preserving the approved configuration commit and all file contents. Verified HEAD baf1ae5, draft-only staged addition, unchanged original-file hashes and unchanged local remote. Learner correctly explained cached new-file status and completed a prospective supplemental worktree/index check plus three-sentence English handoff. Score 3: correct recovery, but original reset skipped the requested prediction and pause; later uncertainty is evidence for a separate check, not a backdated reset prediction.",
+          "evidence_details": {
+            "handoff": "I rollback the newest HEAD pointer to last time submit. This rollback reserve staging area change. This draft will be review before push.",
+            "interpretation": "Learner explained that HEAD snapshot lacks the draft while the index contains it, so cached comparison reports a new file. Learner explained no output from the supplemental worktree/index query means those copies agree for the targeted draft. This does not assert an entirely clean repository. The approved configuration commit remains in current branch history, and the draft content remains available for separate review.",
+            "learner_action": "Learner independently ran git reset --soft 'HEAD^' then git diff --cached. For the later supplemental check, learner independently selected and ran git diff -- notes/recovery-followup.txt.",
+            "observed_result": "Learner cached diff showed new file notes/recovery-followup.txt containing the unchanged draft. Supplemental target diff had no output. Coach live verification confirmed HEAD baf1ae5, staged addition only for the draft, original README/verification modifications still unstaged, operator note still untracked, safety ref bbe460f, original file and draft hashes unchanged, and local bare remote still at seed 6370dfd.",
+            "prediction": "No prediction was supplied before the original reset. Before the separate read-only worktree/index check, learner stated: 不知道，需要执行才知道，没有前置修改说明的话. This honest uncertainty with an information limitation was accepted before observation; it is not a retrospective prediction of the reset."
+          },
+          "hint_level_used": 0,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "新条件改为正确提交之后还有一个无关本地提交；学习者不获完整命令，自主选择安全恢复路径，提供预测、动作、结果、解释和 2–4 句英语事故更新。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-17",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-10",
       "created_on": "2026-08-27",
       "curriculum_week": 5,
-      "evidence": "学习者独立完成交接事件简报：正确解释 deploy/app.conf 为已跟踪但未暂存、notes/verification.txt 为未跟踪；识别普通提交会遗漏内容及目标分支不明的风险；要求向同事、工单负责人或审批人确认提交范围、目标分支、timeout 目标、服务环境、验收证据与 push 授权；提出安全假设为这些问题未得到清晰回答且未完成只读检查前，当前 checkout 不具备 commit/push 条件。",
+      "evidence": "学习者独立完成交接事件简报：正确解释 deploy/app.conf 为已跟踪但未暂存、notes/verification.txt 为未跟踪；识别普通提交会遗漏内容及目标分支不明的风险；要求向同事、工单负责人或审批人确认提交范围、目标分支、timeout 目标、服务环境、验收证据与 push 授权；提出安全假设为这些问题未得到清晰回答且未完成只读检查前，当前 checkout 不具备 commit/push 条件。 | 学习者执行完整讲解的 git reset --soft HEAD^ 后报告无报错。教练实时验证当前练习分支由 baf1ae5 回到 c4af243，暂存区保留 deploy/app.conf 的 timeout 45 到 60，工作区配置与暂存区一致；README、验证说明的未暂存修改和未跟踪操作记录均保留，安全分支仍指向原提交。学习者起初将其解释为从 HEAD 搬回暂存区；经讲解纠正后，在 HEAD=30、暂存区=60 的变化条件下自主解释 cached diff 为 30 到 60，因为比较的是 HEAD 与暂存区。形成性证据，不评分。 | Learner independently selected and executed soft reset on the changed local history, preserving the approved configuration commit and all file contents. Verified HEAD baf1ae5, draft-only staged addition, unchanged original-file hashes and unchanged local remote. Learner correctly explained cached new-file status and completed a prospective supplemental worktree/index check plus three-sentence English handoff. Score 3: correct recovery, but original reset skipped the requested prediction and pause; later uncertainty is evidence for a separate check, not a backdated reset prediction.",
       "id": "2026-W35-04-mission",
       "learning_goal": "依据提交是否共享选择可恢复方案，并验证对象与文件内容均符合预期。",
-      "next_review": null,
+      "next_review": "2026-09-17",
       "phase": "foundations",
       "queue_order": 1052,
       "scenario": "本地提交意外包含未批准内容，但尚未推送，必须在保留合法修改的前提下恢复可审查状态。",
       "scheduled_for": "2026-08-27",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "in_progress",
+      "status": "done",
       "success_criteria": [
         "能根据实际差异区分工作区、暂存区和 HEAD 中的内容。",
         "能按变更目标选择明确文件与明确内容形成可审查提交。",
@@ -3077,7 +3098,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-10T11:35:13+08:00",
+  "updated_at": "2026-09-10T14:35:58+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
