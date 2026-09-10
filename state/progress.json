@@ -113,6 +113,13 @@
       "evidence": "Learner correctly predicted that commit -a can include an unrelated modification from another tracked file while still omitting a new untracked verification file, and concluded that it is unsafe when authorization permits only one file staged content. | Learner identified a staged authorized README change, two unstaged tracked changes, and one untracked verification file; compared index and working-tree content, selected a normal commit instead of commit -a, committed only README, and verified every excluded path remained outside the commit. | 独立变化题只授权 deploy/app.conf 的 timeout=45 到 60。学习者正确预测 commit -a 会夹带三个已跟踪修改并遗漏未跟踪文件，独立审查差异，并以路径限定提交创建 baf1ae5；实时复核该提交只包含 deploy/app.conf，其他两个已跟踪修改和一个未跟踪文件保留在工作区，远端未变化。学习者跳过了要求的暂存后暂停检查，并在提交后需要纠正 HEAD、索引、工作区比较关系与 push 授权边界，因此评分 3/5。",
       "kind": "carryover",
       "task_id": "2026-W35-03-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-10",
+      "evidence": "学习者对明确标注为假设的容量场景自主判断：不批准虚拟机直接运行；8 GB 工作负载加 1.5 GB 客户系统预算合计 9.5 GB，超过当前可分配的 9 GB，且尚未考虑余量。计算与解释正确，此项为形成性证据，不评分。 | 带练证据：学习者选择容器，计算 8 + 0.3 + 0.5 = 8.8 < 9，并解释可信团队程序允许共享内核；随后按已完整讲解的只读 PowerShell 命令实际查询，提交 14.430980682373，正确解释为 Windows 宿主机可用内存。单位为 GiB，结果为动态快照，不代表容器配额。教练另行查询约 14.00 GiB，仅验证查询可执行及动态范围，不替代学习者结果。形成性阶段，不评分。 | Learner completed a changed-trust scenario without a complete-command hint: selected a VM, predicted sufficient memory, chose and executed the read-only query, reported a real host-memory snapshot and explained the separate-kernel requirement. Original two-sentence English handoff communicates choice, capacity comparison and further-verification boundary; grammar needs improvement. Scenario budgets are hypothetical, not measured VM overhead. No deployment or stability claim. A conditional Markdown backslash clarification did not supply the solution command.",
+      "kind": "primary",
+      "task_id": "2026-W37-04-mission"
     }
   ],
   "current_phase": "foundations",
@@ -1927,6 +1934,7 @@
     },
     "2026-W35-04-mission": {
       "artifacts": [],
+      "carryover_activated_on": "2026-09-09",
       "checkpoints": [
         {
           "artifacts": [],
@@ -2882,15 +2890,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W37-04-mission": {
+      "artifacts": [],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者对明确标注为假设的容量场景自主判断：不批准虚拟机直接运行；8 GB 工作负载加 1.5 GB 客户系统预算合计 9.5 GB，超过当前可分配的 9 GB，且尚未考虑余量。计算与解释正确，此项为形成性证据，不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 1,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -2898,7 +2913,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -2906,9 +2921,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "带练证据：学习者选择容器，计算 8 + 0.3 + 0.5 = 8.8 < 9，并解释可信团队程序允许共享内核；随后按已完整讲解的只读 PowerShell 命令实际查询，提交 14.430980682373，正确解释为 Windows 宿主机可用内存。单位为 GiB，结果为动态快照，不代表容器配额。教练另行查询约 14.00 GiB，仅验证查询可执行及动态范围，不替代学习者结果。形成性阶段，不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 1,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -2916,7 +2937,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -2924,25 +2945,31 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "Learner completed a changed-trust scenario without a complete-command hint: selected a VM, predicted sufficient memory, chose and executed the read-only query, reported a real host-memory snapshot and explained the separate-kernel requirement. Original two-sentence English handoff communicates choice, capacity comparison and further-verification boundary; grammar needs improvement. Scenario budgets are hypothetical, not measured VM overhead. No deployment or stability claim. A conditional Markdown backslash clarification did not supply the solution command.",
+          "evidence_details": {
+            "handoff": "I chose virtual machine plan because virtual machine will isolate kernel with credible server and this host machine's available free memory is bigger than plan memory. Next, We will continue verify this virtual machine plan, because still haven't evidence show this plan can running stabize.",
+            "interpretation": "Learner stated measured memory exceeds the hypothetical VM requirement, and the VM meets the requirement not to share the trusted service kernel. This supports further evaluation, not deployment or proof of stable operation.",
+            "learner_action": "Learner selected and ran (Get-CimInstance -ClassName Win32_OperatingSystem).FreePhysicalMemory / 1MB. The message displayed a backslash before the underscore; the coach only clarified possible Markdown escaping, without supplying a replacement command.",
+            "observed_result": "Learner submitted 12.3546676635742 GiB. A later coach query returned 13.7671661376953 GiB; this confirms query execution and dynamic scope, not the exact historical learner snapshot.",
+            "prediction": "Learner selected the VM and predicted current available memory would exceed the hypothetical 8 GiB incremental budget, including reserve."
+          },
+          "hint_level_used": 0,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "新条件强调不同信任级别而非性能；学习者独立权衡并引用证据，提交解释和 2–4 句英语建议。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
           "next_review": null,
-          "score": null,
-          "status": "queued",
+          "score": 4,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-10",
       "created_on": "2026-09-10",
       "curriculum_week": 7,
-      "evidence": null,
+      "evidence": "学习者对明确标注为假设的容量场景自主判断：不批准虚拟机直接运行；8 GB 工作负载加 1.5 GB 客户系统预算合计 9.5 GB，超过当前可分配的 9 GB，且尚未考虑余量。计算与解释正确，此项为形成性证据，不评分。 | 带练证据：学习者选择容器，计算 8 + 0.3 + 0.5 = 8.8 < 9，并解释可信团队程序允许共享内核；随后按已完整讲解的只读 PowerShell 命令实际查询，提交 14.430980682373，正确解释为 Windows 宿主机可用内存。单位为 GiB，结果为动态快照，不代表容器配额。教练另行查询约 14.00 GiB，仅验证查询可执行及动态范围，不替代学习者结果。形成性阶段，不评分。 | Learner completed a changed-trust scenario without a complete-command hint: selected a VM, predicted sufficient memory, chose and executed the read-only query, reported a real host-memory snapshot and explained the separate-kernel requirement. Original two-sentence English handoff communicates choice, capacity comparison and further-verification boundary; grammar needs improvement. Scenario budgets are hypothetical, not measured VM overhead. No deployment or stability claim. A conditional Markdown backslash clarification did not supply the solution command.",
       "id": "2026-W37-04-mission",
       "learning_goal": "根据隔离需求与资源开销比较进程、容器概念和虚拟机方案。",
       "next_review": null,
@@ -2950,10 +2977,10 @@
       "queue_order": 1062,
       "scenario": "同事建议为隔离性增加虚拟环境，但未核算虚拟化开销与共享资源竞争。",
       "scheduled_for": "2026-09-10",
-      "score": null,
+      "score": 4,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能区分硬件资源、宿主操作系统、客户机与虚拟化层。",
         "能把 CPU、内存和存储证据与工作负载需求逐项对应。",
@@ -3050,7 +3077,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-09T15:34:47+08:00",
+  "updated_at": "2026-09-10T11:35:13+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
