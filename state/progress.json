@@ -155,6 +155,13 @@
       "evidence": "学习者独立完成事件简报：识别 README-only 变更单之外出现 deploy/app.conf；指出未经授权的应用配置可能错误合入 main；要求确认该配置修改的必要性；提出先只读核对配置差异，若确认修改应用配置则停止合并；并在变化题中正确说明 CI 通过不能替代变更范围授权。 | 在本地工作仓库中按变更单只修改 README.md，显式暂存并提交，然后推送到本地裸远程；全过程保留预测、实际输出和解释。 | 学习者自行检查分支引用、识别远端跟踪记录的时效边界，提出并执行fetch，依据实际HEAD不变解释未自动合并，并提交三句英文交接。fetch/pull关系经过概念纠正，记3分；本次远端跟踪引用未变化，不扩大验证结论。场景提交由教练准备，不记为学习者提交成果。",
       "kind": "carryover",
       "task_id": "2026-W36-01-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-14",
+      "evidence": "学习者选择 PR 目标分支 main 作为基线，并预测获准的 README-only 功能分支比较结果只应包含 README.md，不应包含 deploy/app.conf、docs/change-request.md 或 docs/peer-update.md。 | 学习者在周五新副本核对旧工单已满足，按新模拟README-only工单创建分支、编辑、显式暂存并提交9a2109f；自行解释暂存、最终提交和main...HEAD累计差异均仅README。面对模拟CI通过但必需审批缺失，正确判断暂不能合并并指出缺失审批。使用完整命令引导，formative不评分；vi不可用属环境问题。 | 完成新基线副本中的README-only本地交付，保留未批准配置，核对累计差异；最终英文正确识别审批版本不匹配。分支工作区、三点差异方向和门禁关系经过概念纠正及引导，评分3而非无提示掌握；原始错误预测与英文均保留。",
+      "kind": "carryover",
+      "task_id": "2026-W36-05-mission"
     }
   ],
   "current_phase": "foundations",
@@ -2575,7 +2582,7 @@
     },
     "2026-W36-05-mission": {
       "artifacts": [],
-      "carryover_activated_on": null,
+      "carryover_activated_on": "2026-09-14",
       "checkpoints": [
         {
           "artifacts": [],
@@ -2605,9 +2612,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在周五新副本核对旧工单已满足，按新模拟README-only工单创建分支、编辑、显式暂存并提交9a2109f；自行解释暂存、最终提交和main...HEAD累计差异均仅README。面对模拟CI通过但必需审批缺失，正确判断暂不能合并并指出缺失审批。使用完整命令引导，formative不评分；vi不可用属环境问题。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -2615,7 +2628,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -2623,36 +2636,42 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "完成新基线副本中的README-only本地交付，保留未批准配置，核对累计差异；最终英文正确识别审批版本不匹配。分支工作区、三点差异方向和门禁关系经过概念纠正及引导，评分3而非无提示掌握；原始错误预测与英文均保留。",
+          "evidence_details": {
+            "handoff": "It can't merge, because the approve is for B, but now status is C. Next, we will reapply a new approve for C.",
+            "interpretation": "学习者解释README属于工单、配置必须排除，实际提交符合范围且配置仍保留。模拟门禁中多次混淆push、CI和审批，经讲解与引导后，在新条件C的CI通过而审批仅针对B时独立交接暂不能合并，应重新申请C的审批。所有CI与审批条件仅为模拟，不声称有真实实验PR。",
+            "learner_action": "自行执行git status、git diff、git diff --cached、git switch -c newBranch main，使用notepad编辑README，git add .\\README.md，git commit -m \"fix:README.md\"。先使用git show newBranch...main和反向git diff newBranch...main，经概念提示后自行改为git diff main...newBranch。",
+            "observed_result": "提交de95542ee9b76f129997fef068ad103dbdea74a7仅README新增release reviewer负责人及空行，保留部署命令。main...newBranch累计差异仅README；git diff仍显示deploy/app.conf timeout30变120；git diff --cached为空。教练只读复核相符，实验未push或merge。",
+            "prediction": "初始预测：切换后，这项未暂存的配置修改预计不会带入到新分支重。实际输出M deploy/app.conf反驳该预测，教练解释后纠正。暂存验证后预测：下一次普通提交会包含README.md的修改。"
+          },
+          "hint_level_used": 1,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
           "independent": false,
           "instruction": "使用 friday_variation，在无完整命令下独立给出命令、预测、结果、解释、门禁结论和证据，并写 2–4 句英语 PR handoff。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-21",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-14",
       "created_on": "2026-09-04",
       "curriculum_week": 6,
-      "evidence": "学习者选择 PR 目标分支 main 作为基线，并预测获准的 README-only 功能分支比较结果只应包含 README.md，不应包含 deploy/app.conf、docs/change-request.md 或 docs/peer-update.md。",
+      "evidence": "学习者选择 PR 目标分支 main 作为基线，并预测获准的 README-only 功能分支比较结果只应包含 README.md，不应包含 deploy/app.conf、docs/change-request.md 或 docs/peer-update.md。 | 学习者在周五新副本核对旧工单已满足，按新模拟README-only工单创建分支、编辑、显式暂存并提交9a2109f；自行解释暂存、最终提交和main...HEAD累计差异均仅README。面对模拟CI通过但必需审批缺失，正确判断暂不能合并并指出缺失审批。使用完整命令引导，formative不评分；vi不可用属环境问题。 | 完成新基线副本中的README-only本地交付，保留未批准配置，核对累计差异；最终英文正确识别审批版本不匹配。分支工作区、三点差异方向和门禁关系经过概念纠正及引导，评分3而非无提示掌握；原始错误预测与英文均保留。",
       "id": "2026-W36-05-mission",
       "learning_goal": "整合远程模型、范围审查、Markdown、CI 与审批边界完成可重复交付。",
-      "next_review": null,
+      "next_review": "2026-09-21",
       "phase": "foundations",
       "queue_order": 1058,
       "scenario": "接手人必须从本地裸远程的新副本独立重建一个可审查的文档分支，并给出模拟 PR 门禁结论。",
       "scheduled_for": "2026-09-04",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "in_progress",
+      "status": "done",
       "success_criteria": [
         "能解释本地分支、远程跟踪分支、默认分支和 PR 的关系。",
         "能以本地分支差异判断 Markdown 变更是否越过授权范围。",
@@ -3613,7 +3632,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-14T13:59:31+08:00",
+  "updated_at": "2026-09-14T16:10:03+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
