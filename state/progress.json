@@ -162,6 +162,13 @@
       "evidence": "学习者选择 PR 目标分支 main 作为基线，并预测获准的 README-only 功能分支比较结果只应包含 README.md，不应包含 deploy/app.conf、docs/change-request.md 或 docs/peer-update.md。 | 学习者在周五新副本核对旧工单已满足，按新模拟README-only工单创建分支、编辑、显式暂存并提交9a2109f；自行解释暂存、最终提交和main...HEAD累计差异均仅README。面对模拟CI通过但必需审批缺失，正确判断暂不能合并并指出缺失审批。使用完整命令引导，formative不评分；vi不可用属环境问题。 | 完成新基线副本中的README-only本地交付，保留未批准配置，核对累计差异；最终英文正确识别审批版本不匹配。分支工作区、三点差异方向和门禁关系经过概念纠正及引导，评分3而非无提示掌握；原始错误预测与英文均保留。",
       "kind": "carryover",
       "task_id": "2026-W36-05-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-14",
+      "evidence": "学习者判断 no-go：两个并发 runner 的最低内存需求为 16 GiB，大于查询时 5.71 GiB 的空闲内存；判断使用当前可用量对比并发需求，而不是仅凭总内存。 | 学习者在 Windows PowerShell 中成功运行教练完整讲解的 Win32_OperatingSystem 空闲内存查询，得到 FreeMemoryGiB=5.14；教练稍后只读复核为 5.15。学习者解释该字段显示剩余可用内存而不是硬件总内存，因此动态变化不能证明安装总容量变化。消息中的反斜杠是界面 Markdown 转义，并非学习者实际输入。 | 学习者在新的11逻辑处理器/14GiB预算下独立计算、预测、查询并判断内存不足，完成三句英文容量交接。改进方案的验证边界经过概念提示，记3分；此前9/12预算的完整命令指导单独作为不评分引导证据。保留原文，不把动态内存当硬件总量，不声称真实负载稳定性。",
+      "kind": "carryover",
+      "task_id": "2026-W37-02-mission"
     }
   ],
   "current_phase": "foundations",
@@ -2788,7 +2795,7 @@
     },
     "2026-W37-02-mission": {
       "artifacts": [],
-      "carryover_activated_on": null,
+      "carryover_activated_on": "2026-09-14",
       "checkpoints": [
         {
           "artifacts": [],
@@ -2842,36 +2849,42 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在新的11逻辑处理器/14GiB预算下独立计算、预测、查询并判断内存不足，完成三句英文容量交接。改进方案的验证边界经过概念提示，记3分；此前9/12预算的完整命令指导单独作为不评分引导证据。保留原文，不把动态内存当硬件总量，不声称真实负载稳定性。",
+          "evidence_details": {
+            "handoff": "This computer is not sport running two task at the same time. Because current memory is lower than request. I suggest change lower the memory request or change a computer with bigger memory.",
+            "interpretation": "学习者判断：新预算不满足、实际结果支持我的预测。英文建议降低需求或更换更大内存电脑；中文补充例如使用容器而不是虚拟机。教练指出题目没有虚拟机前提，容器建议只能作为待验证方案，不能直接调低预算或声称补足缺口。当前结论限于此次采样与给定并发预算。",
+            "learner_action": "在新条件下自行运行Get-CimInstance Win32_ComputerSystem并选择NumberOfLogicalProcessors；查询Win32_OperatingSystem的FreePhysicalMemory除以1MB换算GiB；用1..5循环查询Win32_PerfFormattedData_PerfOS_Processor的_Total使用率，每轮暂停一秒。",
+            "observed_result": "学习者提供22个逻辑处理器、可用内存12.0526657104492 GiB、CPU采样10/13/11/11/16%。需求为构建5逻辑处理器/6GiB、并发测试4/5、宿主额外预留2/3，总计11逻辑处理器和14GiB。未运行实际负载，未变更系统。",
+            "prediction": "逻辑处理器预算：11个，内存预算14GiB,内存预算可能不满足"
+          },
+          "hint_level_used": 1,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
           "independent": false,
           "instruction": "新条件增加并发和预留开销；学习者无完整命令独立采集、计算、解释结论，并用 2–4 句英语提交容量风险。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-21",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-14",
       "created_on": "2026-09-08",
       "curriculum_week": 7,
-      "evidence": "学习者判断 no-go：两个并发 runner 的最低内存需求为 16 GiB，大于查询时 5.71 GiB 的空闲内存；判断使用当前可用量对比并发需求，而不是仅凭总内存。 | 学习者在 Windows PowerShell 中成功运行教练完整讲解的 Win32_OperatingSystem 空闲内存查询，得到 FreeMemoryGiB=5.14；教练稍后只读复核为 5.15。学习者解释该字段显示剩余可用内存而不是硬件总内存，因此动态变化不能证明安装总容量变化。消息中的反斜杠是界面 Markdown 转义，并非学习者实际输入。",
+      "evidence": "学习者判断 no-go：两个并发 runner 的最低内存需求为 16 GiB，大于查询时 5.71 GiB 的空闲内存；判断使用当前可用量对比并发需求，而不是仅凭总内存。 | 学习者在 Windows PowerShell 中成功运行教练完整讲解的 Win32_OperatingSystem 空闲内存查询，得到 FreeMemoryGiB=5.14；教练稍后只读复核为 5.15。学习者解释该字段显示剩余可用内存而不是硬件总内存，因此动态变化不能证明安装总容量变化。消息中的反斜杠是界面 Markdown 转义，并非学习者实际输入。 | 学习者在新的11逻辑处理器/14GiB预算下独立计算、预测、查询并判断内存不足，完成三句英文容量交接。改进方案的验证边界经过概念提示，记3分；此前9/12预算的完整命令指导单独作为不评分引导证据。保留原文，不把动态内存当硬件总量，不声称真实负载稳定性。",
       "id": "2026-W37-02-mission",
       "learning_goal": "把资源量、当前可用量和工作负载最低需求分开比较。",
-      "next_review": null,
+      "next_review": "2026-09-21",
       "phase": "foundations",
       "queue_order": 1060,
       "scenario": "团队准备运行本地 CI runner，需要确认 CPU 与内存是否满足最低要求而不暴露设备身份。",
       "scheduled_for": "2026-09-08",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "in_progress",
+      "status": "done",
       "success_criteria": [
         "能区分硬件资源、宿主操作系统、客户机与虚拟化层。",
         "能把 CPU、内存和存储证据与工作负载需求逐项对应。",
@@ -3632,7 +3645,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-14T16:10:03+08:00",
+  "updated_at": "2026-09-14T17:12:57+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
