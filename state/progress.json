@@ -141,6 +141,13 @@
       "evidence": "学习者在讲解与示范后自主判断：不接受，7是广播地址，不能分配给普通主机。对应题目为198.51.100.0/29中候选主机地址198.51.100.7。判断及地址角色解释正确；仅作为形成性理解证据，不评分，不扩充为已执行地址计算或独立迁移。 | 学习者在教练提供完整PowerShell算式后提交实际计算结果5，并自主解释不能容纳6台普通主机，列出.2、.3、.4、.5、.6共5个地址。与198.51.100.0/29及网关.1条件一致，容量判断和主机范围正确。本人将这些地址称为子网，教练纠正为同一子网中的可分配主机地址；不把教练术语修正记成本人原话。本次为完整提示后的引导练习证据，不评分，不作为独立掌握证明。 | 学习者在独立变化题B中事前预测整单不能通过、.7可以分配；本人选用手算32-27=5、2^5=32，正确得出网络192.0.2.0、广播192.0.2.31、排除网关.1/监控.2/日志.3后剩余.4至.30共27个地址。本人英文说明容量少于需求因此拒绝整单、.7不是特殊地址可用；最终本人中文明确建议把新增IP需求改为27个。三句英文保留本人原文及其修订的最后一句，未由教练替写；仍有语法瑕疵，建议具体性经追问中文澄清。技术核算独立，英文交接获得局部语法与表达支持，综合3/5、提示等级1。变化题A的广播边界规则未充分教授归因教练，仅保留为补充引导，不作为本次扣分依据。全程离线手算，无真实网络配置操作。",
       "kind": "primary",
       "task_id": "2026-W38-01-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-14",
+      "evidence": "学习者判断旧工作区中既未提交也未进入裸远程的验收说明不会随克隆出现，并解释这些修改只存在本地工作区。判断正确：克隆指定裸远程时只能取得源仓库已有的提交内容，不会自动获取另一个工作副本的未提交文件。形成性阶段，不评分。 | 学习者从本地裸远程的全新副本查询到 environment=test、timeout=30，正确区分本地 commit 保存与 push 传播；按带练变更范围手工将配置改为45，执行路径限定 diff、明确路径 add 和全局 cached diff，并自主解释只准备提交 deploy/app.conf 的30到45修改。学习者执行完整提供的 commit 命令得到 b60c1c444e253be4033342d39ffbd27c500f87a0，随后执行 status --short，观察无输出并解释暂存区和工作区没有待提交修改。教练复核新提交只含配置一行变更、环境仍为test、新副本干净且尚未推送。形成性阶段，不评分，独立阶段另换源基线和目标条件。 | 学习者在原C副本自选status/diff/cached diff并提交事前范围预测，实际输出匹配；本人判断可以按当前暂存范围提交。经-m提示后本人给出准确提交命令和状态预测，执行得到37289b6，本地提交只包含app.conf timeout30到120、environment=test保留。提交后误用HEAD^及-- chached，教练完整讲解后本人重新执行show HEAD与diff --cached，并解释暂存区与新HEAD一致。随后教练从C已提交历史准备全新复现副本；按教学调整允许先只读调查，不要求补写预测。学习者自行查看status/diff/cached diff、读取app120和worker2，并通过PathNotFound核验local-memo不存在。复现模型经补讲后，学习者三句本人英文说明提交修改timeout、可通过新副本app.conf验证、尚未推送。原C排除文件哈希保持、裸远程仍为原基线由教练另行核验，不冒充学习者解释。原有编辑暂存来源未回填为本轮独立动作。综合3/5、提示等级3：正确完成本地范围交付及复现，命令准确使用仍需引导；教练先前讲解缺口及机械预测要求不作为扣分项。",
+      "kind": "carryover",
+      "task_id": "2026-W35-05-mission"
     }
   ],
   "current_phase": "foundations",
@@ -2051,13 +2058,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W35-05-mission": {
+      "artifacts": [],
+      "carryover_activated_on": "2026-09-14",
       "checkpoints": [
         {
+          "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者判断旧工作区中既未提交也未进入裸远程的验收说明不会随克隆出现，并解释这些修改只存在本地工作区。判断正确：克隆指定裸远程时只能取得源仓库已有的提交内容，不会自动获取另一个工作副本的未提交文件。形成性阶段，不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 1,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -2065,16 +2081,23 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "in_progress",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
         {
+          "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者从本地裸远程的全新副本查询到 environment=test、timeout=30，正确区分本地 commit 保存与 push 传播；按带练变更范围手工将配置改为45，执行路径限定 diff、明确路径 add 和全局 cached diff，并自主解释只准备提交 deploy/app.conf 的30到45修改。学习者执行完整提供的 commit 命令得到 b60c1c444e253be4033342d39ffbd27c500f87a0，随后执行 status --short，观察无输出并解释暂存区和工作区没有待提交修改。教练复核新提交只含配置一行变更、环境仍为test、新副本干净且尚未推送。形成性阶段，不评分，独立阶段另换源基线和目标条件。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 1,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -2082,43 +2105,50 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
         {
+          "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在原C副本自选status/diff/cached diff并提交事前范围预测，实际输出匹配；本人判断可以按当前暂存范围提交。经-m提示后本人给出准确提交命令和状态预测，执行得到37289b6，本地提交只包含app.conf timeout30到120、environment=test保留。提交后误用HEAD^及-- chached，教练完整讲解后本人重新执行show HEAD与diff --cached，并解释暂存区与新HEAD一致。随后教练从C已提交历史准备全新复现副本；按教学调整允许先只读调查，不要求补写预测。学习者自行查看status/diff/cached diff、读取app120和worker2，并通过PathNotFound核验local-memo不存在。复现模型经补讲后，学习者三句本人英文说明提交修改timeout、可通过新副本app.conf验证、尚未推送。原C排除文件哈希保持、裸远程仍为原基线由教练另行核验，不冒充学习者解释。原有编辑暂存来源未回填为本轮独立动作。综合3/5、提示等级3：正确完成本地范围交付及复现，命令准确使用仍需引导；教练先前讲解缺口及机械预测要求不作为扣分项。",
+          "evidence_details": {
+            "handoff": "My commit change the timeout argument.\nThe new clone project can verify this commit from app.conf.\nThis commit still not push.",
+            "interpretation": "学习者本人判断预检结果与预期一致因此支持提交；本人预测并经带练输出解释暂存区相对新HEAD无修改，原排除改动保留。最终本人英文解释新副本可通过app.conf验证提交且尚未push。未把教练对克隆机制的补讲记成学习者原话。",
+            "learner_action": "学习者选择并执行status、diff、diff --cached；自行给出git commit -m与说明并执行。提交后错误命令及完整提示后的修正均保留。新副本中本人执行只读状态检查及cat文件检查。",
+            "observed_result": "本地commit37289b6仅app.conf timeout30到120；新副本clean，app.conf environment=test/timeout120，worker.conf environment=test/workers2，cat local-memo返回PathNotFound。",
+            "prediction": "学习者在本轮只读预检前预测app已暂存、worker未暂存、memo未跟踪，diff为workers2到4，cached diff为timeout30到120；在本轮commit前预测提交后暂存区与新HEAD一致，worker与memo保留。这些预测不回填至早先已有编辑/暂存动作。新复现检查依明确教学调整先调查，不要求事前盲猜。"
+          },
+          "hint_level_used": 3,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
           "independent": false,
           "instruction": "使用本周 friday_variation 且不给完整命令；学习者独立提交命令、预测、实际结果、解释与验证证据，并写 2–4 句英语交付说明。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-21",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-14",
       "created_on": "2026-08-28",
       "curriculum_week": 5,
-      "evidence": null,
+      "evidence": "学习者判断旧工作区中既未提交也未进入裸远程的验收说明不会随克隆出现，并解释这些修改只存在本地工作区。判断正确：克隆指定裸远程时只能取得源仓库已有的提交内容，不会自动获取另一个工作副本的未提交文件。形成性阶段，不评分。 | 学习者从本地裸远程的全新副本查询到 environment=test、timeout=30，正确区分本地 commit 保存与 push 传播；按带练变更范围手工将配置改为45，执行路径限定 diff、明确路径 add 和全局 cached diff，并自主解释只准备提交 deploy/app.conf 的30到45修改。学习者执行完整提供的 commit 命令得到 b60c1c444e253be4033342d39ffbd27c500f87a0，随后执行 status --short，观察无输出并解释暂存区和工作区没有待提交修改。教练复核新提交只含配置一行变更、环境仍为test、新副本干净且尚未推送。形成性阶段，不评分，独立阶段另换源基线和目标条件。 | 学习者在原C副本自选status/diff/cached diff并提交事前范围预测，实际输出匹配；本人判断可以按当前暂存范围提交。经-m提示后本人给出准确提交命令和状态预测，执行得到37289b6，本地提交只包含app.conf timeout30到120、environment=test保留。提交后误用HEAD^及-- chached，教练完整讲解后本人重新执行show HEAD与diff --cached，并解释暂存区与新HEAD一致。随后教练从C已提交历史准备全新复现副本；按教学调整允许先只读调查，不要求补写预测。学习者自行查看status/diff/cached diff、读取app120和worker2，并通过PathNotFound核验local-memo不存在。复现模型经补讲后，学习者三句本人英文说明提交修改timeout、可通过新副本app.conf验证、尚未推送。原C排除文件哈希保持、裸远程仍为原基线由教练另行核验，不冒充学习者解释。原有编辑暂存来源未回填为本轮独立动作。综合3/5、提示等级3：正确完成本地范围交付及复现，命令准确使用仍需引导；教练先前讲解缺口及机械预测要求不作为扣分项。",
       "id": "2026-W35-05-mission",
       "learning_goal": "在全新副本中独立完成范围确认、变更、提交和可重复验证。",
-      "next_review": null,
+      "next_review": "2026-09-21",
       "phase": "foundations",
       "queue_order": 1053,
       "scenario": "另一位工程师只能从本地裸远程取得全新副本，要求复现本周变更且不依赖旧工作区状态。",
       "scheduled_for": "2026-08-28",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "in_progress",
+      "status": "done",
       "success_criteria": [
         "能根据实际差异区分工作区、暂存区和 HEAD 中的内容。",
         "能按变更目标选择明确文件与明确内容形成可审查提交。",
@@ -3570,7 +3600,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-14T10:23:24+08:00",
+  "updated_at": "2026-09-14T11:44:09+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
