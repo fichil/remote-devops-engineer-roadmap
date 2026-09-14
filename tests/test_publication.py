@@ -382,3 +382,109 @@ def test_legacy_carryover_key_is_reused_without_republication(project_copy: Path
     assert repeated["publication_key"] == "2026-07-29:carryover"
     assert len(runner.prs) == pr_count
     assert recover_publications(project_copy, runner=runner, run_checks=False) == []
+
+
+@pytest.mark.parametrize("field", ["status", "evidence", "score", "carryover_activated_on"])
+def test_scope_rejects_other_task_in_same_state(project_copy: Path, field: str) -> None:
+    _prepare_repository(project_copy)
+    _complete_primary(project_copy)
+    path = project_copy / "state/progress.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    state["tasks"]["2026-W31-04-mission"][field] = "unexpected"
+    path.write_text(json.dumps(state), encoding="utf-8")
+    with pytest.raises(PublicationError, match="2026-W31-04-mission"):
+        inspect_publication(project_copy, date(2026, 7, 29), "primary")
+
+
+def test_scope_rejects_other_tasks_registered_artifact(project_copy: Path) -> None:
+    _prepare_repository(project_copy)
+    path = project_copy / "state/progress.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    state["tasks"]["2026-W31-04-mission"]["artifacts"] = ["evidence/other.txt"]
+    path.write_text(json.dumps(state), encoding="utf-8")
+    _git(project_copy, "add", "state/progress.json")
+    _git(project_copy, "commit", "-m", "test: register other artifact")
+    _complete_primary(project_copy)
+    (project_copy / "evidence/other.txt").write_text("other evidence", encoding="utf-8")
+    with pytest.raises(PublicationError, match="target-task path"):
+        inspect_publication(project_copy, date(2026, 7, 29), "primary")
+
+
+def test_scope_rejects_edited_weekly_plan(project_copy: Path) -> None:
+    _prepare_repository(project_copy)
+    _complete_primary(project_copy)
+    path = project_copy / "plans/weeks/2026-W31.md"
+    path.write_text(path.read_text(encoding="utf-8") + "Unreviewed note\n", encoding="utf-8")
+    with pytest.raises(PublicationError, match="not synchronized"):
+        inspect_publication(project_copy, date(2026, 7, 29), "primary")
+
+
+def test_scope_rejects_contaminated_recovery_commit(project_copy: Path) -> None:
+    _prepare_repository(project_copy)
+    _complete_primary(project_copy)
+    _git(project_copy, "switch", "-c", "learn/2026-07-29")
+    (project_copy / "rogue.txt").write_text("unrelated", encoding="utf-8")
+    _git(project_copy, "add", "state", "plans", "evidence", "rogue.txt")
+    _git(project_copy, "commit", "-m", "DevOps-Coach-Publication: 2026-07-29:primary")
+    with pytest.raises(PublicationError, match="target-task path"):
+        inspect_publication(project_copy, date(2026, 7, 29), "primary")
+
+
+@pytest.mark.parametrize("changed_task", ["2026-W31-04-mission", "2026-W31-03-mission"])
+def test_scope_rechecks_staged_content(project_copy: Path, changed_task: str) -> None:
+    _prepare_repository(project_copy)
+    _complete_primary(project_copy)
+
+    class ChangedIndexRunner(FakeGitHubRunner):
+        def run(self, args, *, check=True):
+            result = super().run(args, check=check)
+            if args[:2] == ["git", "add"]:
+                path = self.root / "state/progress.json"
+                state = json.loads(path.read_text(encoding="utf-8"))
+                state["tasks"][changed_task]["evidence"] = "unexpected"
+                path.write_text(json.dumps(state), encoding="utf-8")
+                super().run(["git", "add", "--", "state/progress.json"])
+            return result
+
+    message = "2026-W31-04-mission" if changed_task.endswith("04-mission") else "Staged content"
+    with pytest.raises(PublicationError, match=message):
+        publish_completed_task(
+            project_copy,
+            date(2026, 7, 29),
+            "primary",
+            apply=True,
+            runner=ChangedIndexRunner(project_copy),
+            run_checks=False,
+        )
+
+
+def test_scope_accepts_deterministic_new_week_only(project_copy: Path) -> None:
+    _prepare_repository(project_copy)
+    ensure_week_plan(project_copy, "2026-W32")
+    target = date(2026, 8, 3)
+    state = json.loads((project_copy / "state/progress.json").read_text(encoding="utf-8"))
+    task_id = "2026-W32-01-mission"
+    for checkpoint in state["tasks"][task_id]["checkpoints"]:
+        record_checkpoint(
+            project_copy,
+            task_id,
+            checkpoint["id"],
+            "done",
+            3 if checkpoint.get("assessment") == "summative" else None,
+            "Learner evidence",
+            target,
+            evidence_details={
+                "prediction": "The test should pass.",
+                "learner_action": "Selected the check.",
+                "observed_result": "The check passed.",
+                "interpretation": "The result matches the requirement.",
+                "handoff": "The check passed. Ready for review.",
+            },
+        )
+    assert inspect_publication(project_copy, target, "primary")["ready"]
+    path = project_copy / "state/progress.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    state["tasks"]["2026-W32-02-mission"]["title"] = "changed curriculum"
+    path.write_text(json.dumps(state), encoding="utf-8")
+    with pytest.raises(PublicationError, match="2026-W32-02-mission"):
+        inspect_publication(project_copy, target, "primary")

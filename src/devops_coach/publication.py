@@ -10,6 +10,7 @@ from typing import Any
 
 from devops_coach import publication_identity
 from devops_coach.planner import task_has_complete_evidence
+from devops_coach.publication_scope import validate_snapshot
 from devops_coach.storage import load_json, load_yaml
 
 LEDGER_PATH = publication_identity.LEDGER_PATH
@@ -145,7 +146,8 @@ def _eligible_completion(
     matches = [
         item
         for item in progress.get("completion_log", [])
-        if item.get("date") == target.isoformat() and item.get("kind") == kind
+        if item.get("date") == target.isoformat()
+        and item.get("kind") == kind
         and (task_id is None or item.get("task_id") == task_id)
     ]
     if len(matches) != 1:
@@ -195,9 +197,7 @@ def _allowed_learning_paths(progress: dict[str, Any]) -> set[str]:
 
 
 def _dirty_paths(runner: CommandRunner) -> set[str]:
-    result = runner.run(
-        ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"]
-    )
+    result = runner.run(["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"])
     dirty: set[str] = set()
     records = result.stdout.split("\0")
     index = 0
@@ -233,8 +233,7 @@ def inspect_publication(
     unknown = sorted(dirty - allowed)
     if unknown:
         raise PublicationError(
-            "Unrelated or unregistered worktree changes block publication: "
-            + ", ".join(unknown)
+            "Unrelated or unregistered worktree changes block publication: " + ", ".join(unknown)
         )
     changed = sorted(dirty & allowed)
     ledger = load_publication_ledger(root)
@@ -247,6 +246,39 @@ def inspect_publication(
         kind,
         completion["task_id"] if kind == "carryover" else None,
     )
+    if ledger_entry.get("status") != "complete":
+        head = _local_ref(active_runner, branch)
+        if head is None:
+            remote = active_runner.run(
+                ["git", "rev-parse", "--verify", f"refs/remotes/origin/{branch}"],
+                check=False,
+            )
+            head = remote.stdout.strip() if remote.returncode == 0 else None
+        if head:
+            if dirty:
+                raise PublicationError("Uncommitted changes block publication branch recovery")
+            if ledger_entry.get("head") and ledger_entry["head"] != head:
+                raise PublicationError("Publication branch head differs from the recovery ledger")
+            if not _commit_has_key(active_runner, head, key):
+                raise PublicationError("Existing branch is not this publication")
+            baseline = active_runner.run(
+                ["git", "merge-base", policy["base_branch"], head]
+            ).stdout.strip()
+            if baseline == head:
+                baseline = active_runner.run(["git", "rev-parse", f"{head}^"]).stdout.strip()
+            snapshot = _json_output(
+                active_runner.run(["git", "show", f"{head}:state/progress.json"])
+            )
+            frozen_completion, _ = _eligible_completion(snapshot, target, kind, task_id)
+            _allowed_learning_paths(snapshot)
+            paths = set(
+                active_runner.run(
+                    ["git", "diff", "--name-only", "-z", baseline, head]
+                ).stdout.split("\0")
+            ) - {""}
+            _validate_scope(root, active_runner, baseline, head, snapshot, frozen_completion, paths)
+        else:
+            _validate_scope(root, active_runner, "HEAD", None, progress, completion, dirty)
     return {
         "publication_key": key,
         "date": target.isoformat(),
@@ -256,10 +288,31 @@ def inspect_publication(
         "branch": branch,
         "base_branch": policy["base_branch"],
         "changed_paths": changed,
+        "content_oids": {
+            path: active_runner.run(
+                ["git", "hash-object", f"--path={path}", "--", path]
+            ).stdout.strip()
+            for path in changed
+        },
         "unknown_paths": unknown,
         "ledger_status": ledger_entry.get("status"),
         "ready": bool(changed) or ledger_entry.get("status") == "complete",
     }
+
+
+def _validate_scope(
+    root: Path,
+    runner: CommandRunner,
+    baseline: str,
+    revision: str | None,
+    progress: dict[str, Any],
+    completion: dict[str, Any],
+    paths: set[str],
+) -> None:
+    try:
+        validate_snapshot(root, runner, baseline, revision, progress, completion, paths)
+    except (ValueError, KeyError, OSError) as exc:
+        raise PublicationError(f"Publication scope validation failed: {exc}") from exc
 
 
 def _run_quality_checks(root: Path, runner: CommandRunner) -> None:
@@ -272,20 +325,19 @@ def _run_quality_checks(root: Path, runner: CommandRunner) -> None:
         ["git", "diff", "--check"],
     )
     for command in commands:
-        runner.run(list(command))
+        args = list(command)
+        if args[0] == sys.executable:
+            args[1:1] = ["-X", "utf8"]
+        runner.run(args)
 
 
 def _local_ref(runner: CommandRunner, branch: str) -> str | None:
-    result = runner.run(
-        ["git", "rev-parse", "--verify", f"refs/heads/{branch}"], check=False
-    )
+    result = runner.run(["git", "rev-parse", "--verify", f"refs/heads/{branch}"], check=False)
     return result.stdout.strip() if result.returncode == 0 else None
 
 
 def _remote_ref(runner: CommandRunner, branch: str) -> str | None:
-    result = runner.run(
-        ["git", "ls-remote", "--heads", "origin", f"refs/heads/{branch}"]
-    )
+    result = runner.run(["git", "ls-remote", "--heads", "origin", f"refs/heads/{branch}"])
     line = result.stdout.strip()
     return line.split()[0] if line else None
 
@@ -387,9 +439,7 @@ def _prepare_commit(
     runner.run(["git", "add", "--", *plan["changed_paths"]])
     cached = {
         item
-        for item in runner.run(
-            ["git", "diff", "--cached", "--name-only", "-z"]
-        ).stdout.split("\0")
+        for item in runner.run(["git", "diff", "--cached", "--name-only", "-z"]).stdout.split("\0")
         if item
     }
     expected = set(plan["changed_paths"])
@@ -398,9 +448,16 @@ def _prepare_commit(
             "Staged paths differ from the explicit publication set: "
             f"expected={sorted(expected)}, staged={sorted(cached)}"
         )
-    subject = publication_subject(
-        target, kind, plan["task_id"] if kind == "carryover" else None
+    staged_progress = _json_output(runner.run(["git", "show", ":state/progress.json"]))
+    completion, _ = _eligible_completion(
+        staged_progress, target, kind, plan["task_id"] if kind == "carryover" else None
     )
+    _validate_scope(root, runner, "HEAD", "", staged_progress, completion, cached)
+    for path, expected_oid in plan["content_oids"].items():
+        staged_oid = runner.run(["git", "rev-parse", f":{path}"]).stdout.strip()
+        if staged_oid != expected_oid:
+            raise PublicationError(f"Staged content changed after inspection: {path}")
+    subject = publication_subject(target, kind, plan["task_id"] if kind == "carryover" else None)
     runner.run(
         [
             "git",
@@ -455,9 +512,7 @@ def _ensure_pr(
     )
     url = result.stdout.strip()
     created = _json_output(
-        runner.run(
-            ["gh", "pr", "view", url, "--json", "number,state,isDraft,url,headRefOid"]
-        )
+        runner.run(["gh", "pr", "view", url, "--json", "number,state,isDraft,url,headRefOid"])
     )
     if created.get("isDraft"):
         raise PublicationError("Automatic publication requires a Ready pull request")
@@ -545,9 +600,7 @@ def publish_completed_task(
 ) -> dict[str, Any]:
     root = root.resolve()
     active_runner = runner or CommandRunner(root)
-    plan = inspect_publication(
-        root, target, kind, task_id=task_id, runner=active_runner
-    )
+    plan = inspect_publication(root, target, kind, task_id=task_id, runner=active_runner)
     key = plan["publication_key"]
     existing = load_publication_ledger(root)["publications"].get(key, {})
     if existing.get("status") == "complete":
@@ -557,9 +610,11 @@ def publish_completed_task(
 
     base = plan["base_branch"]
     active_runner.run(["git", "fetch", "origin", base])
-    head = _prepare_commit(
-        root, target, kind, plan, active_runner, run_checks=run_checks
-    )
+    head = _prepare_commit(root, target, kind, plan, active_runner, run_checks=run_checks)
+    # Inspect the exact commit even when _prepare_commit recovered a remote branch.
+    inspect_publication(root, target, kind, task_id=task_id, runner=active_runner)
+    if run_checks and not plan["changed_paths"]:
+        _run_quality_checks(root, active_runner)
     _update_ledger(
         root,
         key,
@@ -613,17 +668,10 @@ def recover_publications(
             {"publications": ledger}, item_date, item_kind, item_task_id
         )
         if entry.get("status") != "complete":
-            pending.append(
-                (item_date, item_kind, item_task_id, index, entry.get("status"))
-            )
-    pending.sort(
-        key=lambda item: (item[0], PUBLICATION_KINDS.index(item[1]), item[3])
-    )
+            pending.append((item_date, item_kind, item_task_id, index, entry.get("status")))
+    pending.sort(key=lambda item: (item[0], PUBLICATION_KINDS.index(item[1]), item[3]))
     frozen_statuses = {"committed", "pushed", "pr_ready", "merged"}
-    if any(
-        status not in frozen_statuses
-        for _, _, _, _, status in pending[:-1]
-    ):
+    if any(status not in frozen_statuses for _, _, _, _, status in pending[:-1]):
         raise PublicationError(
             "Multiple unpublished completions are not isolated; "
             "manual publication review is required"
