@@ -148,6 +148,13 @@
       "evidence": "学习者判断旧工作区中既未提交也未进入裸远程的验收说明不会随克隆出现，并解释这些修改只存在本地工作区。判断正确：克隆指定裸远程时只能取得源仓库已有的提交内容，不会自动获取另一个工作副本的未提交文件。形成性阶段，不评分。 | 学习者从本地裸远程的全新副本查询到 environment=test、timeout=30，正确区分本地 commit 保存与 push 传播；按带练变更范围手工将配置改为45，执行路径限定 diff、明确路径 add 和全局 cached diff，并自主解释只准备提交 deploy/app.conf 的30到45修改。学习者执行完整提供的 commit 命令得到 b60c1c444e253be4033342d39ffbd27c500f87a0，随后执行 status --short，观察无输出并解释暂存区和工作区没有待提交修改。教练复核新提交只含配置一行变更、环境仍为test、新副本干净且尚未推送。形成性阶段，不评分，独立阶段另换源基线和目标条件。 | 学习者在原C副本自选status/diff/cached diff并提交事前范围预测，实际输出匹配；本人判断可以按当前暂存范围提交。经-m提示后本人给出准确提交命令和状态预测，执行得到37289b6，本地提交只包含app.conf timeout30到120、environment=test保留。提交后误用HEAD^及-- chached，教练完整讲解后本人重新执行show HEAD与diff --cached，并解释暂存区与新HEAD一致。随后教练从C已提交历史准备全新复现副本；按教学调整允许先只读调查，不要求补写预测。学习者自行查看status/diff/cached diff、读取app120和worker2，并通过PathNotFound核验local-memo不存在。复现模型经补讲后，学习者三句本人英文说明提交修改timeout、可通过新副本app.conf验证、尚未推送。原C排除文件哈希保持、裸远程仍为原基线由教练另行核验，不冒充学习者解释。原有编辑暂存来源未回填为本轮独立动作。综合3/5、提示等级3：正确完成本地范围交付及复现，命令准确使用仍需引导；教练先前讲解缺口及机械预测要求不作为扣分项。",
       "kind": "carryover",
       "task_id": "2026-W35-05-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-14",
+      "evidence": "学习者独立完成事件简报：识别 README-only 变更单之外出现 deploy/app.conf；指出未经授权的应用配置可能错误合入 main；要求确认该配置修改的必要性；提出先只读核对配置差异，若确认修改应用配置则停止合并；并在变化题中正确说明 CI 通过不能替代变更范围授权。 | 在本地工作仓库中按变更单只修改 README.md，显式暂存并提交，然后推送到本地裸远程；全过程保留预测、实际输出和解释。 | 学习者自行检查分支引用、识别远端跟踪记录的时效边界，提出并执行fetch，依据实际HEAD不变解释未自动合并，并提交三句英文交接。fetch/pull关系经过概念纠正，记3分；本次远端跟踪引用未变化，不扩大验证结论。场景提交由教练准备，不记为学习者提交成果。",
+      "kind": "carryover",
+      "task_id": "2026-W36-01-mission"
     }
   ],
   "current_phase": "foundations",
@@ -2162,7 +2169,7 @@
     },
     "2026-W36-01-mission": {
       "artifacts": [],
-      "carryover_activated_on": null,
+      "carryover_activated_on": "2026-09-14",
       "checkpoints": [
         {
           "artifacts": [],
@@ -2210,36 +2217,42 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者自行检查分支引用、识别远端跟踪记录的时效边界，提出并执行fetch，依据实际HEAD不变解释未自动合并，并提交三句英文交接。fetch/pull关系经过概念纠正，记3分；本次远端跟踪引用未变化，不扩大验证结论。场景提交由教练准备，不记为学习者提交成果。",
+          "evidence_details": {
+            "handoff": "The current branch is faster than local origin/main. The remote origin/main is not confirm. Next, I suggest fetch the newest remote oringin/mian to local.",
+            "interpretation": "学习者解释两引用最后提交不同；不能据本地检查证明远端此刻状态，因为远端main也许已更新。fetch后解释：当前本地分支最后提交hash没变，支持不会自动合并的预测。本次未出现远端新提交，不声称验证了更新场景。",
+            "learner_action": "自行执行git status、git show HEAD、git show origin/main；提出fetch后自行执行git fetch、git show origin/main、git show main、git show HEAD。未提供完整命令提示，未执行pull、merge或push。",
+            "observed_result": "初始当前分支practice/w36-01-reference-check领先origin/main一个提交且工作区干净。fetch后origin/main仍为fe50fc7，main为0ba8713，HEAD仍为a41760a；完整输出已由学习者提交，教练只读核对相符。",
+            "prediction": "学习者在fetch前预测：不会，还需要拉取。教练纠正后半句：fetch已获取提交，整合需按需merge/rebase；未倒填初始只读检查的预测。"
+          },
+          "hint_level_used": 1,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
           "independent": false,
           "instruction": "教练改变一个分支的领先关系；学习者独立选择命令、预测并解释实际提交可达性，再用 2–4 句英语说明分支状态和下一步。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-21",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-14",
       "created_on": "2026-08-31",
       "curriculum_week": 6,
-      "evidence": "学习者独立完成事件简报：识别 README-only 变更单之外出现 deploy/app.conf；指出未经授权的应用配置可能错误合入 main；要求确认该配置修改的必要性；提出先只读核对配置差异，若确认修改应用配置则停止合并；并在变化题中正确说明 CI 通过不能替代变更范围授权。 | 在本地工作仓库中按变更单只修改 README.md，显式暂存并提交，然后推送到本地裸远程；全过程保留预测、实际输出和解释。",
+      "evidence": "学习者独立完成事件简报：识别 README-only 变更单之外出现 deploy/app.conf；指出未经授权的应用配置可能错误合入 main；要求确认该配置修改的必要性；提出先只读核对配置差异，若确认修改应用配置则停止合并；并在变化题中正确说明 CI 通过不能替代变更范围授权。 | 在本地工作仓库中按变更单只修改 README.md，显式暂存并提交，然后推送到本地裸远程；全过程保留预测、实际输出和解释。 | 学习者自行检查分支引用、识别远端跟踪记录的时效边界，提出并执行fetch，依据实际HEAD不变解释未自动合并，并提交三句英文交接。fetch/pull关系经过概念纠正，记3分；本次远端跟踪引用未变化，不扩大验证结论。场景提交由教练准备，不记为学习者提交成果。",
       "id": "2026-W36-01-mission",
       "learning_goal": "用本地裸远程建立提交可达性、分支和远程跟踪引用的心智模型。",
-      "next_review": null,
+      "next_review": "2026-09-21",
       "phase": "foundations",
       "queue_order": 1054,
       "scenario": "同事把本地 main、远程 main 和 PR 当成同一个对象，导致无法说明变更到底在哪里。",
       "scheduled_for": "2026-08-31",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "in_progress",
+      "status": "done",
       "success_criteria": [
         "能解释本地分支、远程跟踪分支、默认分支和 PR 的关系。",
         "能以本地分支差异判断 Markdown 变更是否越过授权范围。",
@@ -3600,7 +3613,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-14T11:44:09+08:00",
+  "updated_at": "2026-09-14T13:59:31+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
