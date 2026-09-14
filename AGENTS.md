@@ -76,9 +76,14 @@ For every automatic or manually retried publication:
 
 ## Verification commands
 
+On Windows, include `-X utf8` before module or script arguments for every coach and quality-check invocation.
+Publication checks compare task-level state and rendered weekly plans against the Git baseline;
+other tasks' changes remain blocked even inside an allowed file. Staged content and recovered
+publication commits are checked again before pushing.
+
 ```powershell
-.venv\Scripts\python.exe -m devops_coach validate
-.venv\Scripts\python.exe -m pytest
-.venv\Scripts\python.exe scripts/check_markdown_links.py
-.venv\Scripts\python.exe scripts/privacy_scan.py
+.venv\Scripts\python.exe -X utf8 -m devops_coach validate
+.venv\Scripts\python.exe -X utf8 -m pytest
+.venv\Scripts\python.exe -X utf8 scripts/check_markdown_links.py
+.venv\Scripts\python.exe -X utf8 scripts/privacy_scan.py
 ```
