@@ -127,6 +127,13 @@
       "evidence": "学习者独立完成交接事件简报：正确解释 deploy/app.conf 为已跟踪但未暂存、notes/verification.txt 为未跟踪；识别普通提交会遗漏内容及目标分支不明的风险；要求向同事、工单负责人或审批人确认提交范围、目标分支、timeout 目标、服务环境、验收证据与 push 授权；提出安全假设为这些问题未得到清晰回答且未完成只读检查前，当前 checkout 不具备 commit/push 条件。 | 学习者执行完整讲解的 git reset --soft HEAD^ 后报告无报错。教练实时验证当前练习分支由 baf1ae5 回到 c4af243，暂存区保留 deploy/app.conf 的 timeout 45 到 60，工作区配置与暂存区一致；README、验证说明的未暂存修改和未跟踪操作记录均保留，安全分支仍指向原提交。学习者起初将其解释为从 HEAD 搬回暂存区；经讲解纠正后，在 HEAD=30、暂存区=60 的变化条件下自主解释 cached diff 为 30 到 60，因为比较的是 HEAD 与暂存区。形成性证据，不评分。 | Learner independently selected and executed soft reset on the changed local history, preserving the approved configuration commit and all file contents. Verified HEAD baf1ae5, draft-only staged addition, unchanged original-file hashes and unchanged local remote. Learner correctly explained cached new-file status and completed a prospective supplemental worktree/index check plus three-sentence English handoff. Score 3: correct recovery, but original reset skipped the requested prediction and pause; later uncertainty is evidence for a separate check, not a backdated reset prediction.",
       "kind": "carryover",
       "task_id": "2026-W35-04-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-11",
+      "evidence": "学习者在看到需求文件及尚未采集证据的资产记录后回答：不能，还得看看是否满足需求。判断暂不批准并需要进一步核验需求是否满足。仅记录此本人判断，不扩充为已采集资源或完整容量解释；形成性检查点，不评分。 | CPU带练：学习者执行已完整提供的Windows PowerShell查询，提交NumberOfCores=16、NumberOfLogicalProcessors=22，并自主解释应将cpu_cores_min:4与16个CPU核心比较。此为Windows宿主机核心数证据，不证明客户环境配额或CPU空闲程度；内存、存储及完整容量解释仍待完成。形成性阶段，不评分。 | 内存带练：学习者执行已提供的只读查询，提交10.774486541748，并解释为机器当前可用剩余内存。数值单位GiB，查询范围为Windows宿主机；单位及范围的明确表述由教练补充，不记为学习者自主解释。尚未完成需求单位换算、存储及完整容量结论，不评分。 | 存储带练：学习者提交349.601257324219，并解释两个磁盘相互独立，一个空间不足时不能自动使用另一个。结合此前已给出的D卷查询，证明其理解目标卷空间不能由另一卷的空闲量直接替代。教练补充术语：C/D为卷，不一定是两块物理磁盘；普通目录写入不会自动跨卷。单位GiB和卷级范围由命令及教练说明，不扩充为学习者独立采集。尚待三项初步容量结论及范围解释；保持进行中、不评分。 | 综合解释：学习者本人判断当前设备容量初步满足需求，但当前可用内存剩余不多，可能稍许紧张。此结论基于前述本人CPU、内存、D卷带练结果及教练提供的单位换算，能给出初步满足及内存余量风险；没有实际运行或稳定性证据。教练明确可能紧张为风险而非已证实瓶颈。形成性引导练习完成，不评分；整项任务及独立交付仍未完成。 | 学习者完成不同预算的双虚拟机容量评估，自选只读查询并统一GiB/GB，正确比较CPU6核、内存7.5GB、磁盘340GB；首次采样满足。首次B采集没有事前预测，不能补记。随后在新内存复查前本人预测余量很小且结果不确定，实际复查可用内存6.883893248GB低于7.5GB，独立解释结论由满足变为不满足。本人四句英文交接经单位与语法带练修正后表达不建议启动以及换到有足够可用内存的机器；保留two task等轻微语法问题和fixing the memory requirement的笼统表达，不替写。总结性评分3/5：技术观察与比较正确，但初始预测缺失、单位及英文需要提示；仅后续复查具有真正事前预测。未部署虚拟机，不声称稳定性或故障原因。",
+      "kind": "primary",
+      "task_id": "2026-W37-05-mission"
     }
   ],
   "current_phase": "foundations",
@@ -3014,14 +3021,21 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W37-05-mission": {
+      "artifacts": [],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
+          "evidence": "学习者在看到需求文件及尚未采集证据的资产记录后回答：不能，还得看看是否满足需求。判断暂不批准并需要进一步核验需求是否满足。仅记录此本人判断，不扩充为已采集资源或完整容量解释；形成性检查点，不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
           "hint_level_used": null,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
@@ -3030,7 +3044,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -3038,8 +3052,14 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
+          "evidence": "CPU带练：学习者执行已完整提供的Windows PowerShell查询，提交NumberOfCores=16、NumberOfLogicalProcessors=22，并自主解释应将cpu_cores_min:4与16个CPU核心比较。此为Windows宿主机核心数证据，不证明客户环境配额或CPU空闲程度；内存、存储及完整容量解释仍待完成。形成性阶段，不评分。 | 内存带练：学习者执行已提供的只读查询，提交10.774486541748，并解释为机器当前可用剩余内存。数值单位GiB，查询范围为Windows宿主机；单位及范围的明确表述由教练补充，不记为学习者自主解释。尚未完成需求单位换算、存储及完整容量结论，不评分。 | 存储带练：学习者提交349.601257324219，并解释两个磁盘相互独立，一个空间不足时不能自动使用另一个。结合此前已给出的D卷查询，证明其理解目标卷空间不能由另一卷的空闲量直接替代。教练补充术语：C/D为卷，不一定是两块物理磁盘；普通目录写入不会自动跨卷。单位GiB和卷级范围由命令及教练说明，不扩充为学习者独立采集。尚待三项初步容量结论及范围解释；保持进行中、不评分。 | 综合解释：学习者本人判断当前设备容量初步满足需求，但当前可用内存剩余不多，可能稍许紧张。此结论基于前述本人CPU、内存、D卷带练结果及教练提供的单位换算，能给出初步满足及内存余量风险；没有实际运行或稳定性证据。教练明确可能紧张为风险而非已证实瓶颈。形成性引导练习完成，不评分；整项任务及独立交付仍未完成。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
           "hint_level_used": null,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
@@ -3048,7 +3068,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -3056,36 +3076,42 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者完成不同预算的双虚拟机容量评估，自选只读查询并统一GiB/GB，正确比较CPU6核、内存7.5GB、磁盘340GB；首次采样满足。首次B采集没有事前预测，不能补记。随后在新内存复查前本人预测余量很小且结果不确定，实际复查可用内存6.883893248GB低于7.5GB，独立解释结论由满足变为不满足。本人四句英文交接经单位与语法带练修正后表达不建议启动以及换到有足够可用内存的机器；保留two task等轻微语法问题和fixing the memory requirement的笼统表达，不替写。总结性评分3/5：技术观察与比较正确，但初始预测缺失、单位及英文需要提示；仅后续复查具有真正事前预测。未部署虚拟机，不声称稳定性或故障原因。",
+          "evidence_details": {
+            "handoff": "The free physical memory is 6.41 GiB and the memory requirement is 7.5 GB. I changed the conclusion because it does not meet the requirement budget. I do not recommend starting these two task. Next, I recommend fixing the memory requirement or switching to another machine with enough available memory.",
+            "interpretation": "学习者首次比较4+2=6<16、3+1+2+0.5+1=7.5<7.57、120+180+40=340<382.41，判断满足预算。复查后本人比较6.883893248<7.5，明确改变之前满足内存预算的结论。不同采样结果说明结论依赖当时可用量，未确认占用变化原因。",
+            "learner_action": "学习者自选Windows只读查询处理器核心数、操作系统FreePhysicalMemory和D卷SizeRemaining，并自行乘以1.073741824将GiB转成GB。新内存复查沿用本人方法且在上述预测之后执行。",
+            "observed_result": "首次B：CPU16核；内存7.05195236206055GiB=7.571976192GB；D卷356.14794921875GiB=382.410948608GB。后续内存复查：6.41112518310547GiB=6.883893248GB。均为学习者提交的实际输出，不是同步采样或教练代查。",
+            "prediction": "仅针对后续内存复查的事前预测：不确定，随时一个小的涨幅都会用掉这个72MB的剩余。B首次采集未提交事前预测，明确不回填。"
+          },
+          "hint_level_used": 3,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
           "independent": false,
           "instruction": "使用 friday_variation 且不给完整命令；学习者独立提交命令或方法、预测、脱敏结果、解释和 go/no-go 结论，并写 2–4 句英语交付。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-18",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-11",
       "created_on": "2026-09-11",
       "curriculum_week": 7,
-      "evidence": null,
+      "evidence": "学习者在看到需求文件及尚未采集证据的资产记录后回答：不能，还得看看是否满足需求。判断暂不批准并需要进一步核验需求是否满足。仅记录此本人判断，不扩充为已采集资源或完整容量解释；形成性检查点，不评分。 | CPU带练：学习者执行已完整提供的Windows PowerShell查询，提交NumberOfCores=16、NumberOfLogicalProcessors=22，并自主解释应将cpu_cores_min:4与16个CPU核心比较。此为Windows宿主机核心数证据，不证明客户环境配额或CPU空闲程度；内存、存储及完整容量解释仍待完成。形成性阶段，不评分。 | 内存带练：学习者执行已提供的只读查询，提交10.774486541748，并解释为机器当前可用剩余内存。数值单位GiB，查询范围为Windows宿主机；单位及范围的明确表述由教练补充，不记为学习者自主解释。尚未完成需求单位换算、存储及完整容量结论，不评分。 | 存储带练：学习者提交349.601257324219，并解释两个磁盘相互独立，一个空间不足时不能自动使用另一个。结合此前已给出的D卷查询，证明其理解目标卷空间不能由另一卷的空闲量直接替代。教练补充术语：C/D为卷，不一定是两块物理磁盘；普通目录写入不会自动跨卷。单位GiB和卷级范围由命令及教练说明，不扩充为学习者独立采集。尚待三项初步容量结论及范围解释；保持进行中、不评分。 | 综合解释：学习者本人判断当前设备容量初步满足需求，但当前可用内存剩余不多，可能稍许紧张。此结论基于前述本人CPU、内存、D卷带练结果及教练提供的单位换算，能给出初步满足及内存余量风险；没有实际运行或稳定性证据。教练明确可能紧张为风险而非已证实瓶颈。形成性引导练习完成，不评分；整项任务及独立交付仍未完成。 | 学习者完成不同预算的双虚拟机容量评估，自选只读查询并统一GiB/GB，正确比较CPU6核、内存7.5GB、磁盘340GB；首次采样满足。首次B采集没有事前预测，不能补记。随后在新内存复查前本人预测余量很小且结果不确定，实际复查可用内存6.883893248GB低于7.5GB，独立解释结论由满足变为不满足。本人四句英文交接经单位与语法带练修正后表达不建议启动以及换到有足够可用内存的机器；保留two task等轻微语法问题和fixing the memory requirement的笼统表达，不替写。总结性评分3/5：技术观察与比较正确，但初始预测缺失、单位及英文需要提示；仅后续复查具有真正事前预测。未部署虚拟机，不声称稳定性或故障原因。",
       "id": "2026-W37-05-mission",
       "learning_goal": "独立完成层次识别、资源采集、需求比较、风险说明和可重复交接。",
-      "next_review": null,
+      "next_review": "2026-09-18",
       "phase": "foundations",
       "queue_order": 1063,
       "scenario": "新接手人必须在全新副本中依据需求和脱敏系统证据作出 go/no-go 容量判断。",
       "scheduled_for": "2026-09-11",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能区分硬件资源、宿主操作系统、客户机与虚拟化层。",
         "能把 CPU、内存和存储证据与工作负载需求逐项对应。",
@@ -3098,7 +3124,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-10T14:35:58+08:00",
+  "updated_at": "2026-09-11T17:58:26+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
