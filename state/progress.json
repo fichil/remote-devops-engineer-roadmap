@@ -169,6 +169,13 @@
       "evidence": "学习者判断 no-go：两个并发 runner 的最低内存需求为 16 GiB，大于查询时 5.71 GiB 的空闲内存；判断使用当前可用量对比并发需求，而不是仅凭总内存。 | 学习者在 Windows PowerShell 中成功运行教练完整讲解的 Win32_OperatingSystem 空闲内存查询，得到 FreeMemoryGiB=5.14；教练稍后只读复核为 5.15。学习者解释该字段显示剩余可用内存而不是硬件总内存，因此动态变化不能证明安装总容量变化。消息中的反斜杠是界面 Markdown 转义，并非学习者实际输入。 | 学习者在新的11逻辑处理器/14GiB预算下独立计算、预测、查询并判断内存不足，完成三句英文容量交接。改进方案的验证边界经过概念提示，记3分；此前9/12预算的完整命令指导单独作为不评分引导证据。保留原文，不把动态内存当硬件总量，不声称真实负载稳定性。",
       "kind": "carryover",
       "task_id": "2026-W37-02-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-15",
+      "evidence": "学习者在讲解后正确选择 /27，理由原文：因为/28的前缀可用地址数是14小于需求的15个可用地址。学习者提出 .33-.47 分配、.48-.62 备用，并正确指出 .32 为网络地址、.63 为广播地址。曾提出池外 .64/28 且误算广播 .80，教练纠正后，学习者自行解释 A、B 用完原池，无法不重叠分配 C；原文漏写地址池首位1，已指出。不把教练解释当作学习者证据。本阶段为提示后的形成性理解，不评分。 | 学习者按完整示范执行 Python ipaddress 对192.0.2.0/26计算，提交输出192.0.2.0 192.0.2.63 64。学习者解释原文：原地址池192.0.2.0/26总共有64个地址，从192.0.2.0-192.0.2.63，没有到.64。保留此前 SyntaxError: invalid syntax. Perhaps you forgot a comma?；提交文本显示地址引号丢失，改用已讲解的多行标准输入。聊天粘贴含转义下划线及路径格式异常，仅按提交的计算与输出记录，不宣称验证了原始 shell 字节或退出码。形成性练习不评分。 | 新条件：198.51.100.0/27，A需10加3预留，B需5加2预留，均含网关。学习者独立提出两个/28并分别提交计算输出。未给当前变化完整命令，但容量解释及最终可用数修正有概念提示，score3/hint1/independentfalse。英文保留学习者原文，语法修正不替换原始证据。之前PowerShell引号教学问题不作为能力扣分依据。",
+      "kind": "primary",
+      "task_id": "2026-W38-02-mission"
     }
   ],
   "current_phase": "foundations",
@@ -3309,15 +3316,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W38-02-mission": {
+      "artifacts": [],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在讲解后正确选择 /27，理由原文：因为/28的前缀可用地址数是14小于需求的15个可用地址。学习者提出 .33-.47 分配、.48-.62 备用，并正确指出 .32 为网络地址、.63 为广播地址。曾提出池外 .64/28 且误算广播 .80，教练纠正后，学习者自行解释 A、B 用完原池，无法不重叠分配 C；原文漏写地址池首位1，已指出。不把教练解释当作学习者证据。本阶段为提示后的形成性理解，不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -3325,7 +3339,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -3333,9 +3347,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者按完整示范执行 Python ipaddress 对192.0.2.0/26计算，提交输出192.0.2.0 192.0.2.63 64。学习者解释原文：原地址池192.0.2.0/26总共有64个地址，从192.0.2.0-192.0.2.63，没有到.64。保留此前 SyntaxError: invalid syntax. Perhaps you forgot a comma?；提交文本显示地址引号丢失，改用已讲解的多行标准输入。聊天粘贴含转义下划线及路径格式异常，仅按提交的计算与输出记录，不宣称验证了原始 shell 字节或退出码。形成性练习不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -3343,7 +3363,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -3351,36 +3371,42 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "新条件：198.51.100.0/27，A需10加3预留，B需5加2预留，均含网关。学习者独立提出两个/28并分别提交计算输出。未给当前变化完整命令，但容量解释及最终可用数修正有概念提示，score3/hint1/independentfalse。英文保留学习者原文，语法修正不替换原始证据。之前PowerShell引号教学问题不作为能力扣分依据。",
+          "evidence_details": {
+            "handoff": "A and B are not overlapping and both are in source address pool /27. A's usable address is 14, it meets needs..B's usable address is 14, it meet needs.",
+            "interpretation": "学习者交接判断A与B不重叠且均在原/27内；最初写16满足需求，经提示总数与可用数区别后，自行改为各14个可用地址且满足需求。正确独立选择两个/28；教练补充按2的幂分块的解释，不归为学习者原始解释。",
+            "learner_action": "学习者自行把已学 ipaddress 多行计算方法分别用于198.51.100.0/28与198.51.100.16/28，读取network_address、broadcast_address、num_addresses。聊天粘贴存在下划线转义和路径格式异常，不把展示文本视为逐字复现命令或已验证退出码。",
+            "observed_result": "A: 198.51.100.0 198.51.100.15 16; B: 198.51.100.16 198.51.100.31 16",
+            "prediction": "10+3+2+5+2+2=24<32;A:198.51.100.0/28;B:198.51.100.16/28"
+          },
+          "hint_level_used": 1,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
           "independent": false,
           "instruction": "新条件增加保留地址并缩小地址池；学习者无完整命令独立分配、验证和解释，再用 2–4 句英语交付规划。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-22",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-15",
       "created_on": "2026-09-15",
       "curriculum_week": 8,
-      "evidence": null,
+      "evidence": "学习者在讲解后正确选择 /27，理由原文：因为/28的前缀可用地址数是14小于需求的15个可用地址。学习者提出 .33-.47 分配、.48-.62 备用，并正确指出 .32 为网络地址、.63 为广播地址。曾提出池外 .64/28 且误算广播 .80，教练纠正后，学习者自行解释 A、B 用完原池，无法不重叠分配 C；原文漏写地址池首位1，已指出。不把教练解释当作学习者证据。本阶段为提示后的形成性理解，不评分。 | 学习者按完整示范执行 Python ipaddress 对192.0.2.0/26计算，提交输出192.0.2.0 192.0.2.63 64。学习者解释原文：原地址池192.0.2.0/26总共有64个地址，从192.0.2.0-192.0.2.63，没有到.64。保留此前 SyntaxError: invalid syntax. Perhaps you forgot a comma?；提交文本显示地址引号丢失，改用已讲解的多行标准输入。聊天粘贴含转义下划线及路径格式异常，仅按提交的计算与输出记录，不宣称验证了原始 shell 字节或退出码。形成性练习不评分。 | 新条件：198.51.100.0/27，A需10加3预留，B需5加2预留，均含网关。学习者独立提出两个/28并分别提交计算输出。未给当前变化完整命令，但容量解释及最终可用数修正有概念提示，score3/hint1/independentfalse。英文保留学习者原文，语法修正不替换原始证据。之前PowerShell引号教学问题不作为能力扣分依据。",
       "id": "2026-W38-02-mission",
       "learning_goal": "用需求数量和前缀边界设计不重叠的小型子网。",
-      "next_review": null,
+      "next_review": "2026-09-22",
       "phase": "foundations",
       "queue_order": 1065,
       "scenario": "两类服务需要隔离地址空间，分配方案可能重叠或浪费无法满足后续容量。",
       "scheduled_for": "2026-09-15",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能从前缀计算网络地址、主机范围和广播地址。",
         "能依据目的地址解释最长前缀匹配与默认路由。",
@@ -3645,7 +3671,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-14T17:12:57+08:00",
+  "updated_at": "2026-09-15T10:23:28+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
