@@ -176,6 +176,13 @@
       "evidence": "学习者在讲解后正确选择 /27，理由原文：因为/28的前缀可用地址数是14小于需求的15个可用地址。学习者提出 .33-.47 分配、.48-.62 备用，并正确指出 .32 为网络地址、.63 为广播地址。曾提出池外 .64/28 且误算广播 .80，教练纠正后，学习者自行解释 A、B 用完原池，无法不重叠分配 C；原文漏写地址池首位1，已指出。不把教练解释当作学习者证据。本阶段为提示后的形成性理解，不评分。 | 学习者按完整示范执行 Python ipaddress 对192.0.2.0/26计算，提交输出192.0.2.0 192.0.2.63 64。学习者解释原文：原地址池192.0.2.0/26总共有64个地址，从192.0.2.0-192.0.2.63，没有到.64。保留此前 SyntaxError: invalid syntax. Perhaps you forgot a comma?；提交文本显示地址引号丢失，改用已讲解的多行标准输入。聊天粘贴含转义下划线及路径格式异常，仅按提交的计算与输出记录，不宣称验证了原始 shell 字节或退出码。形成性练习不评分。 | 新条件：198.51.100.0/27，A需10加3预留，B需5加2预留，均含网关。学习者独立提出两个/28并分别提交计算输出。未给当前变化完整命令，但容量解释及最终可用数修正有概念提示，score3/hint1/independentfalse。英文保留学习者原文，语法修正不替换原始证据。之前PowerShell引号教学问题不作为能力扣分依据。",
       "kind": "primary",
       "task_id": "2026-W38-02-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-16",
+      "evidence": "学习者在本对话中为目的地址198.51.100.20选择198.51.100.0/24及下一跳192.0.2.2；自主给出/29地址范围.0-.7。解释中把当前目的地址误写为前一示范的.5，经教练指出两题地址差异后，学习者明确回复“对，写错了”，确认应为.20。作为形成性理解证据记录，未声称独立变化掌握或命令执行。 | 本对话引导练习：学习者提交目的地址198.51.100.8对198.51.100.0/29和198.51.100.0/24的检查输出False、True，随后选择/24与下一跳192.0.2.2，并回答选择依据为“根据最长前缀规则匹配,longest prefix match”。本阶段已提供完整示范命令，按形成性证据记录且不评分。粘贴中的路径分隔符和Markdown转义存在格式变化；未声称逐字核验原始命令或学习者退出码。 | 独立变化题：在原路由表末尾新增198.51.100.16/28，经192.0.2.4。学习者无完整命令提示，独立预测.20选择新增/28、.40保持/24，说明先排除不匹配项再比较最长前缀，自行扩展两个目的地址与四条路由的检查并提交一致输出，随后完成四句原创英文交接并说明离线范围。评分4/5，提示等级0：技术判断及验证正确，英文含routing、will choice、caculate和at offline等表达问题但可理解。原英文完整保留，不用教练润色替代。只验证离线路由选择，不声称真实网络连通。",
+      "kind": "primary",
+      "task_id": "2026-W38-03-mission"
     }
   ],
   "current_phase": "foundations",
@@ -3419,15 +3426,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W38-03-mission": {
+      "artifacts": [],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在本对话中为目的地址198.51.100.20选择198.51.100.0/24及下一跳192.0.2.2；自主给出/29地址范围.0-.7。解释中把当前目的地址误写为前一示范的.5，经教练指出两题地址差异后，学习者明确回复“对，写错了”，确认应为.20。作为形成性理解证据记录，未声称独立变化掌握或命令执行。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -3435,7 +3449,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -3443,9 +3457,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "本对话引导练习：学习者提交目的地址198.51.100.8对198.51.100.0/29和198.51.100.0/24的检查输出False、True，随后选择/24与下一跳192.0.2.2，并回答选择依据为“根据最长前缀规则匹配,longest prefix match”。本阶段已提供完整示范命令，按形成性证据记录且不评分。粘贴中的路径分隔符和Markdown转义存在格式变化；未声称逐字核验原始命令或学习者退出码。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "学习者选择/24，下一跳192.0.2.2；其说明原文：根据最长前缀规则匹配,longest prefix match。",
+            "learner_action": "使用已提供的Python ipaddress带练命令核对198.51.100.8是否属于/29与/24，并自行选择路由和下一跳。",
+            "observed_result": "学习者粘贴结果依次为False、True。",
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -3453,7 +3473,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -3461,25 +3481,31 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "独立变化题：在原路由表末尾新增198.51.100.16/28，经192.0.2.4。学习者无完整命令提示，独立预测.20选择新增/28、.40保持/24，说明先排除不匹配项再比较最长前缀，自行扩展两个目的地址与四条路由的检查并提交一致输出，随后完成四句原创英文交接并说明离线范围。评分4/5，提示等级0：技术判断及验证正确，英文含routing、will choice、caculate和at offline等表达问题但可理解。原英文完整保留，不用教练润色替代。只验证离线路由选择，不声称真实网络连通。",
+          "evidence_details": {
+            "handoff": "This time you add a `198.51.100.16/28`  routing. The `198.51.100.20`  address will choice 198.51.100.16/28  routing. The 198.51.100.40  address will choice 198.51.100.0/24 routing. This caculate is running at offline.",
+            "interpretation": "学习者验证后的原文：结果支持我的预测。其预测及理由：\n198.51.100.20: 应该选择 198.51.100.16/28 下一跳 192.0.2.4 依据是不在198.51.100.0/29范围内， 198.51.100.16/28是剩下三个路由中最长的\n198.51.100.40: 选择路由 198.51.100.0/24 下一跳 192.0.2.2，依据是198.51.100.16/28、198.51.100.0/29不再范围内， 198.51.100.0/24比0.0.0.0/0长",
+            "learner_action": "学习者自行将已学ipaddress归属检查扩展为两个目的地址、四条路由；本独立变化题未获得完整命令提示。以下是学习者粘贴的Python主体，保留聊天转义，未声称它是逐字核验的原始shell命令：\nimport ipaddress\ntarget = ipaddress.ip\\_address('198.51.100.20')\nprint(target in ipaddress.ip\\_network('0.0.0.0/0'))\nprint(target in ipaddress.ip\\_network('198.51.100.0/29'))\nprint(target in ipaddress.ip\\_network('198.51.100.0/24'))\nprint(target in ipaddress.ip\\_network('198.51.100.16/28'))\n\nimport ipaddress\ntarget = ipaddress.ip\\_address('198.51.100.40')\nprint(target in ipaddress.ip\\_network('0.0.0.0/0'))\nprint(target in ipaddress.ip\\_network('198.51.100.0/29'))\nprint(target in ipaddress.ip\\_network('198.51.100.0/24'))\nprint(target in ipaddress.ip\\_network('198.51.100.16/28'))",
+            "observed_result": "检查顺序为0.0.0.0/0、198.51.100.0/29、198.51.100.0/24、198.51.100.16/28。学习者提交198.51.100.20输出True、False、True、True；198.51.100.40输出True、False、True、False。八项地址归属均与数学核对一致。原始shell命令字节及学习者退出码未核验；不将聊天格式变化认定为知识错误。",
+            "prediction": "198.51.100.20: 应该选择 198.51.100.16/28 下一跳 192.0.2.4 依据是不在198.51.100.0/29范围内， 198.51.100.16/28是剩下三个路由中最长的\n198.51.100.40: 选择路由 198.51.100.0/24 下一跳 192.0.2.2，依据是198.51.100.16/28、198.51.100.0/29不再范围内， 198.51.100.0/24比0.0.0.0/0长"
+          },
+          "hint_level_used": 0,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "教练新增一条覆盖部分地址的路由；学习者独立选择、预测、验证和解释，并写 2–4 句英语 route handoff。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
           "next_review": null,
-          "score": null,
-          "status": "queued",
+          "score": 4,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-16",
       "created_on": "2026-09-16",
       "curriculum_week": 8,
-      "evidence": null,
+      "evidence": "学习者在本对话中为目的地址198.51.100.20选择198.51.100.0/24及下一跳192.0.2.2；自主给出/29地址范围.0-.7。解释中把当前目的地址误写为前一示范的.5，经教练指出两题地址差异后，学习者明确回复“对，写错了”，确认应为.20。作为形成性理解证据记录，未声称独立变化掌握或命令执行。 | 本对话引导练习：学习者提交目的地址198.51.100.8对198.51.100.0/29和198.51.100.0/24的检查输出False、True，随后选择/24与下一跳192.0.2.2，并回答选择依据为“根据最长前缀规则匹配,longest prefix match”。本阶段已提供完整示范命令，按形成性证据记录且不评分。粘贴中的路径分隔符和Markdown转义存在格式变化；未声称逐字核验原始命令或学习者退出码。 | 独立变化题：在原路由表末尾新增198.51.100.16/28，经192.0.2.4。学习者无完整命令提示，独立预测.20选择新增/28、.40保持/24，说明先排除不匹配项再比较最长前缀，自行扩展两个目的地址与四条路由的检查并提交一致输出，随后完成四句原创英文交接并说明离线范围。评分4/5，提示等级0：技术判断及验证正确，英文含routing、will choice、caculate和at offline等表达问题但可理解。原英文完整保留，不用教练润色替代。只验证离线路由选择，不声称真实网络连通。",
       "id": "2026-W38-03-mission",
       "learning_goal": "用目的地址和最长前缀匹配解释路由选择。",
       "next_review": null,
@@ -3487,10 +3513,10 @@
       "queue_order": 1066,
       "scenario": "路由表同时包含默认路由和更具体路由，同事按出现顺序猜测数据包出口。",
       "scheduled_for": "2026-09-16",
-      "score": null,
+      "score": 4,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能从前缀计算网络地址、主机范围和广播地址。",
         "能依据目的地址解释最长前缀匹配与默认路由。",
@@ -3671,7 +3697,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-15T10:23:28+08:00",
+  "updated_at": "2026-09-16T17:40:14+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
