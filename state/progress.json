@@ -183,6 +183,13 @@
       "evidence": "学习者在本对话中为目的地址198.51.100.20选择198.51.100.0/24及下一跳192.0.2.2；自主给出/29地址范围.0-.7。解释中把当前目的地址误写为前一示范的.5，经教练指出两题地址差异后，学习者明确回复“对，写错了”，确认应为.20。作为形成性理解证据记录，未声称独立变化掌握或命令执行。 | 本对话引导练习：学习者提交目的地址198.51.100.8对198.51.100.0/29和198.51.100.0/24的检查输出False、True，随后选择/24与下一跳192.0.2.2，并回答选择依据为“根据最长前缀规则匹配,longest prefix match”。本阶段已提供完整示范命令，按形成性证据记录且不评分。粘贴中的路径分隔符和Markdown转义存在格式变化；未声称逐字核验原始命令或学习者退出码。 | 独立变化题：在原路由表末尾新增198.51.100.16/28，经192.0.2.4。学习者无完整命令提示，独立预测.20选择新增/28、.40保持/24，说明先排除不匹配项再比较最长前缀，自行扩展两个目的地址与四条路由的检查并提交一致输出，随后完成四句原创英文交接并说明离线范围。评分4/5，提示等级0：技术判断及验证正确，英文含routing、will choice、caculate和at offline等表达问题但可理解。原英文完整保留，不用教练润色替代。只验证离线路由选择，不声称真实网络连通。",
       "kind": "primary",
       "task_id": "2026-W38-03-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-17",
+      "evidence": "学习者在讲解后的回程选路问题中回答：此时的目的IP是192.0.2.2，此时响应应该是返回到A路上。正确识别响应目的地址为A，并以响应返回A解释原因。此为离线概念判断，非实际连通性验证；形成性阶段不评分。 | 离线带练中，学习者先判断：会在B侧网关遇到路由缺失。是缺少192.0.2.0/29。教练提供完整Python ipaddress命令后，学习者提交两行实际输出False、True，并解释：支持我的判断，192.0.2.2属于192.0.2.0/29，不属于198.51.100.0/29。结果与先后检查B网段、A网段一致。形成性带练不评分；仅证明离线地址归属与题设路由推理，不声称真实连通性、学习者原始执行命令或退出码已核验。 | 变化B完成离线双向路由验证及本人英文交接。学习者提出去程A->RA->RC->RB->B，指出回程A地址与RB目的网段不匹配，自行改写已学ipaddress检查并提交True/False及解释。过程中教练补充范围和断点说明、局部英文提示，因此评3/5，非完全独立，不标记hint0；七天后检索。原英文保留，措辞stop from B to RB及outclued等仍待巩固，结合先前中文判断可理解为在RB发生回程不匹配。变化A已退回带练，不作为独立证据。粘贴转义使原始执行字节及退出码未核验，不声称实际网络连通。",
+      "kind": "primary",
+      "task_id": "2026-W38-04-mission"
     }
   ],
   "current_phase": "foundations",
@@ -3529,15 +3536,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W38-04-mission": {
+      "artifacts": [],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在讲解后的回程选路问题中回答：此时的目的IP是192.0.2.2，此时响应应该是返回到A路上。正确识别响应目的地址为A，并以响应返回A解释原因。此为离线概念判断，非实际连通性验证；形成性阶段不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -3545,7 +3559,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -3553,9 +3567,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "离线带练中，学习者先判断：会在B侧网关遇到路由缺失。是缺少192.0.2.0/29。教练提供完整Python ipaddress命令后，学习者提交两行实际输出False、True，并解释：支持我的判断，192.0.2.2属于192.0.2.0/29，不属于198.51.100.0/29。结果与先后检查B网段、A网段一致。形成性带练不评分；仅证明离线地址归属与题设路由推理，不声称真实连通性、学习者原始执行命令或退出码已核验。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -3563,7 +3583,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -3571,36 +3591,42 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "变化B完成离线双向路由验证及本人英文交接。学习者提出去程A->RA->RC->RB->B，指出回程A地址与RB目的网段不匹配，自行改写已学ipaddress检查并提交True/False及解释。过程中教练补充范围和断点说明、局部英文提示，因此评3/5，非完全独立，不标记hint0；七天后检索。原英文保留，措辞stop from B to RB及outclued等仍待巩固，结合先前中文判断可理解为在RB发生回程不匹配。变化A已退回带练，不作为独立证据。粘贴转义使原始执行字节及退出码未核验，不声称实际网络连通。",
+          "evidence_details": {
+            "handoff": "The request can travel from A to B. The response will stop from B to RB, because the RB's goal subnet is outclued A‘s address. This was just offline address and route check, it's did not change or test any real net.",
+            "interpretation": "学习者原文：响应目的地地址不属于RB配置的回程目的地网段。结合此前本人去程路径预测和两次输出，可解释题设去程成功、回程路由不匹配；教练断点与范围解释不算学习者独立证据。",
+            "learner_action": "学习者自行适配已学Python ipaddress：检查198.51.100.10是否属于198.51.100.8/29，再检查192.0.2.18是否属于192.0.2.0/28。变化B未获完整新命令提示；粘贴含Markdown反斜杠，未核验原始shell字节和退出码。",
+            "observed_result": "学习者提交去程归属True、回程归属False；两者与给定地址和前缀计算一致。结果仅来自离线地址计算，不是实际发包或连通性测试。",
+            "prediction": "学习者预测去程：可以，路径是A->RA->RC->RB->B。回程预测指出响应目的地A为192.0.2.18/28，但RB目的网段为192.0.2.0/28；最初断点措辞有歧义，由教练澄清并解释范围。"
+          },
+          "hint_level_used": 1,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
           "independent": false,
           "instruction": "新条件把缺失项移到另一个网关；学习者独立提出假设、验证、结果和解释，并写 2–4 句英语 incident update。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-09-24",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-17",
       "created_on": "2026-09-17",
       "curriculum_week": 8,
-      "evidence": null,
+      "evidence": "学习者在讲解后的回程选路问题中回答：此时的目的IP是192.0.2.2，此时响应应该是返回到A路上。正确识别响应目的地址为A，并以响应返回A解释原因。此为离线概念判断，非实际连通性验证；形成性阶段不评分。 | 离线带练中，学习者先判断：会在B侧网关遇到路由缺失。是缺少192.0.2.0/29。教练提供完整Python ipaddress命令后，学习者提交两行实际输出False、True，并解释：支持我的判断，192.0.2.2属于192.0.2.0/29，不属于198.51.100.0/29。结果与先后检查B网段、A网段一致。形成性带练不评分；仅证明离线地址归属与题设路由推理，不声称真实连通性、学习者原始执行命令或退出码已核验。 | 变化B完成离线双向路由验证及本人英文交接。学习者提出去程A->RA->RC->RB->B，指出回程A地址与RB目的网段不匹配，自行改写已学ipaddress检查并提交True/False及解释。过程中教练补充范围和断点说明、局部英文提示，因此评3/5，非完全独立，不标记hint0；七天后检索。原英文保留，措辞stop from B to RB及outclued等仍待巩固，结合先前中文判断可理解为在RB发生回程不匹配。变化A已退回带练，不作为独立证据。粘贴转义使原始执行字节及退出码未核验，不声称实际网络连通。",
       "id": "2026-W38-04-mission",
       "learning_goal": "将连通性拆为正向与返回路径并定位缺失证据。",
-      "next_review": null,
+      "next_review": "2026-09-24",
       "phase": "foundations",
       "queue_order": 1067,
       "scenario": "正向路径文档看似正确，但响应无法返回源主机，团队只检查了出站网关。",
       "scheduled_for": "2026-09-17",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能从前缀计算网络地址、主机范围和广播地址。",
         "能依据目的地址解释最长前缀匹配与默认路由。",
@@ -3697,7 +3723,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-16T17:40:14+08:00",
+  "updated_at": "2026-09-17T11:32:35+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
