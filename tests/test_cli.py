@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -257,6 +258,7 @@ def test_record_cli_passes_structured_cognitive_evidence(
     assert result == 0
     assert json.loads(capsys.readouterr().out)["task"]["id"] == "task-1"
     assert captured["kwargs"] == {
+        "recorded_on": date.today(),
         "artifacts": [],
         "hint_level_used": 0,
         "independent": True,
@@ -370,3 +372,47 @@ def test_lab_reproduce_cli_accepts_explicit_date() -> None:
 
     assert args.week == "2026-W36"
     assert args.date.isoformat() == "2026-09-04"
+
+
+def test_record_date_drives_delayed_weekend_completion_and_auto_publication(
+    project_copy: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+):
+    from devops_coach.planner import ensure_week_plan, record_checkpoint, today_overview
+    from devops_coach.storage import load_json
+
+    target = date(2026, 8, 2)
+    ensure_week_plan(project_copy, "2026-W31")
+    task_id = today_overview(project_copy, target, True)["today"]["active_task"]["id"]
+    for checkpoint in ("briefing", "lab"):
+        record_checkpoint(project_copy, task_id, checkpoint, "done", None, "Verified", target)
+    calls = []
+
+    def publish(root, completed_on, kind, **kwargs):
+        calls.append((root, completed_on, kind, kwargs))
+        return {"status": "complete"}
+
+    monkeypatch.setattr("devops_coach.cli.publish_completed_task", publish)
+    original_handoff = "I propose delete the route. I did not change real network configuration."
+    result = main([
+        "--root", str(project_copy), "record", "--task", task_id,
+        "--checkpoint", "written_handoff", "--status", "done", "--date", target.isoformat(),
+        "--score", "3", "--hint-level", "1", "--evidence", "Existing learner evidence",
+        "--prediction", "Expected the broader route.", "--learner-action", "Ran my scope check.",
+        "--observed-result", "Both matched.", "--interpretation", "The longer prefix wins.",
+        "--handoff", original_handoff,
+    ])
+    assert result == 0
+    assert json.loads(capsys.readouterr().out)["publication"]["status"] == "complete"
+    assert calls == [(project_copy.resolve(), target, "carryover", {
+        "apply": True, "task_id": task_id,
+    })]
+    state = load_json(project_copy / "state/progress.json")
+    assert len(state["completion_log"]) == 1
+    task = state["tasks"][task_id]
+    assert task["completed_on"] == "2026-08-02"
+    assert task["next_review"] == "2026-08-09"
+    assert task["score"] == 3
+    checkpoint = task["checkpoints"][-1]
+    assert checkpoint["hint_level_used"] == 1
+    assert checkpoint["independent"] is False
+    assert checkpoint["evidence_details"]["handoff"] == original_handoff

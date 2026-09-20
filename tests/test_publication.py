@@ -488,3 +488,81 @@ def test_scope_accepts_deterministic_new_week_only(project_copy: Path) -> None:
     path.write_text(json.dumps(state), encoding="utf-8")
     with pytest.raises(PublicationError, match="2026-W32-02-mission"):
         inspect_publication(project_copy, target, "primary")
+
+
+def test_weekend_carryovers_publish_separately_and_recover_original_identity(project_copy: Path):
+    _prepare_repository(project_copy)
+    path = project_copy / "state/progress.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    state["tasks"]["old-1"] = _old_task("old-1", "2026-07-20", -2)
+    state["tasks"]["old-2"] = _old_task("old-2", "2026-07-21", -1)
+    path.write_text(json.dumps(state), encoding="utf-8")
+    _git(project_copy, "add", "state/progress.json")
+    _git(project_copy, "commit", "-m", "test: existing carryovers")
+    _git(project_copy, "push", "origin", "main")
+    target = date(2026, 8, 8)  # No current-week plan, no weekend primary.
+    today_overview(project_copy, target, True)
+    _complete_carryover(project_copy, target, "old-1")
+    with pytest.raises(PublicationError, match="Weekend publications"):
+        inspect_publication(project_copy, target, "primary")
+    runner = FakeGitHubRunner(project_copy, fail_checks_once=True)
+    with pytest.raises(PublicationError, match="simulated CI failure"):
+        publish_completed_task(
+            project_copy, target, "carryover", task_id="old-1",
+            apply=True, runner=runner, run_checks=False,
+        )
+    original = next(iter(load_publication_ledger(project_copy)["publications"]))
+    with pytest.raises(ValueError, match="publication"):
+        today_overview(project_copy, date(2026, 8, 9), True)
+    recovered = recover_publications(project_copy, runner=runner, run_checks=False)
+    assert recovered[0]["publication_key"] == original
+    assert len(runner.prs) == 1
+    assert recover_publications(project_copy, runner=runner, run_checks=False) == []
+    assert today_overview(project_copy, target)["today"]["active_task"] is None
+    assert today_overview(project_copy, target, True)["today"]["active_task"]["id"] == "old-2"
+    _complete_carryover(project_copy, target, "old-2")
+    second = publish_completed_task(
+        project_copy, target, "carryover", task_id="old-2",
+        apply=True, runner=runner, run_checks=False,
+    )
+    assert second["publication_key"] != original
+    assert len(runner.prs) == 2
+    assert all(pr["state"] == "MERGED" and not pr["isDraft"] for pr in runner.prs.values())
+    assert _git(project_copy, "status", "--porcelain") == ""
+    assert _git(project_copy, "branch", "--show-current") == "main"
+    assert _git(project_copy, "branch", "--list", "learn/*") == ""
+    assert _git(project_copy, "worktree", "list", "--porcelain").count("worktree ") == 1
+    state = json.loads(path.read_text(encoding="utf-8"))
+    assert "2026-W32" not in state["weekly_plans"]
+    assert len(state["completion_log"]) == 2
+    assert all(item["date"] == target.isoformat() for item in state["completion_log"])
+
+
+def test_weekend_publication_rejects_missing_activation_and_other_task_changes(project_copy: Path):
+    _prepare_repository(project_copy)
+    target = date(2026, 8, 2)
+    active = today_overview(project_copy, target, True)["today"]["active_task"]["id"]
+    path = project_copy / "state/progress.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    for checkpoint in state["tasks"][active]["checkpoints"]:
+        record_checkpoint(
+            project_copy, active, checkpoint["id"], "done",
+            3 if checkpoint.get("assessment") == "summative" else None,
+            "Verified learner evidence", target,
+            evidence_details={
+                "prediction": "Expected a match.", "learner_action": "Checked my prefix.",
+                "observed_result": "It matched.", "interpretation": "The target is included.",
+                "handoff": "The offline check passed. No network changes were made.",
+            },
+        )
+    inspect_publication(project_copy, target, "carryover", task_id=active)
+    state = json.loads(path.read_text(encoding="utf-8"))
+    state["tasks"][active]["carryover_activated_on"] = None
+    path.write_text(json.dumps(state), encoding="utf-8")
+    with pytest.raises(PublicationError, match="activation"):
+        inspect_publication(project_copy, target, "carryover", task_id=active)
+    state["tasks"][active]["carryover_activated_on"] = target.isoformat()
+    state["tasks"]["2026-W31-05-mission"]["title"] = "unrelated edit"
+    path.write_text(json.dumps(state), encoding="utf-8")
+    with pytest.raises(PublicationError, match="Unrelated task changes"):
+        inspect_publication(project_copy, target, "carryover", task_id=active)

@@ -71,13 +71,19 @@ def build_parser() -> argparse.ArgumentParser:
     today_parser.add_argument(
         "--continue-carryover",
         action="store_true",
-        help="After today's primary task, explicitly start the oldest carryover",
+        help="Explicitly start the oldest carryover; weekdays require today's primary first",
     )
     today_parser.add_argument("--json", action="store_true")
 
     record_parser = subparsers.add_parser("record", help="Record one verified checkpoint")
     record_parser.add_argument("--task", required=True)
     record_parser.add_argument("--checkpoint", required=True)
+    record_parser.add_argument(
+        "--date",
+        type=date.fromisoformat,
+        default=date.today(),
+        help="Actual evidence-completion date for delayed recording; never a future date",
+    )
     record_parser.add_argument(
         "--status", choices=("in_progress", "done", "blocked"), required=True
     )
@@ -168,6 +174,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.status,
             args.score,
             args.evidence,
+            recorded_on=args.date,
             artifacts=args.artifact,
             hint_level_used=args.hint_level,
             independent=args.independent,
@@ -185,12 +192,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             completed = next(
                 item
                 for item in progress["completion_log"]
-                if item["task_id"] == task["id"] and item["date"] == date.today().isoformat()
+                if item["task_id"] == task["id"] and item["date"] == args.date.isoformat()
             )
             try:
                 payload["publication"] = publish_completed_task(
                     root,
-                    date.today(),
+                    args.date,
                     completed["kind"],
                     apply=True,
                     task_id=(

@@ -10,7 +10,7 @@
 
 - IT 起点：初学者。
 - 英语起点：约 A2，阅读略有基础。
-- 安排：周一至周五学习，周六和周日完全休息。
+- 安排：周一至周五学习；周末零必做配额，明确要求时可处理已有遗留。
 - 技术主线：Linux、Python/Bash、Docker、GitHub Actions、AWS、Terraform、Kubernetes、可观测性和 SRE。
 - 职业目标：海外远程正式雇员或长期合同工。
 - 经验桥梁：初级运维、云支持、实习和开源贡献。
@@ -22,11 +22,11 @@
 
 - 维护一份 [78 周总规划](plans/master-plan.md) 和每个日历周一份可持续更新的周规划。
 - 每周创建五个新任务，并把它们固定为周一至周五各自的当天计划任务。
-- 每个工作日先执行当天任务；完成后默认停止，只有学习者明确要求继续时才可选做一个最早遗留项。
+- 每个工作日先执行当天任务，完成并发布后默认停止；周末无需当天主任务。每次明确继续只处理一个最早遗留，单独发布后再次停止，当日次数不限。
 - 每个标准任务采用认知学徒制：讲解与示范、引导练习、独立迁移与真实交付。
 - 复制命令和只粘贴输出只能算引导练习；掌握证据必须包含学习者自己的选择或命令、预测、实际结果和解释。
 - 根据完成数量、掌握度和阻塞调整下周内容，不改变每天一个任务的定量。
-- 只有工作日完整完成一个有证据任务才计入连胜；周末跳过，缺席工作日中断。
+- 只有工作日按期完整完成当天主任务才计入连胜；遗留不增加或补算连胜，周末跳过，缺席工作日中断。
 - 日历主题每周前进，但阶段门禁未通过时会改派重教或复测，不启动下一阶段实作。
 - 日常英语只评价阅读和写作；通用口语与发音由 Duolingo 负责，路线规定的技术演示和模拟面试仍保留。
 - 公司名单、联系方式、收入和投递记录只进入被 Git 忽略的 `private/`。
@@ -58,7 +58,7 @@ python -m devops_coach migrate --refresh-teaching [--dry-run]
 python -m devops_coach plan master
 python -m devops_coach plan week --week YYYY-Www
 python -m devops_coach today [--date YYYY-MM-DD] [--continue-carryover] [--json]
-python -m devops_coach record --task ID --checkpoint ID --status in_progress|done|blocked [--score 0..5] --evidence TEXT [--hint-level 0..3] [--independent] [--prediction TEXT --learner-action TEXT --observed-result TEXT --interpretation TEXT --handoff TEXT] [--artifact PATH ...]
+python -m devops_coach record --task ID --checkpoint ID --status in_progress|done|blocked [--date YYYY-MM-DD] [--score 0..5] --evidence TEXT [--hint-level 0..3] [--independent] [--prediction TEXT --learner-action TEXT --observed-result TEXT --interpretation TEXT --handoff TEXT] [--artifact PATH ...]
 python -m devops_coach lab prepare|status|reproduce --week YYYY-Www [--date YYYY-MM-DD] [--json]
 python -m devops_coach publish --date YYYY-MM-DD --kind primary|carryover --dry-run|--apply [--json]
 python -m devops_coach publish --recover [--date YYYY-MM-DD] [--kind primary|carryover] [--json]
@@ -93,10 +93,12 @@ python -m devops_coach record `
 
 | 日期 | 必做定量 | 可选遗留 | 必做检查点 |
 |---|---:|---:|---|
-| 周一至周五 | 1 个当天计划任务 | 明确要求继续后最多 1 个 | 讲解与示范、引导练习、独立迁移与交付 |
-| 周六、周日 | 完全休息 | 无 | 不生成、不补排、不回填例行任务 |
+| 周一至周五 | 1 个当天计划任务 | 每次明确继续启动最早 1 项，发布后停止，当日次数不限 | 讲解与示范、引导练习、独立迁移与交付 |
+| 周六、周日 | 0 | 每次明确继续启动最早 1 项，单独自动发布后停止 | 不生成、不补排、不回填例行任务 |
 
-启动总览会列出全部遗留项，但遗留不得抢占当天计划任务。当天任务完成后教练默认停止；学习者明确要求继续时，才通过 `python -m devops_coach today --continue-carryover` 启动最早遗留的一项。同日完成两项仍只计一个连胜工作日。
+启动总览列出全部遗留项；工作日先完成并发布当天主任务，周末无需主任务。教练仅在明确继续后运行 `today --continue-carryover`，每项完成并单独自动发布后停止。任何较早待发布任务必须先恢复。普通周末 `today` 只读、零配额；无遗留时保持空队列。
+
+`record --date YYYY-MM-DD` 默认当天，可按既存证据的真实完成日期延迟入账，拒绝未来日期。原计划日期保留，完成日志、复测日期和发布身份使用实际完成日期。3 分安排七日后复测；周末到期只是复测标记，不自动生成周末任务。只刷新受影响的已有周计划，包括跨周遗留所属周。周末完成计入任务总数，不增加工作日连胜，也不补算周五。
 
 项目包含六个阶段：基础、系统自动化、容器与 CI/CD、AWS 与 Terraform、Kubernetes 与 SRE、生产级综合项目与海外求职。每阶段结束都必须通过证据门禁；证据不足时延长路线，不为保持名义日期降低门槛。
 
