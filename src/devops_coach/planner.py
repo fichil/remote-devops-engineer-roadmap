@@ -411,6 +411,29 @@ def _pending_publication_task_ids(
     return pending
 
 
+def _all_pending_publication_task_ids(
+    root: Path, progress: dict[str, Any], target: date
+) -> list[str]:
+    """Include earlier dates: a new day never clears a publication gate."""
+    pending: list[str] = []
+    for item in progress.get("completion_log", []):
+        # Schema-v1 migrated attendance entries are historical, not publication requests.
+        if item.get("kind") not in PUBLICATION_KINDS:
+            continue
+        completed_on = date.fromisoformat(item["date"])
+        if completed_on <= target:
+            pending.extend(_pending_publication_task_ids(root, completed_on, [item]))
+    return pending
+
+
+def _require_publications_complete(root: Path, progress: dict[str, Any], target: date) -> None:
+    pending = _all_pending_publication_task_ids(root, progress, target)
+    if pending:
+        raise ValueError(
+            "Complete or recover publication before continuing a carryover: " + ", ".join(pending)
+        )
+
+
 def _start_task(task: dict[str, Any]) -> dict[str, Any] | None:
     if task["status"] == "queued":
         task["status"] = "in_progress"
@@ -487,8 +510,10 @@ def completion_streak(progress: dict[str, Any], start: date, target: date) -> tu
         if (
             start <= completed_date <= target
             and completed_date.weekday() < 5
+            and item.get("kind") == "primary"
             and item.get("evidence")
             and task
+            and task.get("scheduled_for") == completed_date.isoformat()
             and task_has_complete_evidence(task)
         ):
             attended.add(completed_date)
@@ -555,7 +580,7 @@ def render_master_plan(learner: dict[str, Any], roadmap: dict[str, Any]) -> str:
         "",
         "## 执行规则",
         "",
-        "- 周一至周五每天定量完成一个完整运维任务；周六、周日完全休息。",
+        "- 周一至周五每天定量完成一个完整运维任务；周末零必做配额，不生成或补排任务。",
         "- 每个标准任务依次包含讲解与示范、引导练习、独立迁移与交付三个检查点。",
         "- 前两阶段用于形成性反馈且不评分；只有无完整命令提示的独立迁移阶段按 0–5 分评价。",
         "- 新概念和陌生命令先完整讲解示范，再带练；已教过的内容才逐渐减少提示。",
@@ -565,10 +590,12 @@ def render_master_plan(learner: dict[str, Any], roadmap: dict[str, Any]) -> str:
         "- 观察必须真实，教练解释不能记成学习者解释；说不懂时返回讲解与示范。",
         "- 每个工作日先完成当天计划任务；旧任务不得抢占当天主任务。",
         (
-            "- 当天主任务完成后默认停止；用户每次明确要求继续时，只处理一个最早遗留任务。"
+            "- 工作日主任务完成并发布后默认停止；周末不要求主任务。"
+            "用户每次明确要求继续时，只处理一个最早遗留任务。"
             "该任务单独发布后再次停止，当天可再次明确要求继续且不限制遗留总数。"
         ),
         "- 完整任务取得全部证据后自动通过 Ready PR、CI 和 squash merge 发布；可选遗留单独发布。",
+        "- 遗留按真实完成日期记账并保留原计划日期；周末完成计入任务总数，不增加或补算连胜。",
         "- 日历主题每周前进；跨阶段时，未通过的先修门禁会改派重教或复测任务。",
         "- 日常英语只评价阅读和写作；通用口语与发音由 Duolingo 负责。",
         "- 路线明确安排的技术演示和模拟面试仍是职业门槛证据。",
@@ -714,7 +741,7 @@ def render_week_plan(progress: dict[str, Any], week_value: str) -> str:
         [
             "## 周一至周五执行名额",
             "",
-            "当天计划任务优先；遗留只作为主任务完成后的可选第二项。",
+            "工作日先完成并发布当天任务；周末零必做配额。每次明确继续只处理最早遗留，单独发布后停止。",
             "",
             "| 工作日 | 队列任务 | 状态 |",
             "|---|---|---|",
@@ -865,6 +892,20 @@ def refresh_week_plan(root: Path, week_value: str) -> Path | None:
     return path
 
 
+def _week_plan_contents(progress: dict[str, Any]) -> dict[str, str]:
+    return {week: render_week_plan(progress, week) for week in progress.get("weekly_plans", {})}
+
+
+def _refresh_existing_week_plans(root: Path, previous: dict[str, str]) -> None:
+    """Refresh affected source/backlog views without initializing another week."""
+    progress = load_json(root / "state" / "progress.json")
+    for week, plan in progress.get("weekly_plans", {}).items():
+        path = root / plan["path"]
+        content = render_week_plan(progress, week)
+        if content != previous.get(week):
+            write_text(path, content)
+
+
 def _aggregate_task(task: dict[str, Any]) -> None:
     checkpoints = task["checkpoints"]
     if checkpoints and all(item["status"] == "done" for item in checkpoints):
@@ -913,23 +954,26 @@ def normalize_artifact_paths(root: Path, artifacts: Sequence[str | Path]) -> lis
 
 def _recording_kind(
     progress: dict[str, Any], task_id: str, target: date, optional_limit: int | None
-) -> tuple[str, dict[str, Any]]:
+) -> tuple[str, dict[str, Any] | None]:
     week_value = target.strftime("%G-W%V")
     plan = progress.get("weekly_plans", {}).get(week_value)
-    if not plan:
+    weekend = target.weekday() >= 5
+    if not plan and not weekend:
         raise ValueError(f"No weekly plan exists for {week_value}")
-    primary = _scheduled_primary_task(progress, plan, target)
-    if not primary:
+    primary = _scheduled_primary_task(progress, plan, target) if plan and not weekend else None
+    if not primary and not weekend:
         raise ValueError(f"No primary task is scheduled for {target.isoformat()}")
-    if task_id == primary["id"]:
+    if primary and task_id == primary["id"]:
         return "primary", primary
 
     completed_ids = {item["task_id"] for item in _completion_items(progress, target)}
-    if primary["id"] not in completed_ids or not task_has_complete_evidence(primary):
+    if primary and (
+        primary["id"] not in completed_ids or not task_has_complete_evidence(primary)
+    ):
         raise ValueError("Today's primary task must be completed before a carryover")
     carryovers = carryover_tasks(progress, target)
     if not carryovers or carryovers[0]["id"] != task_id:
-        raise ValueError("Only the oldest carryover can be recorded after today's primary task")
+        raise ValueError("Only the oldest carryover can be recorded")
     if carryovers[0].get("carryover_activated_on") != target.isoformat():
         raise ValueError("Run today --continue-carryover before recording a carryover")
     optional_completed = sum(
@@ -970,11 +1014,13 @@ def record_checkpoint(
     if task["status"] in {"done", "cancelled"}:
         raise ValueError(f"Task {task_id} is already {task['status']}")
     base = recorded_on or date.today()
-    if base.weekday() >= 5:
-        raise ValueError("A routine task cannot be recorded on a weekend rest day")
+    if base > date.today():
+        raise ValueError("A checkpoint cannot be recorded with a future completion date")
     learner = load_yaml(root / "config" / "learner.yml")
     optional_limit = _optional_carryover_limit(learner)
     recording_kind, primary = _recording_kind(progress, task_id, base, optional_limit)
+    if recording_kind == "carryover":
+        _require_publications_complete(root, progress, base)
     try:
         checkpoint = next(item for item in task["checkpoints"] if item["id"] == checkpoint_id)
     except StopIteration as exc:
@@ -1012,6 +1058,7 @@ def record_checkpoint(
             raise ValueError(
                 "Scores 4-5 require an independent variation with hint_level_used=0"
             )
+    previous_plans = _week_plan_contents(progress)
     checkpoint.update(
         {
             "status": status,
@@ -1034,7 +1081,7 @@ def record_checkpoint(
     if task["status"] == "done":
         completed_items = _completion_items(progress, base)
         completed_ids = {item["task_id"] for item in completed_items}
-        if recording_kind == "carryover" and primary["id"] not in completed_ids:
+        if primary and recording_kind == "carryover" and primary["id"] not in completed_ids:
             raise ValueError("Today's primary task must be completed before a carryover")
         task["completed_on"] = base.isoformat()
         if task_id not in completed_ids:
@@ -1065,7 +1112,7 @@ def record_checkpoint(
     progress["blockers"] = sorted(blockers)
     progress["updated_at"] = now_text()
     write_json(progress_path, progress)
-    refresh_week_plan(root, base.strftime("%G-W%V"))
+    _refresh_existing_week_plans(root, previous_plans)
     return task
 
 
@@ -1226,6 +1273,7 @@ def today_overview(
     progress_path = root / "state" / "progress.json"
     progress = load_json(progress_path)
     require_schema_v2(progress)
+    previous_plans = _week_plan_contents(progress)
     start = date.fromisoformat(learner["learner"]["start_date"])
     week_number = calendar_learning_week(start, target)
     phase = phase_for_week(roadmap, week_number)
@@ -1249,29 +1297,71 @@ def today_overview(
         "remaining": 0,
         "adaptation": dict(progress["adaptation"]),
     }
+    if continue_carryover and target > date.today():
+        raise ValueError("A carryover cannot be activated on a future date")
     if target.weekday() >= 5:
+        completed_items = _completion_items(progress, target)
+        completed_ids = [item["task_id"] for item in completed_items]
+        carryovers = carryover_tasks(progress, target)
+        pending = _all_pending_publication_task_ids(root, progress, target)
+        limit = _optional_carryover_limit(learner)
+        allowed = _limit_allows_more(limit, len(completed_ids))
+        active = None
+        checkpoint = None
+        if continue_carryover:
+            _require_publications_complete(root, progress, target)
+            if carryovers and not allowed:
+                raise ValueError(
+                    "The configured optional carryover limit is already complete today"
+                )
+            if carryovers:
+                active = carryovers[0]
+                changed = active.get("carryover_activated_on") != target.isoformat()
+                active["carryover_activated_on"] = target.isoformat()
+                changed = changed or active["status"] == "queued"
+                checkpoint = _start_task(active)
+                if changed:
+                    progress["updated_at"] = now_text()
+                    write_json(progress_path, progress)
+                    _refresh_existing_week_plans(root, previous_plans)
+        standard = "周末无新任务；明确继续时只处理最早遗留，单独发布后停止。"
+        if pending:
+            standard = "先恢复未闭环发布，再明确继续下一项遗留。"
+        elif not carryovers:
+            standard = "没有待处理的遗留任务；周末不生成或补排新任务。"
         return {
             "schema_version": 2,
             "project": project_summary(learner, progress, target),
             "week": _week_summary(progress, week_value, fallback_week, target),
             "today": {
                 "date": target.isoformat(),
-                "rest": True,
+                "rest": active is None,
                 "quota": 0,
                 "quota_complete": True,
                 "completed_task": None,
-                "completed_tasks": [],
-                "active_task": None,
-                "active_task_kind": None,
-                "next_checkpoint": None,
-                "optional_carryover_limit": _optional_carryover_limit(learner),
-                "optional_carryover_completed_count": 0,
-                "optional_carryover_completed_task_ids": [],
-                "optional_carryover_available": False,
-                "optional_carryover_complete": False,
-                "publication_pending_task_ids": [],
-                "completion_standard": "周末完全休息，不生成、补排或启动例行任务。",
-                "evidence_required": None,
+                "completed_tasks": completed_ids,
+                "active_task": (
+                    {
+                        "id": active["id"],
+                        "title": active["title"],
+                        "status": active["status"],
+                        "scenario": active.get("scenario"),
+                        "learning_goal": active.get("learning_goal"),
+                        "weekly_project": _weekly_project_for_task(roadmap, active),
+                    }
+                    if active
+                    else None
+                ),
+                "active_task_kind": "carryover" if active else None,
+                "next_checkpoint": _checkpoint_summary(checkpoint),
+                "optional_carryover_limit": limit,
+                "optional_carryover_completed_count": len(completed_ids),
+                "optional_carryover_completed_task_ids": completed_ids,
+                "optional_carryover_available": bool(carryovers and not pending and allowed),
+                "optional_carryover_complete": bool(completed_ids),
+                "publication_pending_task_ids": pending,
+                "completion_standard": standard,
+                "evidence_required": _evidence_standard(checkpoint),
             },
         }
 
@@ -1295,11 +1385,7 @@ def today_overview(
     carryovers = carryover_tasks(progress, target)
     optional_limit = _optional_carryover_limit(learner)
     limit_allows_more = _limit_allows_more(optional_limit, len(optional_completed_ids))
-    pending_publication_ids = (
-        _pending_publication_task_ids(root, target, completed_items)
-        if primary_completed
-        else []
-    )
+    pending_publication_ids = _all_pending_publication_task_ids(root, progress, target)
     if continue_carryover and not primary_completed:
         raise ValueError("Complete today's primary task before continuing a carryover")
     if continue_carryover and pending_publication_ids:
@@ -1331,7 +1417,7 @@ def today_overview(
     )
     progress["updated_at"] = now_text()
     write_json(progress_path, progress)
-    refresh_week_plan(root, week_value)
+    _refresh_existing_week_plans(root, previous_plans)
     if active_task_kind == "primary":
         if active_task and active_task.get("workflow_version") == COGNITIVE_WORKFLOW:
             completion_standard = (
@@ -1382,21 +1468,7 @@ def today_overview(
                 else None
             ),
             "active_task_kind": active_task_kind,
-            "next_checkpoint": (
-                {
-                    "id": checkpoint["id"],
-                    "title": checkpoint["title"],
-                    "instruction": checkpoint["instruction"],
-                    "status": checkpoint["status"],
-                    "coach_action": checkpoint.get("coach_action"),
-                    "learner_action": checkpoint.get("learner_action"),
-                    "hint_policy": checkpoint.get("hint_policy"),
-                    "assessment": checkpoint.get("assessment", "legacy"),
-                    "success_criteria": checkpoint.get("success_criteria"),
-                }
-                if checkpoint
-                else None
-            ),
+            "next_checkpoint": _checkpoint_summary(checkpoint),
             "optional_carryover_limit": optional_limit,
             "optional_carryover_completed_count": len(optional_completed_ids),
             "optional_carryover_completed_task_ids": optional_completed_ids,
@@ -1406,6 +1478,22 @@ def today_overview(
             "completion_standard": completion_standard,
             "evidence_required": _evidence_standard(checkpoint),
         },
+    }
+
+
+def _checkpoint_summary(checkpoint: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not checkpoint:
+        return None
+    return {
+        "id": checkpoint["id"],
+        "title": checkpoint["title"],
+        "instruction": checkpoint["instruction"],
+        "status": checkpoint["status"],
+        "coach_action": checkpoint.get("coach_action"),
+        "learner_action": checkpoint.get("learner_action"),
+        "hint_policy": checkpoint.get("hint_policy"),
+        "assessment": checkpoint.get("assessment", "legacy"),
+        "success_criteria": checkpoint.get("success_criteria"),
     }
 
 
@@ -1455,7 +1543,12 @@ def render_today_text(overview: dict[str, Any]) -> str:
         "今天",
     ]
     if today["rest"]:
-        lines.append(f"- {today['date']} 是周末休息日；不生成、补排或启动任务。")
+        lines.append(f"- {today['date']} 是周末休息日；必做配额为零，不生成或补排新任务。")
+        lines.append(f"- {today['completion_standard']}")
+        if today["completed_tasks"]:
+            lines.append("- 已完成遗留：" + ", ".join(today["completed_tasks"]))
+        if today["publication_pending_task_ids"]:
+            lines.append("- 待恢复发布：" + ", ".join(today["publication_pending_task_ids"]))
         return "\n".join(lines)
     task = today["active_task"]
     checkpoint = today["next_checkpoint"]
@@ -1472,8 +1565,12 @@ def render_today_text(overview: dict[str, Any]) -> str:
     if today["active_task_kind"] == "carryover":
         lines.extend(
             [
-                "- 每日定量：一个完整任务；今日主任务已完成。",
-                f"- 已完成任务：{today.get('completed_task')}",
+                (
+                    "- 周末必做配额：零；本次只处理明确继续的遗留。"
+                    if today["quota"] == 0
+                    else "- 每日定量：一个完整任务；今日主任务已完成。"
+                ),
+                "- 已完成任务：" + (", ".join(today["completed_tasks"]) or "无"),
                 (
                     "- 用户已明确继续；本次只处理下一项最早遗留，"
                     "当日遗留总数不设上限。"

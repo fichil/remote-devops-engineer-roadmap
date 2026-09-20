@@ -3,7 +3,7 @@
 The personal setup uses one local automation in `Asia/Shanghai`:
 
 - Monday–Friday at 09:00: show the three-level overview and start that day's scheduled mission.
-- Saturday–Sunday: complete rest, with no plan generation, rescheduling, or synthetic backfill.
+- Saturday–Sunday: no scheduled run or required work. Ordinary queries are read-only. Explicit requests may process existing carryovers, with no new tasks, rescheduling, or synthetic backfill.
 
 The automation uses the main checkout because the weekly plan and progress state must persist between runs. A dedicated worktree would isolate that state and make later runs read stale progress. Every weekday run recovers an unfinished evidence-backed publication before starting new work.
 
@@ -31,8 +31,10 @@ curriculum/roadmap.yml、state/progress.json、plans/master-plan.md、当前周�
 
 周一至周五先完成当天计划任务；旧任务不得抢占。主任务完成并发布后默认停止；只有用户明确说
 “继续处理遗留”时，才运行 `today --continue-carryover` 并启动一个最早遗留任务。该任务单独
-发布后再次停止；用户可再次明确要求继续，当天遗留数量不限。周末
-完全休息，不生成、不补排。认知学徒制任务按讲解与示范、引导练习、独立迁移与交付推进，
+发布后再次停止；用户可再次明确要求继续，当天遗留数量不限。周末零必做配额，普通 today
+只读，不生成、不补排；明确继续时可启动或恢复最早已有遗留，无需当天主任务。任何较早
+待发布任务必须先恢复。遗留使用原任务 weekly_project.lab_week 对应的既有私有实验，
+不因周末另建任务或实验。认知学徒制任务按讲解与示范、引导练习、独立迁移与交付推进，
 一次只处理第一项未完成阶段。教练负责运行项目管理和 lab 命令，不要求学习者复制 today、
 record、publish 或 lab 命令。
 
@@ -54,15 +56,19 @@ record、publish 或 lab 命令。
 命令、实际结果和解释，且提示等级为 0，并写 2–4 句真实英文 PR 评论或交接。讲解和引导阶段记录证据但不
 评分。每周连续项目只位于 `private/labs/YYYY-Www/`；周一至周四复用工作副本，周五从本地
 裸远程新建副本。GitHub 训练本地优先且默认只读，不得使用学习系统 checkout 练习或创建
-外部仓库。只有当天主任务所有阶段都有证据时才计入连胜；同日第二项不重复计数；周末完全
-跳过，缺席工作日中断。连胜不得改变评分或阶段门禁。日历主题每周前进，未通过先修门禁时
+外部仓库。只有当天按期完成主任务且所有阶段都有证据时才计入连胜；遗留不增加或补算连胜；
+周末跳过，缺席工作日中断。遗留按真实完成日期记账并保留原计划日期；record --date 仅用于
+已有证据的延迟入账，不得填未来日期。3 分的复测到期日为完成日期七日后，不自动创建周末任务。
+连胜不得改变评分或阶段门禁。日历主题每周前进，未通过先修门禁时
 必须改派重教或复测。
 
 仓库内日常英语只评价最终交付中的阅读和写作；通用口语、发音和录音练习由 Duolingo 负责，
 不得要求或追踪其证据。路线明确安排的技术演示和模拟面试仍保留。不得替用户完成练习、
 无证据标记完成或创建收费云资源。最后一个检查点取得完整证据时，`record` 按 AGENTS.md 自动发布：
 只发布结构化进度、周计划和显式登记的证据文件，创建 Ready PR，等待 CI，squash merge 后
-同步 main 并清理该发布分支。主任务及每个可选遗留均分别发布；每项遗留发布后默认停止，
+同步 main 并清理该发布分支。主任务及每个可选遗留均分别发布；周末已明确激活、证据完整的
+遗留立即自动发布，无需当天主任务。跨日恢复沿用原完成日期和 publication key；跨周完成
+只刷新受影响的已有周计划，不生成周末计划。每项遗留发布后默认停止，
 再次收到明确继续指令才处理下一项。
 发布失败时保留证据并等待下次 `publish --recover`，不得强推、自动 stash 或处理无关改动。
 教学规则维护、教学文案刷新与自动化修改不属于每日学习成果，不使用学习任务授权提交或合并。

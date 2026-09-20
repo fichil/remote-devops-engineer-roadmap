@@ -139,8 +139,10 @@ def _safe_relative(value: str) -> str:
 def _eligible_completion(
     progress: dict[str, Any], target: date, kind: str, task_id: str | None = None
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    if target.weekday() >= 5:
-        raise PublicationError("Routine learning publications are forbidden on weekends")
+    if target > date.today():
+        raise PublicationError("A learning publication cannot have a future completion date")
+    if target.weekday() >= 5 and kind != "carryover":
+        raise PublicationError("Weekend publications require an explicitly activated carryover")
     if kind == "carryover" and not task_id:
         raise PublicationError("A carryover publication requires a task id")
     matches = [
@@ -169,8 +171,12 @@ def _eligible_completion(
             for item in progress.get("completion_log", [])
             if item.get("date") == target.isoformat() and item.get("kind") == "primary"
         ]
-        if len(primary) != 1:
+        if target.weekday() < 5 and len(primary) != 1:
             raise PublicationError("A carryover publication requires that day's completed primary")
+        if task.get("carryover_activated_on") != target.isoformat():
+            raise PublicationError(
+                "A carryover publication requires explicit activation on that date"
+            )
         if scheduled_for >= target.isoformat():
             raise PublicationError(
                 "A carryover must have been scheduled before the publication date"
@@ -227,6 +233,25 @@ def inspect_publication(
     policy = _policy(root)
     progress = load_json(root / "state" / "progress.json")
     completion, task = _eligible_completion(progress, target, kind, task_id)
+    # Direct publish/apply must obey the same chronological gate as recovery.
+    ordered = sorted(
+        (
+            item
+            for item in progress.get("completion_log", [])
+            if item.get("kind") in PUBLICATION_KINDS
+        ),
+        key=lambda item: (item["date"], PUBLICATION_KINDS.index(item["kind"])),
+    )
+    publication_ledger = load_publication_ledger(root)
+    for earlier in ordered:
+        if earlier == completion:
+            break
+        earlier_date = date.fromisoformat(earlier["date"])
+        _, entry = publication_identity.resolve_publication_entry(
+            publication_ledger, earlier_date, earlier["kind"], earlier["task_id"]
+        )
+        if entry.get("status") != "complete":
+            raise PublicationError("Recover earlier incomplete publications before this selection")
     active_runner = runner or CommandRunner(root)
     dirty = _dirty_paths(active_runner)
     allowed = _allowed_learning_paths(progress)

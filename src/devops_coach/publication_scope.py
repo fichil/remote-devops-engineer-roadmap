@@ -24,7 +24,7 @@ def validate_state_scope(
 ) -> None:
     expected = copy.deepcopy(before)
     week = target.strftime("%G-W%V")
-    if week not in expected.get("weekly_plans", {}):
+    if target.weekday() < 5 and week not in expected.get("weekly_plans", {}):
         # Replay only deterministic initialization, never learning actions.
         with tempfile.TemporaryDirectory(prefix="devops-publication-") as directory:
             scratch = Path(directory)
@@ -33,10 +33,14 @@ def validate_state_scope(
             write_json(scratch / "state/progress.json", expected)
             ensure_week_plan(scratch, week)
             expected = load_json(scratch / "state/progress.json")
-    plan = expected["weekly_plans"][week]
-    for name, value in (("current_week", plan["week"]), ("current_phase", plan["execution_phase"])):
-        if after.get(name) != before.get(name):
-            expected[name] = value
+    if target.weekday() < 5:
+        plan = expected["weekly_plans"][week]
+        for name, value in (
+            ("current_week", plan["week"]),
+            ("current_phase", plan["execution_phase"]),
+        ):
+            if after.get(name) != before.get(name):
+                expected[name] = value
     original = expected["tasks"].get(task_id)
     if original is None:
         raise ValueError(f"Unrelated task initialization: {task_id}")

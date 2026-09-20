@@ -11,7 +11,7 @@ This repository is not a link list or a promise of employment. It combines a com
 The included learner profile assumes:
 
 - a beginner in IT and approximately A2 English;
-- Monday through Friday learning, with complete weekend rest;
+- Monday through Friday learning, with zero required weekend work;
 - AWS as the primary cloud track;
 - a monthly learning and cloud budget of at most USD 20;
 - overseas employee and long-term contractor roles as valid outcomes;
@@ -23,11 +23,11 @@ Remote DevOps roles commonly combine Linux, cloud infrastructure, Terraform, con
 
 - Maintains a human-readable [78-week master plan](plans/master-plan.md) and one living plan per calendar week.
 - Creates five new missions for each Monday–Friday week and keeps each mission assigned to its scheduled workday.
-- Starts today's scheduled mission first. After it is complete and published, each explicit continue request starts one oldest carryover; the learner may repeat this without a daily carryover limit.
+- Starts today's scheduled weekday mission first. After it is complete and published, each explicit continue request starts one oldest carryover. Weekends allow explicit carryover requests without a primary mission. Each carryover is published separately before another explicit request, without a daily count limit.
 - Uses cognitive apprenticeship: explanation and demonstration, guided practice, then an independently scored transfer and delivery.
 - Treats copied commands and raw output as guided evidence only; mastery requires a learner-authored action, prediction, observed result, and interpretation.
 - Schedules weak skills for reteaching or retrieval and adapts content without changing the daily task quantity.
-- Counts a weekday streak only when a complete mission has evidence; weekends are skipped and missed weekdays break the streak.
+- Counts a weekday streak only for an evidence-complete primary on its scheduled date; carryovers never add or backfill streak days. Weekends are skipped and missed weekdays break the streak.
 - Advances calendar topics every week, while unmet phase gates replace next-phase work with remediation or retesting.
 - Assesses routine English through reading and writing only. General speaking and pronunciation stay in Duolingo; roadmap technical demos and mock interviews remain in scope.
 - Keeps private application, company, income, and contact data outside Git.
@@ -59,7 +59,7 @@ python -m devops_coach migrate --refresh-teaching [--dry-run]
 python -m devops_coach plan master
 python -m devops_coach plan week --week YYYY-Www
 python -m devops_coach today [--date YYYY-MM-DD] [--continue-carryover] [--json]
-python -m devops_coach record --task ID --checkpoint ID --status in_progress|done|blocked [--score 0..5] --evidence TEXT [--hint-level 0..3] [--independent] [--prediction TEXT --learner-action TEXT --observed-result TEXT --interpretation TEXT --handoff TEXT] [--artifact PATH ...]
+python -m devops_coach record --task ID --checkpoint ID --status in_progress|done|blocked [--date YYYY-MM-DD] [--score 0..5] --evidence TEXT [--hint-level 0..3] [--independent] [--prediction TEXT --learner-action TEXT --observed-result TEXT --interpretation TEXT --handoff TEXT] [--artifact PATH ...]
 python -m devops_coach lab prepare|status|reproduce --week YYYY-Www [--date YYYY-MM-DD] [--json]
 python -m devops_coach publish --date YYYY-MM-DD --kind primary --dry-run|--apply [--json]
 python -m devops_coach publish --date YYYY-MM-DD --kind carryover --task ID --dry-run|--apply [--json]
@@ -97,9 +97,11 @@ Each week uses one ignored local project under `private/labs/YYYY-Www/`. Monday 
 | Day | Required quota | Optional carryover | Required checkpoints |
 |---|---:|---:|---|
 | Monday–Friday | 1 scheduled mission | Unlimited; one oldest task per explicit continue request and separate publication | Explanation and demonstration, guided practice, independent transfer and delivery |
-| Saturday–Sunday | Rest | None | No generation, rescheduling, or backfill |
+| Saturday–Sunday | 0 | One oldest existing task per explicit request; separate automatic publication | No new tasks, rescheduling, or backfill |
 
-All carryovers are shown, but they never displace today's scheduled mission. After the primary mission is complete and published, the coach stops by default. The learner can explicitly request one oldest carryover with `python -m devops_coach today --continue-carryover`; after that task is separately published, another explicit request may start the next one. There is no daily carryover count limit, and every completion on the same date still counts as one streak workday.
+All carryovers are shown, but they never displace today's scheduled weekday mission. The coach runs `today --continue-carryover` only after an explicit request, and stops after that task is separately published. Weekends require no primary. Ordinary weekend `today` is read-only, with zero quota; an empty queue stays empty. Every earlier pending publication must recover before another carryover starts.
+
+`record --date` defaults to today and accepts a past actual completion date only for existing evidence and an activated task; future dates are rejected. It preserves the planned date and uses the actual date for the completion log, retrieval due date, and publication key. A score of 3 sets retrieval seven days later without creating a weekend task. Only affected existing weekly plans are refreshed, including a carryover's original week. Weekend completions count toward task totals but never weekday streaks or missed-day credit.
 
 The project contains six phases: foundations, systems automation, containers and CI/CD, AWS and Terraform, Kubernetes and SRE, and a production capstone with the global job search. Every phase ends with an evidence gate. If evidence is insufficient, the route extends; gates are never lowered to preserve the nominal end date.
 

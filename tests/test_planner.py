@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +11,8 @@ from devops_coach.planner import (
     completion_streak,
     ensure_week_plan,
     record_checkpoint,
+    render_today_text,
+    render_week_plan,
     today_overview,
 )
 from devops_coach.publication_identity import (
@@ -209,8 +211,16 @@ def test_calendar_theme_advances_but_phase_gate_uses_concrete_retest_blueprint(
 
 def test_remediation_gate_passes_only_from_independent_summative_score(
     project_copy: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     target = date(2026, 10, 30)
+
+    class TestDate(date):
+        @classmethod
+        def today(cls):
+            return target
+
+    monkeypatch.setattr("devops_coach.planner.date", TestDate)
     ensure_week_plan(project_copy, "2026-W44")
     task_id = "2026-W44-05-mission"
     record_checkpoint(
@@ -647,3 +657,126 @@ def test_active_state_and_new_plans_have_no_time_fields(project_copy: Path) -> N
     assert "load_factor" not in learner
     assert "预计时间" not in master + week
     assert "总时长" not in master + week
+
+
+@pytest.mark.parametrize("target", [date(2026, 8, 1), date(2026, 8, 2)])
+def test_weekend_explicit_oldest_carryover_without_primary(project_copy: Path, target: date):
+    path = project_copy / "state/progress.json"
+    state = load_json(path)
+    state["tasks"] = {
+        "old-1": _old_task("old-1", "2026-07-30", 1),
+        "old-2": _old_task("old-2", "2026-07-31", 2),
+        "future": _old_task("future", "2026-08-03", 3),
+    }
+    write_json(path, state)
+    before = path.read_bytes()
+    ordinary = today_overview(project_copy, target)
+    assert ordinary["today"]["rest"] and ordinary["today"]["quota"] == 0
+    assert ordinary["week"]["backlog"] == ["old-1", "old-2"]
+    assert path.read_bytes() == before
+    with pytest.raises(ValueError, match="continue-carryover"):
+        _complete_task(project_copy, "old-1", target)
+    for task_id in ("old-2", "future"):
+        with pytest.raises(ValueError, match="oldest"):
+            _complete_task(project_copy, task_id, target)
+    assert path.read_bytes() == before
+
+    active = today_overview(project_copy, target, continue_carryover=True)
+    assert active["today"]["active_task"]["id"] == "old-1"
+    assert active["today"]["active_task_kind"] == "carryover"
+    assert "周末必做配额：零" in render_today_text(active)
+    resumed = path.read_bytes()
+    assert today_overview(project_copy, target, True)["today"]["active_task"]["id"] == "old-1"
+    assert path.read_bytes() == resumed
+    with pytest.raises(ValueError, match="evidence"):
+        record_checkpoint(project_copy, "old-1", "work", "done", 3, "", target)
+    assert path.read_bytes() == resumed
+
+    _complete_task(project_copy, "old-1", target, score=3)
+    state = load_json(path)
+    task = state["tasks"]["old-1"]
+    assert task["completed_on"] == target.isoformat()
+    assert task["scheduled_for"] == "2026-07-30"
+    assert task["next_review"] == (target + timedelta(days=7)).isoformat()
+    assert state["completion_log"][0]["kind"] == "carryover"
+    assert not state["weekly_plans"]
+    assert len(state["tasks"]) == 3
+    assert completion_streak(state, date(2026, 7, 29), target) == (0, 0)
+    with pytest.raises(ValueError, match="already done"):
+        _complete_task(project_copy, "old-1", target)
+    with pytest.raises(ValueError, match="publication"):
+        today_overview(project_copy, target, True)
+    assert len(load_json(path)["completion_log"]) == 1
+
+    _mark_publication_complete(project_copy, target, "old-1", "carryover")
+    assert today_overview(project_copy, target)["today"]["active_task"] is None
+    assert today_overview(project_copy, target, True)["today"]["active_task"]["id"] == "old-2"
+    _complete_task(project_copy, "old-2", target)
+    _mark_publication_complete(project_copy, target, "old-2", "carryover")
+    stopped = path.read_bytes()
+    empty = today_overview(project_copy, target, True)
+    assert empty["today"]["active_task"] is None
+    assert "没有待处理" in empty["today"]["completion_standard"]
+    assert empty["today"]["optional_carryover_completed_count"] == 2
+    assert path.read_bytes() == stopped
+
+
+def test_weekend_cross_week_updates_only_existing_affected_plans(project_copy: Path):
+    ensure_week_plan(project_copy, "2026-W31")
+    ensure_week_plan(project_copy, "2026-W32")
+    target = date(2026, 8, 16)
+    overview = today_overview(project_copy, target, True)
+    task_id = overview["today"]["active_task"]["id"]
+    before = {
+        week: (project_copy / f"plans/weeks/{week}.md").read_bytes()
+        for week in ("2026-W31", "2026-W32")
+    }
+    _complete_task(project_copy, task_id, target, score=3)
+    state = load_json(project_copy / "state/progress.json")
+    assert set(state["weekly_plans"]) == {"2026-W31", "2026-W32"}
+    assert state["tasks"][task_id]["scheduled_for"].startswith("2026-07-")
+    for week, previous in before.items():
+        plan = project_copy / f"plans/weeks/{week}.md"
+        assert plan.read_bytes() != previous
+        assert plan.read_text(encoding="utf-8") == render_week_plan(state, week)
+    assert not (project_copy / "plans/weeks/2026-W33.md").exists()
+    assert len(state["tasks"]) == 10
+
+
+def test_pending_previous_day_publication_blocks_weekend_activation(project_copy: Path):
+    ensure_week_plan(project_copy, "2026-W31")
+    _complete_task(project_copy, "2026-W31-05-mission", date(2026, 7, 31))
+    path = project_copy / "state/progress.json"
+    before = path.read_bytes()
+    with pytest.raises(ValueError, match="2026-W31-05-mission"):
+        today_overview(project_copy, date(2026, 8, 1), True)
+    assert path.read_bytes() == before
+
+
+def test_future_record_and_activation_are_rejected_without_writes(project_copy: Path):
+    path = project_copy / "state/progress.json"
+    state = load_json(path)
+    state["tasks"]["old"] = _old_task("old", "2026-07-30", 1)
+    write_json(path, state)
+    before = path.read_bytes()
+    future = date.today() + timedelta(days=1)
+    with pytest.raises(ValueError, match="future"):
+        today_overview(project_copy, future, True)
+    with pytest.raises(ValueError, match="future"):
+        _complete_task(project_copy, "old", future)
+    assert path.read_bytes() == before
+
+
+def test_carryover_never_backfills_weekday_streak(project_copy: Path):
+    ensure_week_plan(project_copy, "2026-W31")
+    ensure_week_plan(project_copy, "2026-W32")
+    _complete_task(project_copy, "2026-W31-04-mission", date(2026, 7, 30))
+    _mark_publication_complete(project_copy, date(2026, 7, 30), "2026-W31-04-mission", "primary")
+    task_id = today_overview(project_copy, date(2026, 8, 2), True)["today"]["active_task"]["id"]
+    _complete_task(project_copy, task_id, date(2026, 8, 2))
+    _complete_task(project_copy, "2026-W32-01-mission", date(2026, 8, 3))
+    state = load_json(project_copy / "state/progress.json")
+    assert completion_streak(state, date(2026, 7, 29), date(2026, 8, 3)) == (1, 1)
+    # A historical weekday carryover entry cannot substitute for its scheduled primary.
+    state["completion_log"][1]["date"] = "2026-07-31"
+    assert completion_streak(state, date(2026, 7, 29), date(2026, 8, 3)) == (1, 1)
