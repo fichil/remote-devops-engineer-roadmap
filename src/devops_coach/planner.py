@@ -533,7 +533,9 @@ def completion_streak(progress: dict[str, Any], start: date, target: date) -> tu
     current_end = target
     while current_end.weekday() >= 5:
         current_end -= timedelta(days=1)
-    if current_end not in attended:
+    # Only an unfinished weekday can retain yesterday's streak. On a weekend,
+    # Friday has already elapsed, so a missed Friday must break the streak.
+    if target.weekday() < 5 and current_end not in attended:
         current_end -= timedelta(days=1)
         while current_end.weekday() >= 5:
             current_end -= timedelta(days=1)
