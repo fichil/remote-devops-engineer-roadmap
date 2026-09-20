@@ -81,3 +81,35 @@ def test_weekend_publication_and_scope_without_creating_a_week():
     after["current_week"] = 2
     with pytest.raises(ValueError, match="current_week"):
         validate_state_scope(Path("."), before, after, "old", target, completion)
+
+
+@pytest.mark.parametrize(
+    ("target", "friday_complete", "expected"),
+    [
+        (date(2026, 9, 18), False, (1, 1)),
+        (date(2026, 9, 19), False, (0, 1)),
+        (date(2026, 9, 20), False, (0, 1)),
+        (date(2026, 9, 21), False, (0, 1)),
+        (date(2026, 9, 19), True, (2, 2)),
+        (date(2026, 9, 20), True, (2, 2)),
+        (date(2026, 9, 21), True, (2, 2)),
+    ],
+)
+def test_weekend_streak_cannot_grant_grace_to_a_missed_friday(
+    target, friday_complete, expected
+):
+    completed_dates = ["2026-09-17"]
+    if friday_complete:
+        completed_dates.append("2026-09-18")
+    state = {"tasks": {}, "completion_log": []}
+    for completed_on in completed_dates:
+        state["tasks"][completed_on] = {
+            "id": completed_on, "status": "done", "scheduled_for": completed_on,
+            "evidence": "Verified evidence",
+            "checkpoints": [{"status": "done", "evidence": "Verified evidence"}],
+        }
+        state["completion_log"].append({
+            "date": completed_on, "task_id": completed_on,
+            "kind": "primary", "evidence": "Verified evidence",
+        })
+    assert planner.completion_streak(state, date(2026, 9, 17), target) == expected
