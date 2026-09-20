@@ -105,6 +105,7 @@ def test_weekend_streak_cannot_grant_grace_to_a_missed_friday(
     for completed_on in completed_dates:
         state["tasks"][completed_on] = {
             "id": completed_on, "status": "done", "scheduled_for": completed_on,
+            "evidence": "Verified evidence",
             "checkpoints": [{"status": "done", "evidence": "Verified evidence"}],
         }
         state["completion_log"].append({
