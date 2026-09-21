@@ -697,7 +697,11 @@ def render_week_plan(progress: dict[str, Any], week_value: str) -> str:
     plan = progress["weekly_plans"][week_value]
     new_ids = list(plan["new_task_ids"])
     new_set = set(new_ids)
-    backlog = [task for task in active_tasks(progress) if task["id"] not in new_set]
+    backlog = [
+        task
+        for task in carryover_tasks(progress, date.fromisoformat(plan["monday"]))
+        if task["id"] not in new_set
+    ]
     slots = list(plan["execution_slots"])
     status = _week_status(progress, slots)
     lines = [

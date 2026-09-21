@@ -115,6 +115,18 @@ def validate_snapshot(
         if path == "state/progress.json":
             continue
         if path in plans:
+            week = plans[path]
+            plan = progress["weekly_plans"][week]
+            scheduled = date.fromisoformat(task.get("scheduled_for") or task["created_on"])
+            # Check relevance independently of the renderer: a shared rendering
+            # bug must not authorize rewriting earlier, unrelated weekly plans.
+            if (
+                week in before.get("weekly_plans", {})
+                and task["id"] not in plan["new_task_ids"]
+                and task["id"] not in plan["execution_slots"]
+                and scheduled >= date.fromisoformat(plan["monday"])
+            ):
+                raise ValueError(f"Unrelated weekly plan: {path}")
             if read(path, revision) != render_week_plan(progress, plans[path]):
                 raise ValueError(f"Weekly plan is not synchronized: {path}")
         elif path not in artifacts:
