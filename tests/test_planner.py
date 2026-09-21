@@ -146,6 +146,36 @@ def test_week_plan_is_created_once_and_then_resumed(project_copy: Path) -> None:
     assert second_path.read_bytes() == first_content
 
 
+def test_new_week_and_checkpoint_do_not_rewrite_earlier_plans(project_copy: Path) -> None:
+    old_path, _ = ensure_week_plan(project_copy, "2026-W34")
+    original = old_path.read_bytes()
+    today_overview(project_copy, date(2026, 8, 24))
+    assert old_path.read_bytes() == original
+    record_checkpoint(
+        project_copy, "2026-W35-01-mission", "briefing", "done", None,
+        "Learner explained the observed scope.", date(2026, 8, 24), hint_level_used=3,
+    )
+    assert old_path.read_bytes() == original
+    state = load_json(project_copy / "state/progress.json")
+    assert "2026-W35" not in render_week_plan(state, "2026-W34")
+    assert "2026-W34-01-mission" in render_week_plan(state, "2026-W35")
+
+
+def test_week_backlog_uses_scheduled_date_with_legacy_fallback(project_copy: Path) -> None:
+    ensure_week_plan(project_copy, "2026-W34")
+    state = load_json(project_copy / "state/progress.json")
+    old = _old_task("legacy-before-week", "2026-08-16", 1)
+    old.pop("scheduled_for")
+    future = _old_task("future-created-early", "2026-08-01", 2)
+    future["scheduled_for"] = "2026-08-24"
+    boundary = _old_task("same-week-other", "2026-08-17", 3)
+    state["tasks"].update({task["id"]: task for task in (old, future, boundary)})
+    content = render_week_plan(state, "2026-W34")
+    assert old["id"] in content
+    assert future["id"] not in content
+    assert boundary["id"] not in content
+
+
 def test_today_lists_all_backlog_but_starts_scheduled_task_without_daily_file(
     project_copy: Path,
 ) -> None:

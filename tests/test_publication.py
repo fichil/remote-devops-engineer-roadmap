@@ -19,6 +19,7 @@ from devops_coach.publication import (
     publish_completed_task,
     recover_publications,
 )
+from devops_coach.publication_scope import validate_snapshot
 
 
 def _git(root: Path, *args: str) -> str:
@@ -50,9 +51,11 @@ def _prepare_repository(project: Path) -> Path:
     return remote
 
 
-def _complete_primary(project: Path) -> None:
-    target = date(2026, 7, 29)
-    task_id = "2026-W31-03-mission"
+def _complete_primary(
+    project: Path,
+    target: date = date(2026, 7, 29),
+    task_id: str = "2026-W31-03-mission",
+) -> None:
     artifact = project / "evidence" / "git" / "result.txt"
     artifact.parent.mkdir(parents=True)
     artifact.write_text("verified learner evidence\n", encoding="utf-8")
@@ -75,6 +78,34 @@ def _complete_primary(project: Path) -> None:
                 "interpretation": "The result confirms the selected approach.",
                 "handoff": "Verification passed. The evidence is attached.",
             },
+        )
+
+
+@pytest.mark.parametrize("revision", [None, "", "HEAD"])
+def test_scope_rejects_unrelated_earlier_plan_even_if_renderer_agrees(
+    project_copy: Path, monkeypatch, revision: str | None,
+) -> None:
+    _prepare_repository(project_copy)
+    old_path = project_copy / "plans/weeks/2026-W31.md"
+    today_overview(project_copy, date(2026, 8, 3))
+    _git(project_copy, "add", "--", "state/progress.json", "plans/weeks/2026-W32.md")
+    _git(project_copy, "commit", "-m", "test: next week baseline")
+    baseline = _git(project_copy, "rev-parse", "HEAD")
+    _complete_primary(project_copy, date(2026, 8, 3), "2026-W32-01-mission")
+    state = json.loads((project_copy / "state/progress.json").read_text(encoding="utf-8"))
+    corrupted = old_path.read_text(encoding="utf-8") + "Future tasks are not carryovers.\n"
+    old_path.write_text(corrupted, encoding="utf-8")
+    monkeypatch.setattr(
+        "devops_coach.publication_scope.render_week_plan", lambda *_: corrupted,
+    )
+    if revision is not None:
+        _git(project_copy, "add", "--", "plans/weeks/2026-W31.md")
+        if revision == "HEAD":
+            _git(project_copy, "commit", "-m", "test: corrupt plan snapshot")
+    with pytest.raises(ValueError, match="Unrelated weekly plan"):
+        validate_snapshot(
+            project_copy, CommandRunner(project_copy), baseline, revision, state,
+            state["completion_log"][-1], {"plans/weeks/2026-W31.md"},
         )
 
 
