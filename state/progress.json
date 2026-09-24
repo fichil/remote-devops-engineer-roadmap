@@ -218,6 +218,13 @@
       "evidence": "学习者在讲解示范后的假设场景中自主判断：不会，客户端需要的服务需要使用UDP协议，但是已知Listen状态的端口使用的是TCP。正确区分UDP客户端需求和TCP监听证据的协议边界。本阶段为形成性评价，不评分；没有声称学习者已执行命令或验证真实UDP服务。 | 学习者执行教练完整提供的Get-NetUDPEndpoint查询，仅按LocalPort等于19090筛选并展示LocalAddress和LocalPort。提交截图显示无端点结果行，紧接着的PowerShell成功状态为True。学习者原文：有输出但是没有结果，本机没有这个UDP端点。结合此前TCP和UDP证据区别的自主判断，完成引导操作及解释。此前精确地址查询结论过宽，教练讲解通配绑定后带领扩大查询范围。本阶段不评分。教练补充查询当时的时间边界以及True是成功状态而非端点行，不归为学习者原文。 | 协议变化题中，学习者先自主判断UDP空结果不能证明TCP没有监听，再选择TCP查询。经局部语法纠错完成真实观察。最终四句英文正确区分TCP精确地址和UDP仅端口查询，并明确未做连接测试；语法、否定表达、查询范围及最后一句经过多轮提示，不能作为无提示独立掌握。评分3，提示等级2，七日后复测。截图中的个人提示符路径不写入证据；教练提供的精确地址/通配边界说明不算学习者原创。",
       "kind": "primary",
       "task_id": "2026-W39-03-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-24",
+      "evidence": "学习者原文：我会优先检查请求协议，检查应用支持的是post还是get，因为无法理解请求格式应该是请求方式不符合应用预期。能将排查定位到应用请求并提出方法不匹配假设，达到形成性判断标准。GET和POST是HTTP请求方法而非两种协议；错误信息不足以确认方法不匹配，这两点为教练反馈，不作为学习者自主解释。未声称学习者执行命令或验证根因。 | 学习者执行教练完整提供的GET请求命令，截图显示HTTP/1.0 200 OK、正文lab-ok；补充截图显示紧接着读取LASTEXITCODE为0。学习者原文：这次请求成功结果表明这个应用支持http协议，GET的请求方式。接受对本次HTTP GET成功的自主解释；仅限GET /health、不能推广到所有路径，以及与POST405对比的解释为教练反馈，不冒充学习者原文。截图提示符含个人路径，不复制到公开证据。形成性带练，不评分。 | 独立变化题仅更换请求路径，学习者无当前题完整命令或答案提示，完成预测、自主请求、真实404及退出码0证据、路径缺失解释和四句英文交接。英文原文语义清楚，未要求重写；教练在前三句提交后给出goal/target可选用词反馈并提醒补齐既定下一步建议，未提供建议内容或句式。4/5：独立技术验证和交接达到标准，表达仍可更精确自然。截图个人提示符未复制到公开证据。",
+      "kind": "primary",
+      "task_id": "2026-W39-04-mission"
     }
   ],
   "current_phase": "foundations",
@@ -4079,15 +4086,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W39-04-mission": {
+      "artifacts": [],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者原文：我会优先检查请求协议，检查应用支持的是post还是get，因为无法理解请求格式应该是请求方式不符合应用预期。能将排查定位到应用请求并提出方法不匹配假设，达到形成性判断标准。GET和POST是HTTP请求方法而非两种协议；错误信息不足以确认方法不匹配，这两点为教练反馈，不作为学习者自主解释。未声称学习者执行命令或验证根因。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -4095,7 +4109,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -4103,9 +4117,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者执行教练完整提供的GET请求命令，截图显示HTTP/1.0 200 OK、正文lab-ok；补充截图显示紧接着读取LASTEXITCODE为0。学习者原文：这次请求成功结果表明这个应用支持http协议，GET的请求方式。接受对本次HTTP GET成功的自主解释；仅限GET /health、不能推广到所有路径，以及与POST405对比的解释为教练反馈，不冒充学习者原文。截图提示符含个人路径，不复制到公开证据。形成性带练，不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -4113,7 +4133,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -4121,25 +4141,31 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "独立变化题仅更换请求路径，学习者无当前题完整命令或答案提示，完成预测、自主请求、真实404及退出码0证据、路径缺失解释和四句英文交接。英文原文语义清楚，未要求重写；教练在前三句提交后给出goal/target可选用词反馈并提醒补齐既定下一步建议，未提供建议内容或句式。4/5：独立技术验证和交接达到标准，表达仍可更精确自然。截图个人提示符未复制到公开证据。",
+          "evidence_details": {
+            "handoff": "The request goal is http://127.0.0.1:18080/status . The response is 404. I deem this path is missing. I suggest you can check the path is correct or not.",
+            "interpretation": "学习者原文：这个路径不存在。其方法不匹配预测作为假设保留，实际路径诊断由学习者先提出；传输成功与应用成功边界的补充解释来自教练，不作为学习者原文。",
+            "learner_action": "学习者自行将已学curl请求的目标路径改为/status，保持HTTP GET及127.0.0.1:18080；截图确认命令使用--noproxy、--max-time、-i和-X GET，随后读取LASTEXITCODE。未提供当前变化题完整命令。",
+            "observed_result": "学习者截图：HTTP/1.0 404 Not Found，正文unknown-path，随后LASTEXITCODE为0。",
+            "prediction": "不能判断/status也会成功，不同的接口可能支持不同的请求方式"
+          },
+          "hint_level_used": 0,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "新条件使用正确协议但错误请求目标；学习者独立定位、提供预测、证据和解释，并写 2–4 句英语 incident update。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
           "next_review": null,
-          "score": null,
-          "status": "queued",
+          "score": 4,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-24",
       "created_on": "2026-09-24",
       "curriculum_week": 9,
-      "evidence": null,
+      "evidence": "学习者原文：我会优先检查请求协议，检查应用支持的是post还是get，因为无法理解请求格式应该是请求方式不符合应用预期。能将排查定位到应用请求并提出方法不匹配假设，达到形成性判断标准。GET和POST是HTTP请求方法而非两种协议；错误信息不足以确认方法不匹配，这两点为教练反馈，不作为学习者自主解释。未声称学习者执行命令或验证根因。 | 学习者执行教练完整提供的GET请求命令，截图显示HTTP/1.0 200 OK、正文lab-ok；补充截图显示紧接着读取LASTEXITCODE为0。学习者原文：这次请求成功结果表明这个应用支持http协议，GET的请求方式。接受对本次HTTP GET成功的自主解释；仅限GET /health、不能推广到所有路径，以及与POST405对比的解释为教练反馈，不冒充学习者原文。截图提示符含个人路径，不复制到公开证据。形成性带练，不评分。 | 独立变化题仅更换请求路径，学习者无当前题完整命令或答案提示，完成预测、自主请求、真实404及退出码0证据、路径缺失解释和四句英文交接。英文原文语义清楚，未要求重写；教练在前三句提交后给出goal/target可选用词反馈并提醒补齐既定下一步建议，未提供建议内容或句式。4/5：独立技术验证和交接达到标准，表达仍可更精确自然。截图个人提示符未复制到公开证据。",
       "id": "2026-W39-04-mission",
       "learning_goal": "识别传输连接成功与应用请求成功之间的边界。",
       "next_review": null,
@@ -4147,10 +4173,10 @@
       "queue_order": 1072,
       "scenario": "名称、地址和端口均可达，但客户端发送了服务不理解的应用协议内容。",
       "scheduled_for": "2026-09-24",
-      "score": null,
+      "score": 4,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能区分名称解析结果、网络地址、端口、传输协议和应用协议。",
         "能用回环监听与客户端结果证明端口状态，不把超时等同于单一根因。",
@@ -4247,7 +4273,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-23T11:04:38+08:00",
+  "updated_at": "2026-09-24T10:13:27+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
