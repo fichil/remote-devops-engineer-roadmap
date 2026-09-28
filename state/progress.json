@@ -232,6 +232,13 @@
       "evidence": "学习者原话：不能，主机和端口正确只能说明请求到正确的应用，应用中的不同接口对应不同路径，如果路径不存在会出现404。学习者已自主解释路径与接口的关系及不存在路径可能返回404；开头否定词与其解释矛盾。教练反馈：题目应答能，404属于非成功状态码；填写正确不等于已到达，须实际连接或响应证据。上述纠正是教练解释，不记为学习者自主补充。本阶段形成性、不评分；没有学习者执行命令证据。 | 学习者执行教练提供的GET /missing命令，提交HTTP/1.0 404 Not Found、Content-Type text/plain、Content-Length 13和正文unknown-path，原解释：这个路径不存在，但是没有输出退出码。变量拼成LASTEXITCOED，经教练给出正确LASTEXITCODE后，学习者补充：退出码0，不能说明/missing请求在应用层成功，说明上一条命令正确执行，/missing请求找不到路径。接受其区分退出码与HTTP应用结果；更精确的传输完成措辞由教练补充，不冒充学习者原话。退出码为学习者报告，响应为粘贴证据；未声称有截图。完整命令及拼写提示均属带练，不评分。 | 独立变化将GET路径从/health改为/health/，未给完整变化题命令。学习者预测：不能保证health也成功，因为这是两个不同的路径。学习者自行改写curl目标并提交404 Not Found、unknown-path和紧接着的LASTEXITCODE输出0。解释及最终四句英文交接见结构化证据。初稿把退出码解释为上一命令成功，教练多次补充传输完成的精确含义，提供英文短语及删除重复句提示；最终交接保留学习者提交原文，提示过的措辞不算独立解释。预测和命令自主，但整体交付有提示，评分3，七天后复测；不授予无提示独立掌握。",
       "kind": "primary",
       "task_id": "2026-W40-01-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-09-28",
+      "evidence": "学习者针对仅凭19090端口就绪能否判定客户端配置一致的问题，自主回答：不能，因为TCP和UDP使用各自的端口。解释正确，能区分传输协议的端口空间；本阶段形成性、不评分。未声称学习者已执行查询或证明实际服务健康。 | 学习者执行教练提供的全地址TCP19090 Listen查询，仅输出LocalPort和State；粘贴证据无匹配行，紧接着PowerShell查询状态True。学习者原解释：不支持配置文件写了什么，服务器就能就绪的结论。写配置不能启动服务，启动了TCP和UDP也使用各自的端口。接受其配置预期与运行证据、TCP与UDP边界的理解。True仅表示查询成功的精确说明为教练反馈。名称记录和预期协议来自教练已读取的离线实验契约，未冒充学习者DNS实测；无连接或应用请求成功证据，诊断停在未发现预期监听。形成性带练不评分。 | 已明确激活的遗留，使用原W39裸远程新副本的friday_variation：离线记录metrics.lab.test指向127.0.0.2，预期UDP19090。学习者原预测：不能，可以尝试连接这个端口来判断。最初自行执行Test-NetConnection -Port19090，输出PingSucceeded True与TcpTestSucceeded False；教练解释该命令仅测TCP，并提示使用UDP端点查询。学习者首次UDP查询误选State，经字段提示后改为LocalPort,LocalAddress，提交无匹配行及紧接着的PowerShell状态True。原解释：本机的UDP19090没有启用。教练收窄为查询当时没有查到绑定端点，未推断关闭开关或具体根因。英文初稿误写输出字段为目标并沿用旧地址，经过概念、地址和措辞提示后形成最终四句，保留原文。整体有提示，不授予独立掌握，3分七天后复测；没有UDP数据收发或应用健康实测，不冒充DNS实测。",
+      "kind": "carryover",
+      "task_id": "2026-W39-05-mission"
     }
   ],
   "current_phase": "foundations",
@@ -4196,15 +4203,22 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W39-05-mission": {
-      "carryover_activated_on": null,
+      "artifacts": [],
+      "carryover_activated_on": "2026-09-28",
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者针对仅凭19090端口就绪能否判定客户端配置一致的问题，自主回答：不能，因为TCP和UDP使用各自的端口。解释正确，能区分传输协议的端口空间；本阶段形成性、不评分。未声称学习者已执行查询或证明实际服务健康。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -4212,7 +4226,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -4220,9 +4234,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者执行教练提供的全地址TCP19090 Listen查询，仅输出LocalPort和State；粘贴证据无匹配行，紧接着PowerShell查询状态True。学习者原解释：不支持配置文件写了什么，服务器就能就绪的结论。写配置不能启动服务，启动了TCP和UDP也使用各自的端口。接受其配置预期与运行证据、TCP与UDP边界的理解。True仅表示查询成功的精确说明为教练反馈。名称记录和预期协议来自教练已读取的离线实验契约，未冒充学习者DNS实测；无连接或应用请求成功证据，诊断停在未发现预期监听。形成性带练不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "不支持配置文件写了什么，服务器就能就绪的结论。写配置不能启动服务，启动了TCP和UDP也使用各自的端口。",
+            "learner_action": "执行已提供的Get-NetTCPConnection Listen查询，筛选LocalPort19090并读取PowerShell查询状态。",
+            "observed_result": "没有匹配的监听行；紧接着的PowerShell查询状态为True。",
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -4230,7 +4250,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -4238,36 +4258,42 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "已明确激活的遗留，使用原W39裸远程新副本的friday_variation：离线记录metrics.lab.test指向127.0.0.2，预期UDP19090。学习者原预测：不能，可以尝试连接这个端口来判断。最初自行执行Test-NetConnection -Port19090，输出PingSucceeded True与TcpTestSucceeded False；教练解释该命令仅测TCP，并提示使用UDP端点查询。学习者首次UDP查询误选State，经字段提示后改为LocalPort,LocalAddress，提交无匹配行及紧接着的PowerShell状态True。原解释：本机的UDP19090没有启用。教练收窄为查询当时没有查到绑定端点，未推断关闭开关或具体根因。英文初稿误写输出字段为目标并沿用旧地址，经过概念、地址和措辞提示后形成最终四句，保留原文。整体有提示，不授予独立掌握，3分七天后复测；没有UDP数据收发或应用健康实测，不冒充DNS实测。",
+          "evidence_details": {
+            "handoff": "The expected target is check whether on 19090 end point is bound with UDP in 127.0.0.2. The actual search result is empty. It means  no endpoint was found bound to UDP 19090. Next, check whether this service is running on this machine.",
+            "interpretation": "学习者原解释为本机的UDP19090没有启用；经教练说明后，最终交接收窄为没有找到绑定UDP19090的端点，建议检查本机服务是否运行。",
+            "learner_action": "先运行Test-NetConnection 127.0.0.2 -PORT 19090；经协议提示后自行组合Get-NetUDPEndpoint -ErrorAction Stop与LocalPort19090筛选；经字段提示后显示LocalPort,LocalAddress，并读取PowerShell查询状态。",
+            "observed_result": "初次TCP测试PingSucceeded True、TcpTestSucceeded False；最终UDP端点查询无匹配行，紧接着的PowerShell查询状态为True。证据为学习者粘贴的命令与输出。",
+            "prediction": "不能，可以尝试连接这个端口来判断。"
+          },
+          "hint_level_used": 2,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
           "independent": false,
           "instruction": "使用 friday_variation 且不给完整命令；学习者独立给出方法、预测、脱敏结果、解释和修正建议，并写 2–4 句英语交付。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-10-05",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-09-28",
       "created_on": "2026-09-25",
       "curriculum_week": 9,
-      "evidence": null,
+      "evidence": "学习者针对仅凭19090端口就绪能否判定客户端配置一致的问题，自主回答：不能，因为TCP和UDP使用各自的端口。解释正确，能区分传输协议的端口空间；本阶段形成性、不评分。未声称学习者已执行查询或证明实际服务健康。 | 学习者执行教练提供的全地址TCP19090 Listen查询，仅输出LocalPort和State；粘贴证据无匹配行，紧接着PowerShell查询状态True。学习者原解释：不支持配置文件写了什么，服务器就能就绪的结论。写配置不能启动服务，启动了TCP和UDP也使用各自的端口。接受其配置预期与运行证据、TCP与UDP边界的理解。True仅表示查询成功的精确说明为教练反馈。名称记录和预期协议来自教练已读取的离线实验契约，未冒充学习者DNS实测；无连接或应用请求成功证据，诊断停在未发现预期监听。形成性带练不评分。 | 已明确激活的遗留，使用原W39裸远程新副本的friday_variation：离线记录metrics.lab.test指向127.0.0.2，预期UDP19090。学习者原预测：不能，可以尝试连接这个端口来判断。最初自行执行Test-NetConnection -Port19090，输出PingSucceeded True与TcpTestSucceeded False；教练解释该命令仅测TCP，并提示使用UDP端点查询。学习者首次UDP查询误选State，经字段提示后改为LocalPort,LocalAddress，提交无匹配行及紧接着的PowerShell状态True。原解释：本机的UDP19090没有启用。教练收窄为查询当时没有查到绑定端点，未推断关闭开关或具体根因。英文初稿误写输出字段为目标并沿用旧地址，经过概念、地址和措辞提示后形成最终四句，保留原文。整体有提示，不授予独立掌握，3分七天后复测；没有UDP数据收发或应用健康实测，不冒充DNS实测。",
       "id": "2026-W39-05-mission",
       "learning_goal": "用最小、安全、可重复证据完成 DNS 与端口综合诊断。",
-      "next_review": null,
+      "next_review": "2026-10-05",
       "phase": "foundations",
       "queue_order": 1073,
       "scenario": "接手人从裸远程新副本启动不同回环服务，必须独立判断名称、传输层和应用层的真实状态。",
       "scheduled_for": "2026-09-25",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能区分名称解析结果、网络地址、端口、传输协议和应用协议。",
         "能用回环监听与客户端结果证明端口状态，不把超时等同于单一根因。",
@@ -4719,7 +4745,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-09-28T10:58:27+08:00",
+  "updated_at": "2026-09-28T14:10:05+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
