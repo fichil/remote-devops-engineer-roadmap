@@ -1,0 +1,27 @@
+{
+  "task_id": "2026-W40-04-mission",
+  "scheduled_for": "2026-10-01",
+  "completed_on": "2026-10-14",
+  "privacy_note": "Local CA path redacted as <case>; rich-text URL escaping normalized for readability. Learner wording and grammar retained. Evidence commands are not a runnable runbook.",
+  "prediction": "不确定",
+  "learner_action": "$ca = \"<case>/lab-ca.pem\"\ncurl.exe --location --include --cacert \"$ca\" http://127.0.0.1:50916/handoff-entry\n$LASTEXITCODE",
+  "observed_result": "HTTP/1.0 302 Found\nServer: BaseHTTP/0.6 Python/3.12.14\nDate: Wed, 14 Oct 2026 08:29:33 GMT\nLocation: http://127.0.0.1:50916/handoff-next\nContent-Length: 0\n\nHTTP/1.0 302 Found\nServer: BaseHTTP/0.6 Python/3.12.14\nDate: Wed, 14 Oct 2026 08:29:33 GMT\nLocation: https://127.0.0.1:50918/status\nContent-Length: 0\n\nHTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 10\nConnection: close\n\nnot-found\n$LASTEXITCODE: 0",
+  "learner_interpretation": "第一跳http://127.0.0.1:50916/handoff-entry然后重定向到第二跳http://127.0.0.1:50916/handoff-next然后第三跳到https://127.0.0.1:50918/status 没有达到验收要求，因为最后响应404，而不是预期的200，和预期响应体service-ready",
+  "learner_localization": "修改第2跳的路由配置，第三跳到/health,因为现在的第3跳出现404",
+  "initial_handoff": "The final response code is 404. The problem is the 3th jump /satus is missing. The suggestion of fix it is change the 2th jump Location to /health. It means succeed when it last jump is /health and response code is 200 and content is \"service-ready\"",
+  "final_handoff": "The final response code is 404. The problem is the 3th jump /status is missing. The suggestion of fix it is change the 2th jump Location to /health. It means succeed when it last jump is /health and response code is 200 and content is \"service-ready\"",
+  "assessment": {
+    "score": 3,
+    "hint_level_used": 1,
+    "next_review": "2026-10-21",
+    "reason": "Learner independently constructed the redirect trace and localized the second-hop target. Final handoff required one specific correction from /satus to the observed /status. Uncertain prediction and grammar were not score penalties. No repair or successful post-repair verification was performed by the learner."
+  },
+  "coach_feedback": "Coach requested correction of the exact observed path; feedback is not learner-authored evidence. Coach explained curl exit0 does not establish business acceptance.",
+  "coach_corroboration": {
+    "first_two_redirects_match_logs": true,
+    "final_http_request": "GET /status HTTP/1.0",
+    "learner_event_time_utc": "2026-10-14T08:29:33Z",
+    "lab_stopped_after_evidence": true,
+    "private_keys_never_written": true
+  }
+}
