@@ -184,6 +184,36 @@ def revision(root: Path) -> str:
     return digest(working_path(root).read_bytes() + (root / STATE).read_bytes())
 
 
+def merge_progress(base: dict, local: dict, remote: dict) -> dict:
+    """Recompute competing derived gates after merging their underlying evidence."""
+    from devops_coach.planner import latest_gate_result
+
+    local = copy.deepcopy(local)
+    remote = copy.deepcopy(remote)
+    derived = []
+    for gate_id, original in base.get("phase_gates", {}).items():
+        left = local.get("phase_gates", {}).get(gate_id)
+        right = remote.get("phase_gates", {}).get(gate_id)
+        if left == original or right == original or left == right:
+            continue
+        # Do not silently resolve manual edits, unknown metadata or evidence conflicts.
+        if (
+            left is not None and right is not None
+            and left == latest_gate_result(local, gate_id)
+            and right == latest_gate_result(remote, gate_id)
+        ):
+            local["phase_gates"][gate_id] = copy.deepcopy(original)
+            remote["phase_gates"][gate_id] = copy.deepcopy(original)
+            derived.append(gate_id)
+    result = merge(base, local, remote)
+    for gate_id in derived:
+        gate = latest_gate_result(result, gate_id)
+        if gate is None:
+            raise DraftError(f"Cannot derive merged gate: {gate_id}")
+        result["phase_gates"][gate_id] = gate
+    return result
+
+
 def load_progress(root: Path) -> dict:
     published = load_json(root / STATE)
     if not enabled(root):
@@ -192,7 +222,7 @@ def load_progress(root: Path) -> dict:
     payload = unseal(working_path(root))
     baseline = expand(root, payload["baseline"], payload["current"])
     remote = expand(root, published, payload["current"])
-    result = Progress(merge(baseline, payload["current"], remote))
+    result = Progress(merge_progress(baseline, payload["current"], remote))
     if token != revision(root):
         raise DraftError("Progress changed while reading; retry")
     result.revision = token
@@ -450,8 +480,8 @@ def candidate(root: Path, progress: dict, completion: dict) -> dict:
         result["current_week"] = plan["week"]
         result["current_phase"] = plan["execution_phase"]
     result["tasks"][completion["task_id"]] = copy.deepcopy(progress["tasks"][completion["task_id"]])
-    update_task_gate(result, result["tasks"][completion["task_id"]])
     result["completion_log"].append(copy.deepcopy(completion))
+    update_task_gate(result, result["tasks"][completion["task_id"]])
     result["updated_at"] = progress["updated_at"]
     validate_state_scope(root, baseline, result, completion["task_id"], target, completion)
     return result

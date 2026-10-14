@@ -901,16 +901,33 @@ def _refresh_existing_week_plans(root: Path, previous: dict[str, str]) -> None:
             write_text(path, content)
 
 
-def update_task_gate(progress: dict[str, Any], task: dict[str, Any]) -> None:
-    """Apply only the gate transition supported by this completed task."""
-    gate_id = task.get("gate_id")
-    scores = _assessment_scores(task)
-    if task.get("status") == "done" and gate_id and scores and all(score >= 4 for score in scores):
-        progress["phase_gates"][gate_id] = {
+def latest_gate_result(progress: dict[str, Any], gate_id: str) -> dict[str, Any] | None:
+    """Derive a gate from dated passing completions, not recording/publication order."""
+    result = None
+    ordered = sorted(
+        progress.get("completion_log", []),
+        key=lambda item: (item["date"], 0 if item["kind"] == "primary" else 1),
+    )
+    for item in ordered:
+        task = progress["tasks"].get(item["task_id"], {})
+        if task.get("gate_id") != gate_id or task.get("status") != "done":
+            continue
+        scores = _assessment_scores(task)
+        if not scores or any(score < 4 for score in scores):
+            continue
+        result = {
             "status": "passed",
             "score": min(scores),
             "evidence": task["evidence"],
         }
+    return result
+
+
+def update_task_gate(progress: dict[str, Any], task: dict[str, Any]) -> None:
+    """Update only this task's gate, retaining any later passing assessment."""
+    gate_id = task.get("gate_id")
+    if gate_id and (result := latest_gate_result(progress, gate_id)) is not None:
+        progress["phase_gates"][gate_id] = result
 
 
 def _aggregate_task(task: dict[str, Any]) -> None:
