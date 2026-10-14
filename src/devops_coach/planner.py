@@ -905,7 +905,9 @@ def latest_gate_result(progress: dict[str, Any], gate_id: str) -> dict[str, Any]
     """Derive a gate from dated passing completions, not recording/publication order."""
     result = None
     ordered = sorted(
-        progress.get("completion_log", []),
+        # Legacy attendance rows have no kind and are not task gate assessments.
+        (item for item in progress.get("completion_log", [])
+         if item.get("kind") in {"primary", "carryover"}),
         key=lambda item: (item["date"], 0 if item["kind"] == "primary" else 1),
     )
     for item in ordered:

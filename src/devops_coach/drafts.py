@@ -166,7 +166,7 @@ def merge(base: Any, local: Any, remote: Any, field: str = "") -> Any:
     if field == "/completion_log":
 
         def key(item):
-            return (item["task_id"], item["date"], item["kind"])
+            return (item["task_id"], item["date"], item.get("kind"))
 
         maps = [{key(v): v for v in values} for values in (base, local, remote)]
         joined = merge(*maps, field + "/entries")
@@ -194,8 +194,7 @@ def merge_progress(base: dict, local: dict, remote: dict) -> dict:
     for gate_id, original in base.get("phase_gates", {}).items():
         left = local.get("phase_gates", {}).get(gate_id)
         right = remote.get("phase_gates", {}).get(gate_id)
-        if left == original or right == original or left == right:
-            continue
+        # Equal summaries can represent distinct assessments; always check provenance.
         # Do not silently resolve manual edits, unknown metadata or evidence conflicts.
         if (
             left is not None and right is not None
