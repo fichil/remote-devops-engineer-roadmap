@@ -14,6 +14,27 @@ from devops_coach.planner import ensure_week_plan, render_week_plan
 from devops_coach.storage import load_json, write_json
 
 
+def task_definition(task: dict[str, Any]) -> dict[str, Any]:
+    mutable = {
+        "status",
+        "score",
+        "evidence",
+        "artifacts",
+        "completed_on",
+        "next_review",
+        "carryover_activated_on",
+        "carryover_publication_date",
+    }
+    checkpoint_mutable = mutable | {"evidence_details", "hint_level_used", "independent"}
+
+    result = {key: value for key, value in task.items() if key not in mutable}
+    result["checkpoints"] = [
+        {key: value for key, value in item.items() if key not in checkpoint_mutable}
+        for item in task.get("checkpoints", [])
+    ]
+    return result
+
+
 def validate_state_scope(
     root: Path,
     before: dict[str, Any],
@@ -45,27 +66,7 @@ def validate_state_scope(
     if original is None:
         raise ValueError(f"Unrelated task initialization: {task_id}")
     candidate = after["tasks"][task_id]
-    mutable = {
-        "status",
-        "score",
-        "evidence",
-        "artifacts",
-        "completed_on",
-        "next_review",
-        "carryover_activated_on",
-        "carryover_publication_date",
-    }
-    checkpoint_mutable = mutable | {"evidence_details", "hint_level_used", "independent"}
-
-    def definition(task: dict[str, Any]) -> dict[str, Any]:
-        result = {key: value for key, value in task.items() if key not in mutable}
-        result["checkpoints"] = [
-            {key: value for key, value in item.items() if key not in checkpoint_mutable}
-            for item in task.get("checkpoints", [])
-        ]
-        return result
-
-    if definition(original) != definition(candidate):
+    if task_definition(original) != task_definition(candidate):
         raise ValueError(f"Unrelated task definition changes: {task_id}")
     expected["tasks"][task_id] = candidate
     expected.setdefault("completion_log", []).append(completion)

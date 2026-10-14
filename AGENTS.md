@@ -9,6 +9,16 @@ This repository is an evidence-based learning system. When coaching, follow thes
 3. Inspect the real machine or lab state before giving environment-specific instructions.
 4. Do not rely on a chat claim when a command, test, file, or structured demonstration can verify it.
 
+## Published progress and private drafts
+
+When private drafts are enabled, tracked progress and weekly plans are the published view.
+Use coach commands for effective progress; inspect the returned private weekly-plan preview
+for unfinished learning. Never infer lost evidence from a clean tracked worktree.
+Legacy mixed learning changes require explicit `drafts import --dry-run` then `--apply`;
+this verifies byte backups before restoring only named managed files. Unknown changes
+still block. Drafts are private and do not synchronize through Git. See
+[private draft operations](docs/private-drafts.md).
+
 ## Conversation commands
 
 - `开始今天学习`: use the project Python environment (`.venv\Scripts\python.exe` on this Windows checkout, otherwise the active `python`) to run `-m devops_coach publish --recover --json` first. Stop if a completed publication cannot be recovered; otherwise run `-m devops_coach today`. Present the output in this order: total project, current week, today. On a weekday, teach only the first unfinished checkpoint of today's scheduled primary task, including its real scenario, learning goal, one learner action, completion standard, and required evidence. The coach runs management and lab commands internally; never ask the learner to copy `today`, `record`, `publish`, or lab-management commands. Do not create a daily Markdown file. On a weekend rest result, do not generate, reschedule, or backfill routine work.
@@ -68,7 +78,7 @@ An evidence-complete weekday primary task has durable authorization to publish a
 
 For every automatic or manually retried publication:
 
-1. Run `git status --short` and allow only structured progress, synchronized weekly plans, and evidence files registered with `record --artifact`.
+1. Run `git status --short` and allow only the frozen target-task progress, synchronized weekly plans, and evidence files registered with that task. Private drafts are projected into a single-task snapshot before publication; never allow unrelated working changes through the scope gate.
 2. Run `python -m devops_coach validate`, all tests, `python scripts/check_markdown_links.py`, `python scripts/privacy_scan.py`, Ruff, and `git diff --check`.
 3. Stop and preserve the recorded evidence if unrelated changes exist, a check fails, privacy is uncertain, the remote branch differs, CI fails, or the PR conflicts. The next weekday must recover this publication before starting a new task.
 4. Stage explicit paths only; never use `git add -A`, stash user work, force-push, or resolve conflicts automatically.

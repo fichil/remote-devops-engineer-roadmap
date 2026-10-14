@@ -5,6 +5,7 @@ from datetime import date
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from devops_coach.drafts import load_progress
 from devops_coach.planner import COGNITIVE_WORKFLOW
 from devops_coach.storage import load_json, load_yaml, write_json, write_text
 
@@ -30,7 +31,7 @@ def _run_git(args: list[str], *, cwd: Path | None = None) -> str:
 
 
 def _week_blueprint(root: Path, week_value: str) -> tuple[int, dict[str, Any]]:
-    progress = load_json(root / "state" / "progress.json")
+    progress = load_progress(root)
     plan = progress.get("weekly_plans", {}).get(week_value)
     if not plan:
         raise ValueError(f"No weekly plan exists for {week_value}")

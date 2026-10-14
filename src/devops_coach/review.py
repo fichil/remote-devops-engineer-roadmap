@@ -4,13 +4,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from devops_coach.drafts import load_progress, save_progress
 from devops_coach.planner import (
     COGNITIVE_WORKFLOW,
     ensure_week_plan,
     parse_iso_week,
     refresh_week_plan,
 )
-from devops_coach.storage import load_json, write_json
 
 
 def _task_score(task: dict[str, Any]) -> int | None:
@@ -50,8 +50,7 @@ def _english_priority(tasks: list[dict[str, Any]]) -> str:
 def review_week(root: Path, week_value: str) -> tuple[Path, dict[str, Any]]:
     parse_iso_week(week_value)
     ensure_week_plan(root, week_value)
-    progress_path = root / "state" / "progress.json"
-    progress = load_json(progress_path)
+    progress = load_progress(root)
     plan = progress["weekly_plans"][week_value]
     tasks = [
         progress["tasks"][task_id]
@@ -110,7 +109,7 @@ def review_week(root: Path, week_value: str) -> tuple[Path, dict[str, Any]]:
     }
     progress["weekly_reviews"][week_value] = summary
     progress["updated_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
-    write_json(progress_path, progress)
+    save_progress(root, progress)
     path = refresh_week_plan(root, week_value)
     if path is None:
         raise RuntimeError(f"Weekly plan disappeared while reviewing {week_value}")

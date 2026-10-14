@@ -126,3 +126,7 @@ Curriculum fixes, accessible beginner explanations, deterministic tests, and pri
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## 私有学习草稿
+
+未发布进度与单任务发布的迁移、恢复和备份说明见[私有草稿操作说明](docs/private-drafts.md)。
