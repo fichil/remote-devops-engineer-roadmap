@@ -10,7 +10,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from devops_coach.planner import ensure_week_plan, render_week_plan
+from devops_coach.planner import ensure_week_plan, render_week_plan, update_task_gate
 from devops_coach.storage import load_json, write_json
 
 
@@ -69,6 +69,7 @@ def validate_state_scope(
     if task_definition(original) != task_definition(candidate):
         raise ValueError(f"Unrelated task definition changes: {task_id}")
     expected["tasks"][task_id] = candidate
+    update_task_gate(expected, candidate)
     expected.setdefault("completion_log", []).append(completion)
     expected["updated_at"] = after.get("updated_at")
     for key in sorted(set(expected) | set(after)):

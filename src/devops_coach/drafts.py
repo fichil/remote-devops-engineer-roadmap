@@ -437,6 +437,7 @@ def snapshot_path(root: Path, key: str) -> Path:
 
 
 def candidate(root: Path, progress: dict, completion: dict) -> dict:
+    from devops_coach.planner import update_task_gate
     from devops_coach.publication_scope import validate_state_scope
 
     baseline = json.loads(git(root, "show", "HEAD:" + STATE))
@@ -449,6 +450,7 @@ def candidate(root: Path, progress: dict, completion: dict) -> dict:
         result["current_week"] = plan["week"]
         result["current_phase"] = plan["execution_phase"]
     result["tasks"][completion["task_id"]] = copy.deepcopy(progress["tasks"][completion["task_id"]])
+    update_task_gate(result, result["tasks"][completion["task_id"]])
     result["completion_log"].append(copy.deepcopy(completion))
     result["updated_at"] = progress["updated_at"]
     validate_state_scope(root, baseline, result, completion["task_id"], target, completion)

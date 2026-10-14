@@ -710,7 +710,13 @@ def publish_completed_task(
     completion, task = _eligible_completion(progress, target, kind, task_id)
     key = publication_key(target, kind, task_id)
     ledger = load_publication_ledger(root)
-    for item in progress["completion_log"]:
+    # Draft merges can preserve append order, including delayed older records.
+    # Use the same stable date/kind ordering as inspection and recovery.
+    ordered = sorted(
+        (item for item in progress["completion_log"] if item.get("kind") in PUBLICATION_KINDS),
+        key=lambda item: (item["date"], PUBLICATION_KINDS.index(item["kind"])),
+    )
+    for item in ordered:
         if item == completion:
             break
         if item.get("kind") in PUBLICATION_KINDS:
