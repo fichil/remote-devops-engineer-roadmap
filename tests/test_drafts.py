@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import copy
 from datetime import date
 from pathlib import Path
 
 import pytest
+import yaml
 from test_publication import FakeGitHubRunner, _complete_primary, _git, _prepare_repository
 
 from devops_coach import drafts
@@ -13,6 +15,7 @@ from devops_coach.publication import (
     publish_completed_task,
     recover_publications,
 )
+from devops_coach.publication_scope import validate_state_scope
 from devops_coach.storage import load_json, write_json
 
 
@@ -369,3 +372,109 @@ def test_write_lock_blocks_another_writer(project_copy: Path):
     progress = drafts.load_progress(project_copy)
     with drafts.lock(project_copy), pytest.raises(drafts.DraftError, match="Another draft writer"):
         drafts.save_progress(project_copy, progress)
+
+
+def complete_without_artifact(root: Path, target: date, tid: str, score: int = 4):
+    for checkpoint in ("briefing", "lab", "written_handoff"):
+        record_checkpoint(
+            root, tid, checkpoint, "done",
+            score if checkpoint == "written_handoff" else None,
+            "verified learner evidence", target, hint_level_used=0, independent=True,
+            evidence_details={
+                "prediction": "expected variation",
+                "learner_action": "own action",
+                "observed_result": "actual result",
+                "interpretation": "own explanation",
+                "handoff": "I verified the result. The variation passed.",
+            },
+        )
+
+
+@pytest.mark.parametrize("score", [3, 4])
+def test_gate_publication_and_next_phase(project_copy: Path, monkeypatch, score: int):
+    class FutureDate(date):
+        @classmethod
+        def today(cls):
+            return cls(2026, 10, 30)
+
+    monkeypatch.setattr("devops_coach.planner.date", FutureDate)
+    monkeypatch.setattr("devops_coach.publication.date", FutureDate)
+    # Supply a test-only next-phase blueprint; production currently ends at week 13.
+    roadmap_path = project_copy / "curriculum/roadmap.yml"
+    roadmap = yaml.safe_load(roadmap_path.read_text(encoding="utf-8"))
+    blueprint = copy.deepcopy(roadmap["training_blueprints"][-1])
+    blueprint["week"] = 14
+    roadmap["training_blueprints"].append(blueprint)
+    roadmap_path.write_text(
+        yaml.safe_dump(roadmap, allow_unicode=True, sort_keys=False), encoding="utf-8",
+    )
+    _prepare_repository(project_copy)
+    drafts.import_drafts(project_copy, apply=True)
+    target = date(2026, 10, 23)
+    today_overview(project_copy, target)
+    tid = "2026-W43-05-mission"
+    complete_without_artifact(project_copy, target, tid, score)
+    effective = drafts.load_progress(project_copy)
+    expected_gate = effective["phase_gates"]["foundations"].copy()
+    # An unrelated private gate change must never enter this task's snapshot.
+    effective["phase_gates"]["aws_iac"] = {
+        "status": "passed", "score": 5, "evidence": "unrelated private evidence",
+    }
+    drafts.save_progress(project_copy, effective)
+    completion = effective["completion_log"][-1]
+    snapshot = drafts.candidate(project_copy, effective, completion)
+    baseline = load_json(project_copy / drafts.STATE)
+    for gate_id, field, value in (
+        ("foundations", "score", 5),
+        ("foundations", "evidence", "unverified replacement"),
+        ("foundations", "status", "locked" if score == 4 else "passed"),
+        ("aws_iac", "status", "passed"),
+    ):
+        corrupted = copy.deepcopy(snapshot)
+        corrupted["phase_gates"][gate_id][field] = value
+        with pytest.raises(ValueError, match="Unrelated progress field: phase_gates"):
+            validate_state_scope(project_copy, baseline, corrupted, tid, target, completion)
+    runner = FakeGitHubRunner(project_copy)
+    publish_completed_task(
+        project_copy, target, "primary", apply=True, runner=runner, run_checks=False,
+    )
+    published = load_json(project_copy / drafts.STATE)
+    assert published["phase_gates"]["foundations"] == expected_gate
+    assert published["phase_gates"]["aws_iac"]["status"] == "locked"
+    next_day = date(2026, 10, 26)
+    today_overview(project_copy, next_day)
+    complete_without_artifact(project_copy, next_day, "2026-W44-01-mission")
+    result = publish_completed_task(
+        project_copy, next_day, "primary", apply=True, runner=runner, run_checks=False,
+    )
+    assert result["status"] == "complete"
+    plan = load_json(project_copy / drafts.STATE)["weekly_plans"]["2026-W44"]
+    assert plan["gate_mode"] == ("normal" if score == 4 else "remediation")
+
+
+def test_backdated_private_completions_recover_chronologically(project_copy: Path):
+    _prepare_repository(project_copy)
+    drafts.import_drafts(project_copy, apply=True)
+    complete_without_artifact(project_copy, date(2026, 7, 30), "2026-W31-04-mission")
+    complete_without_artifact(project_copy, date(2026, 7, 29), "2026-W31-03-mission")
+    before = drafts.load_progress(project_copy)
+    assert [item["date"] for item in before["completion_log"]] == [
+        "2026-07-30", "2026-07-29",
+    ]
+    runner = FakeGitHubRunner(project_copy)
+    results = recover_publications(project_copy, runner=runner, run_checks=False)
+    assert [item["publication_key"] for item in results] == [
+        "2026-07-29:primary", "2026-07-30:primary",
+    ]
+    assert len(runner.prs) == 2
+    assert recover_publications(project_copy, runner=runner, run_checks=False) == []
+    assert _git(project_copy, "status", "--porcelain") == ""
+
+
+def test_later_private_publication_cannot_skip_backdated_completion(project_copy: Path):
+    _prepare_repository(project_copy)
+    drafts.import_drafts(project_copy, apply=True)
+    complete_without_artifact(project_copy, date(2026, 7, 30), "2026-W31-04-mission")
+    complete_without_artifact(project_copy, date(2026, 7, 29), "2026-W31-03-mission")
+    with pytest.raises(PublicationError, match="Recover earlier"):
+        publish_completed_task(project_copy, date(2026, 7, 30), "primary", apply=False)

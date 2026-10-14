@@ -901,6 +901,18 @@ def _refresh_existing_week_plans(root: Path, previous: dict[str, str]) -> None:
             write_text(path, content)
 
 
+def update_task_gate(progress: dict[str, Any], task: dict[str, Any]) -> None:
+    """Apply only the gate transition supported by this completed task."""
+    gate_id = task.get("gate_id")
+    scores = _assessment_scores(task)
+    if task.get("status") == "done" and gate_id and scores and all(score >= 4 for score in scores):
+        progress["phase_gates"][gate_id] = {
+            "status": "passed",
+            "score": min(scores),
+            "evidence": task["evidence"],
+        }
+
+
 def _aggregate_task(task: dict[str, Any]) -> None:
     checkpoints = task["checkpoints"]
     if checkpoints and all(item["status"] == "done" for item in checkpoints):
@@ -1076,14 +1088,7 @@ def record_checkpoint(
                     "artifacts": list(task.get("artifacts", [])),
                 }
             )
-        gate_id = task.get("gate_id")
-        checkpoint_scores = _assessment_scores(task)
-        if gate_id and checkpoint_scores and all(score >= 4 for score in checkpoint_scores):
-            progress["phase_gates"][gate_id] = {
-                "status": "passed",
-                "score": min(checkpoint_scores),
-                "evidence": task["evidence"],
-            }
+        update_task_gate(progress, task)
     elif previous_status != "done":
         task["completed_on"] = None
     blockers = set(progress.get("blockers", []))
