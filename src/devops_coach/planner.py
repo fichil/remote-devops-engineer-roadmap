@@ -5,8 +5,9 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from devops_coach.drafts import artifact_available, load_progress, plan_path, save_progress
 from devops_coach.publication_identity import PUBLICATION_KINDS, publication_is_complete
-from devops_coach.storage import load_json, load_yaml, write_json, write_text
+from devops_coach.storage import load_yaml, write_text
 from devops_coach.teaching import (
     CHECKPOINT_TITLES as COGNITIVE_CHECKPOINT_TITLES,
 )
@@ -243,9 +244,6 @@ def _checkpoint(
     return checkpoint
 
 
-
-
-
 def _new_mission_task(
     task_id: str,
     scheduled_for: date,
@@ -264,16 +262,13 @@ def _new_mission_task(
             mission = {
                 **mission,
                 "codename": (
-                    f"Gate {'Retest' if weekly_review else 'Reteach'} · "
-                    f"{mission['codename']}"
+                    f"Gate {'Retest' if weekly_review else 'Reteach'} · {mission['codename']}"
                 ),
                 "scenario": (
                     "日历主题已前进，但上一阶段门禁未通过，不能启动下一阶段实作。"
                     f"当前使用既有门禁蓝图重教或复测：{mission['scenario']}"
                 ),
-                "learning_goal": (
-                    f"围绕门禁“{gate_text}”重新完成：{mission['learning_goal']}"
-                ),
+                "learning_goal": (f"围绕门禁“{gate_text}”重新完成：{mission['learning_goal']}"),
             }
         else:
             mission = {
@@ -456,8 +451,7 @@ def _assessment_scores(task: dict[str, Any]) -> list[int]:
         return [
             int(checkpoint["score"])
             for checkpoint in checkpoints
-            if checkpoint.get("assessment") == "summative"
-            and checkpoint.get("score") is not None
+            if checkpoint.get("assessment") == "summative" and checkpoint.get("score") is not None
         ]
     return [
         int(checkpoint["score"])
@@ -483,9 +477,7 @@ def task_has_complete_evidence(task: dict[str, Any]) -> bool:
     ):
         return complete
     summative = [
-        checkpoint
-        for checkpoint in checkpoints
-        if checkpoint.get("assessment") == "summative"
+        checkpoint for checkpoint in checkpoints if checkpoint.get("assessment") == "summative"
     ]
     return bool(
         summative
@@ -811,12 +803,11 @@ def render_week_plan(progress: dict[str, Any], week_value: str) -> str:
 
 
 def ensure_week_plan(root: Path, week_value: str) -> tuple[Path, bool]:
-    progress_path = root / "state" / "progress.json"
-    progress = load_json(progress_path)
+    progress = load_progress(root)
     require_schema_v2(progress)
     existing = progress.get("weekly_plans", {}).get(week_value)
     if existing:
-        path = root / existing["path"]
+        path = plan_path(root, existing["path"])
         if not path.exists():
             write_text(path, render_week_plan(progress, week_value))
         return path, False
@@ -829,9 +820,7 @@ def ensure_week_plan(root: Path, week_value: str) -> tuple[Path, bool]:
     calendar_phase = phase_for_week(roadmap, week)
     focus = focus_for_week(calendar_phase, week)
     execution_phase, gate_mode = _gate_execution(roadmap, progress, calendar_phase)
-    content_week = (
-        int(execution_phase["week_end"]) if gate_mode == "remediation" else week
-    )
+    content_week = int(execution_phase["week_end"]) if gate_mode == "remediation" else week
     adaptation_mode = progress["adaptation"]["mode"]
     next_order = (
         max(
@@ -882,18 +871,18 @@ def ensure_week_plan(root: Path, week_value: str) -> tuple[Path, bool]:
         "gate_mode": gate_mode,
     }
     progress["updated_at"] = now_text()
-    write_json(progress_path, progress)
-    path = root / relative
+    save_progress(root, progress)
+    path = plan_path(root, relative)
     write_text(path, render_week_plan(progress, week_value))
     return path, True
 
 
 def refresh_week_plan(root: Path, week_value: str) -> Path | None:
-    progress = load_json(root / "state" / "progress.json")
+    progress = load_progress(root)
     plan = progress.get("weekly_plans", {}).get(week_value)
     if not plan:
         return None
-    path = root / plan["path"]
+    path = plan_path(root, plan["path"])
     write_text(path, render_week_plan(progress, week_value))
     return path
 
@@ -904,9 +893,9 @@ def _week_plan_contents(progress: dict[str, Any]) -> dict[str, str]:
 
 def _refresh_existing_week_plans(root: Path, previous: dict[str, str]) -> None:
     """Refresh affected source/backlog views without initializing another week."""
-    progress = load_json(root / "state" / "progress.json")
+    progress = load_progress(root)
     for week, plan in progress.get("weekly_plans", {}).items():
-        path = root / plan["path"]
+        path = plan_path(root, plan["path"])
         content = render_week_plan(progress, week)
         if content != previous.get(week):
             write_text(path, content)
@@ -924,13 +913,7 @@ def _aggregate_task(task: dict[str, Any]) -> None:
         status = "queued"
     scores = _assessment_scores(task)
     evidence = [item["evidence"] for item in checkpoints if item.get("evidence")]
-    artifacts = sorted(
-        {
-            artifact
-            for item in checkpoints
-            for artifact in item.get("artifacts", [])
-        }
-    )
+    artifacts = sorted({artifact for item in checkpoints for artifact in item.get("artifacts", [])})
     reviews = [item["next_review"] for item in checkpoints if item.get("next_review")]
     task["status"] = status
     task["score"] = round(sum(scores) / len(scores)) if scores else None
@@ -950,7 +933,7 @@ def normalize_artifact_paths(root: Path, artifacts: Sequence[str | Path]) -> lis
             relative = candidate.relative_to(resolved_root)
         except ValueError as exc:
             raise ValueError(f"Artifact must stay inside the repository: {value}") from exc
-        if not candidate.is_file():
+        if not candidate.is_file() and not artifact_available(resolved_root, relative.as_posix()):
             raise ValueError(f"Artifact must be an existing file: {value}")
         if relative.parts and relative.parts[0] in {".git", "private"}:
             raise ValueError(f"Artifact cannot be published from {relative.parts[0]}: {value}")
@@ -973,9 +956,7 @@ def _recording_kind(
         return "primary", primary
 
     completed_ids = {item["task_id"] for item in _completion_items(progress, target)}
-    if primary and (
-        primary["id"] not in completed_ids or not task_has_complete_evidence(primary)
-    ):
+    if primary and (primary["id"] not in completed_ids or not task_has_complete_evidence(primary)):
         raise ValueError("Today's primary task must be completed before a carryover")
     carryovers = carryover_tasks(progress, target)
     if not carryovers or carryovers[0]["id"] != task_id:
@@ -1011,8 +992,7 @@ def record_checkpoint(
     if not evidence.strip():
         raise ValueError("Recorded checkpoints require evidence")
     normalized_artifacts = normalize_artifact_paths(root, artifacts)
-    progress_path = root / "state" / "progress.json"
-    progress = load_json(progress_path)
+    progress = load_progress(root)
     require_schema_v2(progress)
     if task_id not in progress["tasks"]:
         raise KeyError(f"Unknown task: {task_id}")
@@ -1058,12 +1038,8 @@ def record_checkpoint(
                 "A completed summative checkpoint requires prediction, learner_action, "
                 "observed_result, interpretation, and handoff evidence"
             )
-        if score is not None and score >= 4 and (
-            not independent or hint_level_used != 0
-        ):
-            raise ValueError(
-                "Scores 4-5 require an independent variation with hint_level_used=0"
-            )
+        if score is not None and score >= 4 and (not independent or hint_level_used != 0):
+            raise ValueError("Scores 4-5 require an independent variation with hint_level_used=0")
     previous_plans = _week_plan_contents(progress)
     checkpoint.update(
         {
@@ -1117,7 +1093,7 @@ def record_checkpoint(
         blockers.discard(task_id)
     progress["blockers"] = sorted(blockers)
     progress["updated_at"] = now_text()
-    write_json(progress_path, progress)
+    save_progress(root, progress, artifact_paths=normalized_artifacts)
     _refresh_existing_week_plans(root, previous_plans)
     return task
 
@@ -1240,9 +1216,7 @@ def _weekly_project_for_task(
     content = cognitive_task_content(roadmap, int(task["curriculum_week"]), 0)
     project = content["project"]
     if str(project["id"]) != str(task.get("weekly_project_id")):
-        raise ValueError(
-            f"Task {task['id']} weekly project does not match its training blueprint"
-        )
+        raise ValueError(f"Task {task['id']} weekly project does not match its training blueprint")
     scheduled_for = date.fromisoformat(str(task["scheduled_for"]))
     lab_week = scheduled_for.strftime("%G-W%V")
     located = {
@@ -1271,13 +1245,10 @@ def _weekly_project_for_task(
     return located
 
 
-def today_overview(
-    root: Path, target: date, continue_carryover: bool = False
-) -> dict[str, Any]:
+def today_overview(root: Path, target: date, continue_carryover: bool = False) -> dict[str, Any]:
     learner = load_yaml(root / "config" / "learner.yml")
     roadmap = load_yaml(root / "curriculum" / "roadmap.yml")
-    progress_path = root / "state" / "progress.json"
-    progress = load_json(progress_path)
+    progress = load_progress(root)
     require_schema_v2(progress)
     previous_plans = _week_plan_contents(progress)
     start = date.fromisoformat(learner["learner"]["start_date"])
@@ -1328,7 +1299,7 @@ def today_overview(
                 checkpoint = _start_task(active)
                 if changed:
                     progress["updated_at"] = now_text()
-                    write_json(progress_path, progress)
+                    save_progress(root, progress)
                     _refresh_existing_week_plans(root, previous_plans)
         standard = "周末无新任务；明确继续时只处理最早遗留，单独发布后停止。"
         if pending:
@@ -1373,7 +1344,7 @@ def today_overview(
 
     ensure_master_plan(root)
     ensure_week_plan(root, week_value)
-    progress = load_json(progress_path)
+    progress = load_progress(root)
     progress["current_week"] = week_number
     plan = progress["weekly_plans"][week_value]
     progress["current_phase"] = plan["execution_phase"]
@@ -1382,12 +1353,10 @@ def today_overview(
         raise ValueError(f"No primary task is scheduled for {target.isoformat()}")
     completed_items = _completion_items(progress, target)
     completed_ids = [item["task_id"] for item in completed_items]
-    primary_completed = (
-        primary_task["id"] in completed_ids and task_has_complete_evidence(primary_task)
+    primary_completed = primary_task["id"] in completed_ids and task_has_complete_evidence(
+        primary_task
     )
-    optional_completed_ids = [
-        task_id for task_id in completed_ids if task_id != primary_task["id"]
-    ]
+    optional_completed_ids = [task_id for task_id in completed_ids if task_id != primary_task["id"]]
     carryovers = carryover_tasks(progress, target)
     optional_limit = _optional_carryover_limit(learner)
     limit_allows_more = _limit_allows_more(optional_limit, len(optional_completed_ids))
@@ -1416,13 +1385,10 @@ def today_overview(
         active_task_kind = "carryover"
         checkpoint = _start_task(active_task)
     optional_available = bool(
-        primary_completed
-        and not pending_publication_ids
-        and carryovers
-        and limit_allows_more
+        primary_completed and not pending_publication_ids and carryovers and limit_allows_more
     )
     progress["updated_at"] = now_text()
-    write_json(progress_path, progress)
+    save_progress(root, progress)
     _refresh_existing_week_plans(root, previous_plans)
     if active_task_kind == "primary":
         if active_task and active_task.get("workflow_version") == COGNITIVE_WORKFLOW:
@@ -1431,18 +1397,14 @@ def today_overview(
                 "总结性阶段包含完整结构化证据和英文书面交付。"
             )
         else:
-            completion_standard = (
-                "今日计划任务的全部检查点均为 done，且每个检查点都有可复核证据。"
-            )
+            completion_standard = "今日计划任务的全部检查点均为 done，且每个检查点都有可复核证据。"
     elif active_task_kind == "carryover":
         completion_standard = (
             "当前可选遗留任务的全部检查点均为 done，且每个检查点都有可复核证据；"
             "完成并独立发布后默认停止；再次收到“继续处理遗留”才启动下一项。"
         )
     elif pending_publication_ids:
-        completion_standard = (
-            "已有任务取得完整证据但发布尚未闭环；恢复发布前不得启动下一项遗留。"
-        )
+        completion_standard = "已有任务取得完整证据但发布尚未闭环；恢复发布前不得启动下一项遗留。"
     elif optional_available:
         completion_standard = (
             f"今日主任务和 {len(optional_completed_ids)} 项遗留已有完整证据并完成发布；"
@@ -1577,10 +1539,7 @@ def render_today_text(overview: dict[str, Any]) -> str:
                     else "- 每日定量：一个完整任务；今日主任务已完成。"
                 ),
                 "- 已完成任务：" + (", ".join(today["completed_tasks"]) or "无"),
-                (
-                    "- 用户已明确继续；本次只处理下一项最早遗留，"
-                    "当日遗留总数不设上限。"
-                ),
+                ("- 用户已明确继续；本次只处理下一项最早遗留，当日遗留总数不设上限。"),
                 f"- 最早遗留任务：{task['id']} — {task['title']}",
                 f"- 第一未完成检查点：{checkpoint['id']} / {checkpoint['title']}",
                 f"- 任务要求：{checkpoint['instruction']}",
@@ -1628,7 +1587,7 @@ def create_today_plan(root: Path, target: date) -> tuple[Path | None, bool]:
         today_overview(root, target)
         return None, False
     week_value = target.strftime("%G-W%V")
-    before = (root / "plans" / "weeks" / f"{week_value}.md").exists()
+    before = plan_path(root, f"plans/weeks/{week_value}.md").exists()
     today_overview(root, target)
-    path = root / "plans" / "weeks" / f"{week_value}.md"
+    path = plan_path(root, f"plans/weeks/{week_value}.md")
     return path, not before

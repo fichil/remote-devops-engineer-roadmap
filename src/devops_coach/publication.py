@@ -8,7 +8,7 @@ from datetime import date
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-from devops_coach import publication_identity
+from devops_coach import drafts, publication_identity
 from devops_coach.planner import task_has_complete_evidence
 from devops_coach.publication_scope import validate_snapshot
 from devops_coach.storage import load_json, load_yaml
@@ -279,6 +279,17 @@ def inspect_publication(
                 check=False,
             )
             head = remote.stdout.strip() if remote.returncode == 0 else None
+        if (
+            head
+            and drafts.enabled(root)
+            and dirty
+            and head == _local_ref(active_runner, policy["base_branch"])
+            and _current_branch(active_runner) == branch
+            and drafts.snapshot_path(root, key).exists()
+            and not _commit_has_key(active_runner, head, key)
+        ):
+            # Frozen, materialized transaction interrupted immediately after branch creation.
+            head = None
         if head:
             if dirty:
                 raise PublicationError("Uncommitted changes block publication branch recovery")
@@ -435,6 +446,16 @@ def _prepare_commit(
     base = plan["base_branch"]
     local_head = _local_ref(runner, branch)
     remote_head = _remote_ref(runner, branch)
+    prepared_branch = (
+        drafts.enabled(root)
+        and local_head is not None
+        and remote_head is None
+        and _current_branch(runner) == branch
+        and local_head == _local_ref(runner, base)
+        and drafts.snapshot_path(root, key).exists()
+    )
+    if prepared_branch:
+        local_head = None
     if local_head:
         if not _commit_has_key(runner, local_head, key):
             raise PublicationError(f"Existing local branch {branch} is not this publication")
@@ -448,7 +469,7 @@ def _prepare_commit(
         if not _commit_has_key(runner, remote_head, key):
             raise PublicationError(f"Existing remote branch {branch} is not this publication")
         return remote_head
-    if _current_branch(runner) != base:
+    if _current_branch(runner) != base and not prepared_branch:
         raise PublicationError(
             f"New publication must start on {base}, not {_current_branch(runner)}"
         )
@@ -460,7 +481,8 @@ def _prepare_commit(
         raise PublicationError("No eligible learning changes are available to publish")
     if run_checks:
         _run_quality_checks(root, runner)
-    runner.run(["git", "switch", "-c", branch])
+    if not prepared_branch:
+        runner.run(["git", "switch", "-c", branch])
     runner.run(["git", "add", "--", *plan["changed_paths"]])
     cached = {
         item
@@ -613,7 +635,7 @@ def _finish_merge(
     }
 
 
-def publish_completed_task(
+def _publish_materialized(
     root: Path,
     target: date,
     kind: str,
@@ -669,6 +691,91 @@ def publish_completed_task(
     return {**plan, **result, "already_complete": False}
 
 
+def publish_completed_task(
+    root: Path,
+    target: date,
+    kind: str,
+    *,
+    apply: bool,
+    task_id: str | None = None,
+    runner: CommandRunner | None = None,
+    run_checks: bool = True,
+) -> dict[str, Any]:
+    root = root.resolve()
+    if not drafts.enabled(root):
+        return _publish_materialized(
+            root, target, kind, apply=apply, task_id=task_id, runner=runner, run_checks=run_checks
+        )
+    progress = drafts.load_progress(root)
+    completion, task = _eligible_completion(progress, target, kind, task_id)
+    key = publication_key(target, kind, task_id)
+    ledger = load_publication_ledger(root)
+    for item in progress["completion_log"]:
+        if item == completion:
+            break
+        if item.get("kind") in PUBLICATION_KINDS:
+            _, entry = publication_identity.resolve_publication_entry(
+                ledger, date.fromisoformat(item["date"]), item["kind"], item["task_id"]
+            )
+            if entry.get("status") != "complete":
+                raise PublicationError(
+                    "Recover earlier incomplete publications before this selection"
+                )
+    existing = ledger["publications"].get(key, {})
+    if existing.get("status") == "complete":
+        return {**existing, "publication_key": key, "already_complete": True}
+    if not apply:
+        transaction = drafts.prepare_snapshot(root, key, completion, apply=False)
+        return {
+            "status": "dry_run",
+            "publication_key": key,
+            "task_id": task["id"],
+            "changed_paths": sorted(transaction["files"]),
+        }
+    with drafts.lock(root):
+        if progress.revision != drafts.revision(root):
+            raise drafts.DraftError("Progress changed before publication freeze; retry")
+        active_runner = runner or CommandRunner(root)
+        branch = publication_branch(_policy(root), target, kind, task_id)
+        frozen_path = drafts.snapshot_path(root, key)
+        if frozen_path.exists():
+            transaction = drafts.unseal(frozen_path)
+            if existing.get("pr_number"):
+                pr = _existing_pr(active_runner, branch)
+                if pr and pr.get("state") == "MERGED":
+                    if _dirty_paths(active_runner):
+                        raise PublicationError(
+                            "Uncommitted changes block merged publication recovery"
+                        )
+                    if pr.get("headRefOid") != existing.get("head"):
+                        raise PublicationError("Merged PR head differs from recovery ledger")
+                    plan = {
+                        "publication_key": key,
+                        "branch": branch,
+                        "base_branch": _policy(root)["base_branch"],
+                    }
+                    result = _finish_merge(root, active_runner, plan, pr, existing["head"])
+                    _update_ledger(root, key, **result)
+                    drafts.finish_snapshot(root, key)
+                    return {**plan, **result}
+            ref = _local_ref(active_runner, branch)
+            if ref and _commit_has_key(active_runner, ref, key):
+                for name, entry in transaction["files"].items():
+                    if not drafts.matches_ref(root, name, ref, drafts.unpack(entry["snapshot"])):
+                        raise PublicationError(f"Frozen publication commit changed: {name}")
+                if _dirty_paths(active_runner):
+                    raise PublicationError("Uncommitted changes block publication branch recovery")
+            else:
+                drafts.prepare_snapshot(root, key, completion, apply=True)
+        else:
+            drafts.prepare_snapshot(root, key, completion, apply=True)
+        result = _publish_materialized(
+            root, target, kind, apply=True, task_id=task_id, runner=runner, run_checks=run_checks
+        )
+        drafts.finish_snapshot(root, key)
+        return result
+
+
 def recover_publications(
     root: Path,
     *,
@@ -680,7 +787,17 @@ def recover_publications(
 ) -> list[dict[str, Any]]:
     root = root.resolve()
     _policy(root)
-    progress = load_json(root / "state" / "progress.json")
+    if drafts.enabled(root):
+        ledger_data = load_publication_ledger(root)["publications"]
+        for path in (root / drafts.DIRECTORY / "publications").glob("*.json"):
+            transaction = drafts.unseal(path)
+            if (
+                not transaction.get("finalized")
+                and ledger_data.get(transaction["key"], {}).get("status") == "complete"
+            ):
+                with drafts.lock(root):
+                    drafts.finish_snapshot(root, transaction["key"])
+    progress = drafts.load_progress(root)
     ledger = load_publication_ledger(root)["publications"]
     pending: list[tuple[date, str, str, int, str | None]] = []
     for index, item in enumerate(progress.get("completion_log", [])):
@@ -696,7 +813,9 @@ def recover_publications(
             pending.append((item_date, item_kind, item_task_id, index, entry.get("status")))
     pending.sort(key=lambda item: (item[0], PUBLICATION_KINDS.index(item[1]), item[3]))
     frozen_statuses = {"committed", "pushed", "pr_ready", "merged"}
-    if any(status not in frozen_statuses for _, _, _, _, status in pending[:-1]):
+    if not drafts.enabled(root) and any(
+        status not in frozen_statuses for _, _, _, _, status in pending[:-1]
+    ):
         raise PublicationError(
             "Multiple unpublished completions are not isolated; "
             "manual publication review is required"

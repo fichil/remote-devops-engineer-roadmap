@@ -7,6 +7,7 @@ from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 
+from devops_coach import drafts
 from devops_coach.planner import (
     COGNITIVE_WORKFLOW,
     SUMMATIVE_EVIDENCE_FIELDS,
@@ -61,11 +62,15 @@ def _forbidden_keys(value: Any, path: str = "<root>") -> list[str]:
     return errors
 
 
-def validate_project(root: Path) -> list[str]:
+def validate_project(root: Path, *, include_drafts: bool = False) -> list[str]:
     errors: list[str] = []
     learner = load_yaml(root / "config" / "learner.yml")
     roadmap = load_yaml(root / "curriculum" / "roadmap.yml")
-    progress = load_json(root / "state" / "progress.json")
+    progress = (
+        drafts.load_progress(root)
+        if include_drafts
+        else load_json(root / "state" / "progress.json")
+    )
     errors.extend(
         f"learner: {item}" for item in _validate(learner, root / "schemas" / "learner.schema.json")
     )
@@ -126,9 +131,7 @@ def validate_project(root: Path) -> list[str]:
         "sunday_missions": 0,
     }
     if {key: schedule.get(key) for key in expected_schedule} != expected_schedule:
-        errors.append(
-            "schedule: weekdays require one primary mission and weekends must have none"
-        )
+        errors.append("schedule: weekdays require one primary mission and weekends must have none")
     backlog_order = learner.get("learner", {}).get("engagement", {}).get("backlog_order")
     if backlog_order != "today_first_then_oldest":
         errors.append("engagement: backlog order must prioritize today, then the oldest carryover")
@@ -149,9 +152,7 @@ def validate_project(root: Path) -> list[str]:
     if schedule.get("optional_carryover_missions") != publication.get(
         "optional_carryover_per_workday"
     ):
-        errors.append(
-            "carryover: schedule and publication limits must match; null means unlimited"
-        )
+        errors.append("carryover: schedule and publication limits must match; null means unlimited")
 
     expected_gate_ids = [str(phase["id"]) for phase in phases]
     actual_gate_ids = set(progress.get("phase_gates", {}))
@@ -173,7 +174,8 @@ def validate_project(root: Path) -> list[str]:
     if cognitive_tasks and progress.get("workflow_version") != COGNITIVE_WORKFLOW:
         errors.append("progress: cognitive tasks require the cognitive workflow version")
     assessed_tasks = cognitive_tasks + [
-        task for task in progress.get("tasks", {}).values()
+        task
+        for task in progress.get("tasks", {}).values()
         if task.get("workflow_version") != COGNITIVE_WORKFLOW
         and any(
             checkpoint.get("assessment") in {"formative", "summative"}
@@ -184,7 +186,8 @@ def validate_project(root: Path) -> list[str]:
         task_id = task.get("id", "<unknown>")
         required_fields = (
             ("weekly_project_id", "learning_goal", "success_criteria")
-            if task.get("workflow_version") == COGNITIVE_WORKFLOW else ()
+            if task.get("workflow_version") == COGNITIVE_WORKFLOW
+            else ()
         )
         for field in required_fields:
             if not task.get(field):
@@ -287,7 +290,7 @@ def validate_project(root: Path) -> list[str]:
                 "written_handoff",
             ]:
                 errors.append(f"plans: new task {task_id} has invalid checkpoint ids")
-        week_path = root / plan["path"]
+        week_path = drafts.plan_path(root, plan["path"]) if include_drafts else root / plan["path"]
         if not week_path.exists():
             errors.append(f"plans: weekly file is missing for {week_value}")
         else:

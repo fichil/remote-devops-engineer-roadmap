@@ -7,6 +7,8 @@ from collections.abc import Sequence
 from datetime import date
 from pathlib import Path
 
+from devops_coach import drafts
+from devops_coach.drafts import load_progress
 from devops_coach.lab import prepare_friday_reproduction, prepare_week_lab, week_lab_status
 from devops_coach.migration import (
     COGNITIVE_WORKFLOW_VERSION,
@@ -28,7 +30,7 @@ from devops_coach.publication import (
     recover_publications,
 )
 from devops_coach.review import review_week
-from devops_coach.storage import load_json, load_yaml, project_root
+from devops_coach.storage import load_yaml, project_root
 from devops_coach.validation import validate_project
 
 
@@ -36,6 +38,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="devops-coach", description="Evidence-based DevOps coach")
     parser.add_argument("--root", type=Path, default=project_root(), help=argparse.SUPPRESS)
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    draft_parser = subparsers.add_parser("drafts", help="Manage private unpublished progress")
+    draft_actions = draft_parser.add_subparsers(dest="draft_action", required=True)
+    importer = draft_actions.add_parser("import", help="Back up and import legacy working changes")
+    modes = importer.add_mutually_exclusive_group(required=True)
+    modes.add_argument("--dry-run", action="store_true")
+    modes.add_argument("--apply", action="store_true")
+    importer.add_argument("--json", action="store_true")
 
     migrate_parser = subparsers.add_parser("migrate", help="Migrate active data")
     migrate_target = migrate_parser.add_mutually_exclusive_group(required=True)
@@ -46,7 +56,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Migrate active missions to the cognitive-apprenticeship workflow",
     )
     migrate_target.add_argument(
-        "--refresh-teaching", action="store_true",
+        "--refresh-teaching",
+        action="store_true",
         help="Refresh unfinished teaching text without changing evidence or assessments",
     )
     migrate_parser.add_argument("--dry-run", action="store_true")
@@ -121,14 +132,27 @@ def build_parser() -> argparse.ArgumentParser:
     review_parser.add_argument("--week", default=date.today().strftime("%G-W%V"))
 
     subparsers.add_parser("status", help="Show current structured progress")
-    subparsers.add_parser("validate", help="Validate schemas, roadmap, and planning sync")
+    validator = subparsers.add_parser("validate", help="Validate published schemas and plans")
+    validator.add_argument(
+        "--drafts", action="store_true", help="Validate effective local progress"
+    )
     return parser
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def _main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     root = args.root.resolve()
+    if args.command == "drafts":
+        print(
+            json.dumps(drafts.import_drafts(root, apply=args.apply), ensure_ascii=False, indent=2)
+        )
+        return 0
     if args.command == "migrate":
+        if drafts.enabled(root):
+            raise drafts.DraftError(
+                "Schema/teaching migrations require separate draft-aware maintenance; "
+                "private progress is preserved"
+            )
         if args.refresh_teaching:
             summary = refresh_teaching(root, dry_run=args.dry_run)
         elif args.to_training:
@@ -188,7 +212,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         payload: dict[str, object] = {"task": task}
         if task["status"] == "done":
-            progress = load_json(root / "state" / "progress.json")
+            progress = load_progress(root)
             completed = next(
                 item
                 for item in progress["completion_log"]
@@ -200,11 +224,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     args.date,
                     completed["kind"],
                     apply=True,
-                    task_id=(
-                        completed["task_id"]
-                        if completed["kind"] == "carryover"
-                        else None
-                    ),
+                    task_id=(completed["task_id"] if completed["kind"] == "carryover" else None),
                 )
             except PublicationError as exc:
                 payload["publication"] = {
@@ -260,7 +280,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
     if args.command == "status":
-        progress = load_json(root / "state" / "progress.json")
+        progress = load_progress(root)
         learner = load_yaml(root / "config" / "learner.yml")
         summary = project_summary(learner, progress, date.today())
         summary["blockers"] = progress["blockers"]
@@ -268,7 +288,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
     if args.command == "validate":
-        errors = validate_project(root)
+        errors = validate_project(root, include_drafts=args.drafts)
         if errors:
             print("Validation failed:")
             for error in errors:
@@ -280,3 +300,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         return 0
     return 2
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    try:
+        return _main(argv)
+    except drafts.DraftError as exc:
+        print(json.dumps({"status": "blocked", "error": str(exc)}, ensure_ascii=False))
+        return 1
