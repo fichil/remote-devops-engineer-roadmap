@@ -374,12 +374,15 @@ def test_write_lock_blocks_another_writer(project_copy: Path):
         drafts.save_progress(project_copy, progress)
 
 
-def complete_without_artifact(root: Path, target: date, tid: str, score: int = 4):
+def complete_without_artifact(
+    root: Path, target: date, tid: str, score: int = 4,
+    evidence: str = "verified learner evidence",
+):
     for checkpoint in ("briefing", "lab", "written_handoff"):
         record_checkpoint(
             root, tid, checkpoint, "done",
             score if checkpoint == "written_handoff" else None,
-            "verified learner evidence", target, hint_level_used=0, independent=True,
+            evidence, target, hint_level_used=0, independent=True,
             evidence_details={
                 "prediction": "expected variation",
                 "learner_action": "own action",

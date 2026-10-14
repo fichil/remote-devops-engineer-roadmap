@@ -69,8 +69,8 @@ def validate_state_scope(
     if task_definition(original) != task_definition(candidate):
         raise ValueError(f"Unrelated task definition changes: {task_id}")
     expected["tasks"][task_id] = candidate
-    update_task_gate(expected, candidate)
     expected.setdefault("completion_log", []).append(completion)
+    update_task_gate(expected, candidate)
     expected["updated_at"] = after.get("updated_at")
     for key in sorted(set(expected) | set(after)):
         if expected.get(key) == after.get(key):
