@@ -1,0 +1,61 @@
+{
+  "task_id": "2026-W40-05-mission",
+  "scheduled_for": "2026-10-02",
+  "completed_on": "2026-10-14",
+  "privacy_note": "Local CA and material paths represented by <case>. Test-only hostnames and loopback addresses. Learner wording retained; commands document evidence, not a reusable runbook.",
+  "original_acceptance": {
+    "url": "https://api.lab.test:60166/health",
+    "status": 200,
+    "body": "service-ready",
+    "normal_tls_verification_required": true
+  },
+  "prediction": "不确定",
+  "steps": [
+    {
+      "learner_action": "curl.exe --disable --noproxy \"*\" --max-time 10 --include --cacert \"$ca\" --resolve \"api.lab.test:60166:127.0.0.1\" \"https://api.lab.test:60166/health\"",
+      "observed_result": "curl: (60) schannel: CertGetNameString() failed to match connection hostname (api.lab.test) against server certificate names\nMore details here: https://curl.se/docs/sslcerts.html\n\ncurl failed to verify the legitimacy of the server and therefore could not\nestablish a secure connection to it.\n$LASTEXITCODE: 60",
+      "interpretation": "请求停在域名验证时，这个证书里没有包含这个域名",
+      "prediction": "不确定"
+    },
+    {
+      "learner_action": "Get-Content -LiteralPath <case>/deployment.json\ncurl.exe --disable --noproxy \"*\" --max-time 10 --include --cacert \"$ca\" --resolve \"backend.lab.test:60166:127.0.0.1\" \"https://backend.lab.test:60166/health\"\n$LASTEXITCODE",
+      "observed_result": "HTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 10\nConnection: close\n\nnot-found\n$LASTEXITCODE: 0",
+      "interpretation": "修正了请求的域名为证书中匹配的名称，但是接口没有找到，根据部署说明，应该修改接口为/ready",
+      "observed_deployment": {
+        "service_name": "backend.lab.test",
+        "health_path": "/ready",
+        "https_port": 60166,
+        "bind_address": "127.0.0.1",
+        "response_status": 200,
+        "response_body": "service-ready"
+      }
+    },
+    {
+      "learner_action": "curl.exe --disable --noproxy \"*\" --max-time 10 --include --cacert \"$ca\" --resolve \"backend.lab.test:60166:127.0.0.1\" \"https://backend.lab.test:60166/ready\"",
+      "observed_result": "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 14\nConnection: close\n\nservice-ready",
+      "interpretation": "结果符合预期",
+      "exit_code": 0
+    }
+  ],
+  "initial_handoff": "1、The old path is not be in service certificate and /health interface is missing.\n2、The new path is return response code 200 and content \"service-ready\".\n3、The suggestion of Next step is add domain \"api.lab.test\" to the service certificate and change interface \"/ready\" to \"health\".",
+  "final_handoff": "1、The old hostname is not be in service certificate and path /health is missing.\n2、The new hostname and path /ready is return response code 200 and content \"service-ready\".\n3、The suggestion of Next step is add domain \"api.lab.test\" to the service certificate and change interface \"/ready\" to \"/health\".",
+  "assessment": {
+    "score": 3,
+    "hint_level_used": 1,
+    "next_review": "2026-10-21",
+    "reason": "Learner constructed requests and diagnosed certificate-name mismatch separately from HTTP404, then verified the new deployment endpoint. Coach provided targeted direction to isolate original-path behavior and corrected hostname versus path wording before final handoff. No full command was supplied for this variation, but assistance means no hint-free mastery claim. Uncertain prediction and English grammar are not score penalties."
+  },
+  "coach_feedback": "TLS name verification concerns the URL hostname, not HTTP path. Adding a hostname requires issuing a new certificate; no certificate or route repair was performed. New endpoint success does not establish original-contract restoration. Coach explanations are not learner-authored evidence.",
+  "coach_corroboration": {
+    "independent_http_requests_observed": [
+      "GET /health HTTP/1.1",
+      "GET /ready HTTP/1.1"
+    ],
+    "exact_timestamp_not_inferred_for_first_tls_failure": true,
+    "new_endpoint_event_utc": "2026-10-14T09:50:32.737458+00:00",
+    "shutdown_event_utc": "2026-10-14T10:00:06.779808+00:00",
+    "private_keys_memory_only": true,
+    "environment": "Wednesday carryover reused original W40 work clone; no claim of a fresh Friday reproduction."
+  },
+  "delivery_scope": "Diagnosis and proposed restoration; original acceptance endpoint remains unrepaired."
+}

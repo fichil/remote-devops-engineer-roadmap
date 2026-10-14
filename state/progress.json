@@ -280,6 +280,15 @@
       "evidence": "环境阻塞，未评分：教练准备本机HTTP到HTTPS带练。第一跳302预检成功，但Windows SslStream拒绝纯内存临时密钥（platform does not support ephemeral keys），客户端退出35；备用OpenSSL无法从/dev/stdin或标准输入标记读取服务端密钥。实际错误保存在private/labs/2026-W40/work/cases/redirect-guided/，临时服务均已关闭，未把失败归因于学习者。此前学习者选择检查新地址证书，但理由基于迁移成本，关于TLS发生在HTTP路径请求前的解释属于教练反馈，不冒充学习者理解证据。讲解阶段保持未完成；未创建PR或发布。\n环境恢复：2026-10-14拉取5e02a51后，在原W40私有实验内改用pyOpenSSL内存证书并提供签名本地CRL。教练实测第一跳302/退出0、有效对照302后200 service-ready/退出0、过期证书302后curl60 not time valid且无HTTP请求到达故障HTTPS应用。旧错误保留，新的教练预检保存在redirect-runtime会话目录。仅解除环境阻塞，讲解检查点继续in_progress，不计分、不视为学习者完成。\n学习者实际提交第一跳查询：HTTP/1.0 302 Found，Location为https://127.0.0.1:57084/health，Content-Length为0，退出码0。学习者自主解释：Location告诉客户端接下来去https://127.0.0.1:57084/health。该观察支持第一跳已有响应及下一跳地址，不证明第二跳已成功。完整查询命令由教练提供，此证据为形成性，不评分。 | 学习者执行教练完整提供的跟随重定向命令并指定实验CA。真实第一跳HTTP302，Location为https://127.0.0.1:57084/health；之后curl60报告证书链时间无效，退出码60。学习者自主解释：停在第二跳，在验证证书这一步上。本机日志对应第一跳响应及TLS连接终止；没有第二跳HTTP请求记录。形成性带练，无评分，不冒充独立迁移；未提交额外事前预测，不补造。 | 学习者无完整命令提示完成新独立变化题，真实链为302→302→404，curl退出码0。自主重建三跳并判断未达到200/service-ready验收，进一步定位第二跳Location应指向/health。提交四句英文交接；路径/satus在一次具体纠正提示后改为真实/status，提示等级1、评分3/5。复测2026-10-21；不确定预测和英语语法不扣分。仅诊断与建议，未执行修复或宣称复验成功；实验已关闭。",
       "kind": "carryover",
       "task_id": "2026-W40-04-mission"
+    },
+    {
+      "artifacts": [
+        "evidence/week-10/http-tls-boss.json"
+      ],
+      "date": "2026-10-14",
+      "evidence": "学习者在讲解后自主判断：不同意，忽略证书身份错误不能保证响应消息是目标服务响应的。能区分HTTP响应内容满足要求与TLS服务身份可信；本条为形成性理解证据，不评分，尚未完成实际带练。 | 学习者执行教练完整提供的curl命令，实验CA正常验证，--resolve把api.lab.test:60166连接到127.0.0.1。实际HTTP200、service-ready、退出码0，与日志09:18:46UTC对应。随后学习者自主说明地址映射与域名证书验证的关系；对“dns解析到？”的不确定和“由域名提供服务”的用词作澄清，教练澄清单独保留不冒充其解释。形成性带练完成，无评分。 | 学习者独立构造请求，原api.lab.test/health因证书名称不匹配退出60；改用匹配的backend.lab.test检查原/health，得到HTTP404与退出0；随后验证部署说明中的/ready，得到HTTP200、service-ready与退出0。学习者逐次解释并提交三句英文交接，提出恢复原域名证书与路径的建议；未实际修复原验收地址。过程有隔离原路径的方向提示以及hostname/path概念纠正，提示等级1，评分3/5，复测2026-10-21。不确定预测及语法不扣分。原W40实验于周三复用，临时进程已关闭，非新副本复现证据。",
+      "kind": "carryover",
+      "task_id": "2026-W40-05-mission"
     }
   ],
   "current_phase": "foundations",
@@ -4767,15 +4776,24 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W40-05-mission": {
-      "carryover_activated_on": null,
+      "artifacts": [
+        "evidence/week-10/http-tls-boss.json"
+      ],
+      "carryover_activated_on": "2026-10-14",
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在讲解后自主判断：不同意，忽略证书身份错误不能保证响应消息是目标服务响应的。能区分HTTP响应内容满足要求与TLS服务身份可信；本条为形成性理解证据，不评分，尚未完成实际带练。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "不同意，忽略证书身份错误不能保证响应消息是目标服务响应的",
+            "learner_action": "对忽略证书身份错误后取得200/service-ready是否可验收作判断。",
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -4783,7 +4801,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -4791,9 +4809,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者执行教练完整提供的curl命令，实验CA正常验证，--resolve把api.lab.test:60166连接到127.0.0.1。实际HTTP200、service-ready、退出码0，与日志09:18:46UTC对应。随后学习者自主说明地址映射与域名证书验证的关系；对“dns解析到？”的不确定和“由域名提供服务”的用词作澄清，教练澄清单独保留不冒充其解释。形成性带练完成，无评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "--resolve 把api.lab.test:60166映射到（dns解析到？）127.0.0.1，证书验证这个服务是由这个域名提供的",
+            "learner_action": "curl.exe --disable --noproxy \"*\" --max-time 10 --include --cacert \"$ca\" --resolve \"api.lab.test:60166:127.0.0.1\" \"https://api.lab.test:60166/health\"",
+            "observed_result": "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 14\nConnection: close\n\nservice-ready\n$LASTEXITCODE: 0",
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -4801,44 +4825,52 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
         {
-          "artifacts": [],
+          "artifacts": [
+            "evidence/week-10/http-tls-boss.json"
+          ],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者独立构造请求，原api.lab.test/health因证书名称不匹配退出60；改用匹配的backend.lab.test检查原/health，得到HTTP404与退出0；随后验证部署说明中的/ready，得到HTTP200、service-ready与退出0。学习者逐次解释并提交三句英文交接，提出恢复原域名证书与路径的建议；未实际修复原验收地址。过程有隔离原路径的方向提示以及hostname/path概念纠正，提示等级1，评分3/5，复测2026-10-21。不确定预测及语法不扣分。原W40实验于周三复用，临时进程已关闭，非新副本复现证据。",
+          "evidence_details": {
+            "handoff": "1、The old hostname is not be in service certificate and path /health is missing.\n2、The new hostname and path /ready is return response code 200 and content \"service-ready\".\n3、The suggestion of Next step is add domain \"api.lab.test\" to the service certificate and change interface \"/ready\" to \"/health\".",
+            "interpretation": "请求停在域名验证时，这个证书里没有包含这个域名；修正了请求的域名为证书中匹配的名称，但是接口没有找到，根据部署说明，应该修改接口为/ready；结果符合预期",
+            "learner_action": "curl.exe --disable --noproxy \"*\" --max-time 10 --include --cacert \"$ca\" --resolve \"api.lab.test:60166:127.0.0.1\" \"https://api.lab.test:60166/health\"\n\nGet-Content -LiteralPath <case>/deployment.json\ncurl.exe --disable --noproxy \"*\" --max-time 10 --include --cacert \"$ca\" --resolve \"backend.lab.test:60166:127.0.0.1\" \"https://backend.lab.test:60166/health\"\n$LASTEXITCODE\n\ncurl.exe --disable --noproxy \"*\" --max-time 10 --include --cacert \"$ca\" --resolve \"backend.lab.test:60166:127.0.0.1\" \"https://backend.lab.test:60166/ready\"",
+            "observed_result": "curl: (60) schannel: CertGetNameString() failed to match connection hostname (api.lab.test) against server certificate names\nMore details here: https://curl.se/docs/sslcerts.html\n\ncurl failed to verify the legitimacy of the server and therefore could not\nestablish a secure connection to it.\n$LASTEXITCODE: 60\n\nHTTP/1.1 404 Not Found\nContent-Type: text/plain\nContent-Length: 10\nConnection: close\n\nnot-found\n$LASTEXITCODE: 0\n\nHTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 14\nConnection: close\n\nservice-ready\n$LASTEXITCODE: 0",
+            "prediction": "不确定"
+          },
+          "hint_level_used": 1,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "使用 friday_variation 且无完整命令；学习者独立提交请求或检查方法、预测、脱敏结果、解释和结论，并写 2–4 句英语交付。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-10-21",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-10-14",
       "created_on": "2026-10-02",
       "curriculum_week": 10,
-      "evidence": null,
+      "evidence": "学习者在讲解后自主判断：不同意，忽略证书身份错误不能保证响应消息是目标服务响应的。能区分HTTP响应内容满足要求与TLS服务身份可信；本条为形成性理解证据，不评分，尚未完成实际带练。 | 学习者执行教练完整提供的curl命令，实验CA正常验证，--resolve把api.lab.test:60166连接到127.0.0.1。实际HTTP200、service-ready、退出码0，与日志09:18:46UTC对应。随后学习者自主说明地址映射与域名证书验证的关系；对“dns解析到？”的不确定和“由域名提供服务”的用词作澄清，教练澄清单独保留不冒充其解释。形成性带练完成，无评分。 | 学习者独立构造请求，原api.lab.test/health因证书名称不匹配退出60；改用匹配的backend.lab.test检查原/health，得到HTTP404与退出0；随后验证部署说明中的/ready，得到HTTP200、service-ready与退出0。学习者逐次解释并提交三句英文交接，提出恢复原域名证书与路径的建议；未实际修复原验收地址。过程有隔离原路径的方向提示以及hostname/path概念纠正，提示等级1，评分3/5，复测2026-10-21。不确定预测及语法不扣分。原W40实验于周三复用，临时进程已关闭，非新副本复现证据。",
       "id": "2026-W40-05-mission",
       "learning_goal": "综合请求响应与 TLS 证据完成安全的 Web 链路诊断。",
-      "next_review": null,
+      "next_review": "2026-10-21",
       "phase": "foundations",
       "queue_order": 1078,
       "scenario": "新接手人必须从裸远程新副本启动本地服务并独立证明 URL、HTTP 响应和 TLS 身份是否满足契约。",
       "scheduled_for": "2026-10-02",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能解释 URL、方法、路径、请求头、状态码、响应头和响应体的作用。",
         "能区分 TCP、TLS 握手、证书身份与 HTTP 应用响应。",
@@ -5733,7 +5765,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-10-14T16:54:21+08:00",
+  "updated_at": "2026-10-14T18:00:59+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
