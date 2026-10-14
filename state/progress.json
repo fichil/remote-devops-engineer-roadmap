@@ -262,6 +262,15 @@
       "evidence": "学习者原话：没有太理解问题,这些命令是同事的重启命名吗?旧错误消失后应该再检查会不会导致其他原有功能出现问题吧。仅记录本人提出修复后应检查原有功能是否受到影响的理解；本人同时明确没有理解题目并询问文件命令是否为重启。尚未自主说明原验收目标是否已达到，也没有执行新的命令。教练返回讲解与示范，检查点保持进行中、形成性、不评分。 | 新增本人证据：学习者执行已完整提供的 Get-Content -LiteralPath <本地实验 response.txt 的绝对路径> -Encoding utf8 -ErrorAction Stop，然后立即查询 $?。绝对路径仅在私有原始提交中保留。 学习者实际输出 maintenance；紧接着的 PowerShell $? 为 True。教练只读复核当前内容 maintenance，读取状态 True，目标与既有备份的 SHA256 相同。教练复核与学习者观察分开。 学习者原话：验收目标是扫描,如果是显示service-ready是目标的话,没有达到验收目标。接受其针对预先声明 service-ready 目标所作的未达标判断，结合本人此前提出的回归检查，完成讲解与示范。教练澄清：本题验收是约定内容，不增加任何扫描要求；不把该解释记为学习者自己的解释。形成性、不评分，不扩充为服务修复成功或独立掌握。 | 学习者事前原话：responese.txt的内容变成service-ready。学习者执行完整提供的命令：将 $target 设为本地实验 response.txt 的绝对路径；Set-Content -LiteralPath $target -Value \"service-ready\" -Encoding utf8 -ErrorAction Stop；立即 $?；Get-Content -LiteralPath $target -Encoding utf8 -ErrorAction Stop；立即 $?。 本人提交写入状态 True、读取正文 service-ready、读取状态 True。 本人解释：确认达到目标。教练只读复核目标为 service-ready，备份仍为 maintenance 且备份 SHA256 与修复前记录相同；教练核验不冒充学习者观察。接受本地文件内容验收成功，未扩大为 HTTP 或真实服务恢复证明。完整命令提示后的引导练习，形成性、不评分；还需回滚演练及结果解释，保持进行中。 | 新增回滚带练证据：学习者将 $target/$backup 指向同一私有实验中的 response.txt/response.before.txt，执行完整提供的 Copy-Item -LiteralPath $backup -Destination $target -ErrorAction Stop；立即 $?；Get-Content -LiteralPath $target -Encoding utf8 -ErrorAction Stop；立即 $?。 本人输出复制状态 True、读回正文 maintenance、读取状态 True。 本人原话：已经恢复到修改前状态。教练只读核对目标与备份均为 maintenance，SHA256 均与最初原文件记录相同；这是教练复核，不扩充为本人执行哈希核对。修复和回滚操作均有本人实际结果及解释，引导练习完成、形成性、不评分。未证明独立掌握或实际服务恢复。 | 学习者在禁止重启的变化条件中自行备份并验证原内容，预测后修改目标文件，分别提交两个 HTTP 接口的实际结果和解释；本人英文交接说明改动、结果、未重启及备份恢复方向、HTTP200/maintenance 回滚预期。交接文件名和验证端口经具体反馈修正，提示等级1，评分3，七日后复测；不是零提示掌握。原始提交保留私有目录，脱敏证据显式登记。独立阶段未实际执行回滚；带练阶段已有回滚执行证据，不能混记。",
       "kind": "primary",
       "task_id": "2026-W42-03-mission"
+    },
+    {
+      "artifacts": [
+        "evidence/week-10/tls-identity.json"
+      ],
+      "date": "2026-10-14",
+      "evidence": "学习者原话：不能，san没用加上请求不了。针对可信实验CA、有效期内但SAN仅api.lab.test而请求metrics.lab.test的案例，学习者否定身份验证成功，并指出SAN未包含请求名称。教练补充：这是名称匹配失败，不等于服务器无法连接；这一精确表述属于教练反馈，不冒充学习者原话。形成性检查点，不评分。 | 保留历史带练错误：误写-chckhost并多传metrics得到unknown options，纠正后名称检查返回不匹配和退出码1。本次学习者先把CA证书误作最终目标，实际error26 unsuitable certificate purpose与error62 hostname mismatch、退出码2；更正为guided-server.pem后，实际CN=api.lab.test、error62 hostname mismatch、退出码2。学习者原解释：这个签发的证书是的域名是api.lab.test和请求确认的证书metrics.lab.test不一致。另解释：因为可信CA签发的证书可能是签发给其他主机的证书。形成性不评分。 | 新独立变化题中学习者自行构造verify命令，实际error10 certificate has expired、退出码2，自主解释服务器证书过期并提交四句英文交接。此前未知签发链案例已退回带练，不作为独立评分。最终交接对签发渠道与复验条件需要教练提示，评分3/5、提示等级1；不确定预测及语法错误不扣分。详见显式登记的证据文件。",
+      "kind": "carryover",
+      "task_id": "2026-W40-03-mission"
     }
   ],
   "current_phase": "foundations",
@@ -4535,15 +4544,24 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W40-03-mission": {
-      "carryover_activated_on": null,
+      "artifacts": [
+        "evidence/week-10/tls-identity.json"
+      ],
+      "carryover_activated_on": "2026-10-14",
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者原话：不能，san没用加上请求不了。针对可信实验CA、有效期内但SAN仅api.lab.test而请求metrics.lab.test的案例，学习者否定身份验证成功，并指出SAN未包含请求名称。教练补充：这是名称匹配失败，不等于服务器无法连接；这一精确表述属于教练反馈，不冒充学习者原话。形成性检查点，不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -4551,7 +4569,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -4559,9 +4577,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "保留历史带练错误：误写-chckhost并多传metrics得到unknown options，纠正后名称检查返回不匹配和退出码1。本次学习者先把CA证书误作最终目标，实际error26 unsuitable certificate purpose与error62 hostname mismatch、退出码2；更正为guided-server.pem后，实际CN=api.lab.test、error62 hostname mismatch、退出码2。学习者原解释：这个签发的证书是的域名是api.lab.test和请求确认的证书metrics.lab.test不一致。另解释：因为可信CA签发的证书可能是签发给其他主机的证书。形成性不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "学习者原解释：这个签发的证书是的域名是api.lab.test和请求确认的证书metrics.lab.test不一致。教练反馈：请求名不同于证书允许的身份；该离线结果仅证明本次名称验证失败，不证明网络不可达、全部其他验证项通过或真实TLS握手结果。",
+            "learner_action": "& 'D:\\apps\\git\\Git\\usr\\bin\\openssl.exe' verify -CAfile '.\\private\\labs\\2026-W40\\work\\tls\\guided-ca.pem' -purpose sslserver -verify_hostname metrics.lab.test '.\\private\\labs\\2026-W40\\work\\tls\\guided-server.pem'",
+            "observed_result": "CN=api.lab.test；error62 at 0 depth lookup: hostname mismatch；verification failed；立即读取的LASTEXITCODE为2。",
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -4569,44 +4593,52 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
         {
-          "artifacts": [],
+          "artifacts": [
+            "evidence/week-10/tls-identity.json"
+          ],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "新独立变化题中学习者自行构造verify命令，实际error10 certificate has expired、退出码2，自主解释服务器证书过期并提交四句英文交接。此前未知签发链案例已退回带练，不作为独立评分。最终交接对签发渠道与复验条件需要教练提示，评分3/5、提示等级1；不确定预测及语法错误不扣分。详见显式登记的证据文件。",
+          "evidence_details": {
+            "handoff": "I checked server certificate in <case>\\case-server.pem. It's failed because it has expired. Next you can check its CA web site, and get a new certificate. Expected is run verify and succeed.",
+            "interpretation": "验证失败，服务器证书过期",
+            "learner_action": "& \"<openssl.exe>\" verify -CAfile \"<case>\\case-ca.pem\" -verify_hostname \"api.lab.test\" -purpose sslserver \"<case>\\case-server.pem\"\n$LASTEXITCODE",
+            "observed_result": "CN=api.lab.test\nerror 10 at 0 depth lookup: certificate has expired\nerror <case>\\case-server.pem: verification failed\n$LASTEXITCODE: 2",
+            "prediction": "不确定"
+          },
+          "hint_level_used": 1,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "教练改为主机名正确但签发链未知；学习者独立判断、提供预测、结果和解释，并写 2–4 句英语 TLS handoff。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-10-21",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-10-14",
       "created_on": "2026-09-30",
       "curriculum_week": 10,
-      "evidence": null,
+      "evidence": "学习者原话：不能，san没用加上请求不了。针对可信实验CA、有效期内但SAN仅api.lab.test而请求metrics.lab.test的案例，学习者否定身份验证成功，并指出SAN未包含请求名称。教练补充：这是名称匹配失败，不等于服务器无法连接；这一精确表述属于教练反馈，不冒充学习者原话。形成性检查点，不评分。 | 保留历史带练错误：误写-chckhost并多传metrics得到unknown options，纠正后名称检查返回不匹配和退出码1。本次学习者先把CA证书误作最终目标，实际error26 unsuitable certificate purpose与error62 hostname mismatch、退出码2；更正为guided-server.pem后，实际CN=api.lab.test、error62 hostname mismatch、退出码2。学习者原解释：这个签发的证书是的域名是api.lab.test和请求确认的证书metrics.lab.test不一致。另解释：因为可信CA签发的证书可能是签发给其他主机的证书。形成性不评分。 | 新独立变化题中学习者自行构造verify命令，实际error10 certificate has expired、退出码2，自主解释服务器证书过期并提交四句英文交接。此前未知签发链案例已退回带练，不作为独立评分。最终交接对签发渠道与复验条件需要教练提示，评分3/5、提示等级1；不确定预测及语法错误不扣分。详见显式登记的证据文件。",
       "id": "2026-W40-03-mission",
       "learning_goal": "区分加密通道、证书信任和服务身份匹配。",
-      "next_review": null,
+      "next_review": "2026-10-21",
       "phase": "foundations",
       "queue_order": 1076,
       "scenario": "本地 TLS 服务可握手，但证书标识与请求主机名不一致，不能用“端口能连”判断安全。",
       "scheduled_for": "2026-09-30",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能解释 URL、方法、路径、请求头、状态码、响应头和响应体的作用。",
         "能区分 TCP、TLS 握手、证书身份与 HTTP 应用响应。",
@@ -5669,7 +5701,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-10-14T11:19:58+08:00",
+  "updated_at": "2026-10-14T14:09:45+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",

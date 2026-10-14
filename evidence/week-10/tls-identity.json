@@ -1,0 +1,25 @@
+{
+  "task_id": "2026-W40-03-mission",
+  "scheduled_for": "2026-09-30",
+  "completed_on": "2026-10-14",
+  "privacy_note": "Local absolute paths replaced with <case> and <openssl.exe>; original learner submissions retained privately. Learner grammar unchanged. Commands are evidence, not a runnable runbook.",
+  "variation": "New independent case B after prior issuer-chain exercise was returned to guided practice.",
+  "prediction": "不确定",
+  "learner_action": "& \"<openssl.exe>\" verify -CAfile \"<case>\\case-ca.pem\" -verify_hostname \"api.lab.test\" -purpose sslserver \"<case>\\case-server.pem\"\n$LASTEXITCODE",
+  "observed_result": "CN=api.lab.test\nerror 10 at 0 depth lookup: certificate has expired\nerror <case>\\case-server.pem: verification failed\n$LASTEXITCODE: 2",
+  "interpretation": "验证失败，服务器证书过期",
+  "handoff": "I checked server certificate in <case>\\case-server.pem. It's failed because it has expired. Next you can check its CA web site, and get a new certificate. Expected is run verify and succeed.",
+  "assessment": {
+    "score": 3,
+    "hint_level_used": 1,
+    "next_review": "2026-10-21",
+    "reason": "Independent command and expiry diagnosis succeeded without a complete-command hint on this variation. Final handoff needed specific coaching about an unverified CA website and explicit revalidation criteria. Uncertain prediction and grammar errors are not score penalties. No repaired certificate or successful re-verification was submitted."
+  },
+  "coach_feedback": "No CA website was verified. Request renewal through the responsible certificate maintainer or approved issuer, then verify with the same trusted CA policy, expected hostname and server purpose. This guidance is coach-authored, not learner evidence.",
+  "coach_verification": {
+    "checked_at": "2026-10-14T14:09:44.933066+08:00",
+    "exit": 2,
+    "expired_leaf_confirmed": true,
+    "classification": "Read-only corroboration, not learner evidence"
+  }
+}
