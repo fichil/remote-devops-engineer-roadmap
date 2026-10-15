@@ -1,0 +1,14 @@
+报告导出 Runbook 草稿
+
+进入接手人的案例副本目录。
+创建目录 项目根目录\reference\   New-Item -Path './reference/' -ItemType Directory
+复制label.txt 项目根目录\package\reference\label.txt从 复制到 项目根目录\reference\label.txt，当原文件 项目根目录\package\reference\label.txt 不存在时停止并报告缺失  cp '.\package\reference\label.txt' '.\reference\'
+确认 peer/output 是目录；未具备运行条件时先停止。
+使用已验证的项目 Python 启动本副本的 export-report.py，选择 peer，并立即检查进程退出状态。
+只有标准输出为 report_written 且进程退出码为0时，继续读取本副本 peer/output/report.txt。
+报告内容应为 case-checked，并与本交付包资料的参考值一致。
+报错、非0退出或内容不符合预期时保留证据并停止成功验收，核对实际运行位置和相关材料。
+
+The label.txt is not in correct path.
+I copied this file to correct path.
+The result is in line with expectations.

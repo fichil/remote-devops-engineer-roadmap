@@ -289,6 +289,16 @@
       "evidence": "学习者在讲解后自主判断：不同意，忽略证书身份错误不能保证响应消息是目标服务响应的。能区分HTTP响应内容满足要求与TLS服务身份可信；本条为形成性理解证据，不评分，尚未完成实际带练。 | 学习者执行教练完整提供的curl命令，实验CA正常验证，--resolve把api.lab.test:60166连接到127.0.0.1。实际HTTP200、service-ready、退出码0，与日志09:18:46UTC对应。随后学习者自主说明地址映射与域名证书验证的关系；对“dns解析到？”的不确定和“由域名提供服务”的用词作澄清，教练澄清单独保留不冒充其解释。形成性带练完成，无评分。 | 学习者独立构造请求，原api.lab.test/health因证书名称不匹配退出60；改用匹配的backend.lab.test检查原/health，得到HTTP404与退出0；随后验证部署说明中的/ready，得到HTTP200、service-ready与退出0。学习者逐次解释并提交三句英文交接，提出恢复原域名证书与路径的建议；未实际修复原验收地址。过程有隔离原路径的方向提示以及hostname/path概念纠正，提示等级1，评分3/5，复测2026-10-21。不确定预测及语法不扣分。原W40实验于周三复用，临时进程已关闭，非新副本复现证据。",
       "kind": "carryover",
       "task_id": "2026-W40-05-mission"
+    },
+    {
+      "artifacts": [
+        "evidence/week-12/peer-reproduction-runbook.txt",
+        "evidence/week-12/peer-reproduction.json"
+      ],
+      "date": "2026-10-15",
+      "evidence": "在教练讲解前置条件、隐含依赖并示范作者成功而接手人因 output 目录缺失失败后，学习者原话：不能，接手人不能根据这份Runbook复现出作者原有的预期输出。教练示范结果不记为学习者操作证据。 | 学习者在完整提示带练中提交目录准备命令，原说明准备运行输出父目录；导出report_written及紧接退出码0，说明符合预期；读取case-checked并解释证明输入已经真实写入了，教练单独澄清报告输出术语。学习者本人撰写含创建、运行、验收和错误处理的Runbook，随后增加当前副本目录说明并改用相对路径，明确目录需换为接手人的项目路径。教练保留两版原文及旧路径/解释器拼写导致的真实复现失败。此次学习者实际进入接手人副本，使用正确项目解释器运行该副本相对脚本，报告report_written、紧接退出码0，Get-Content实读该副本报告case-checked，终端原文已保存在私有learner-guided-result-20261015-100217.txt。教练只读核对该副本报告，并依学习者允许替换项目目录及其实际确认的解释器修订，在另一份初始无output或报告的本地案例副本逐步复现：目录创建成功，导出report_written/退出0，报告内容case-checked。该文档复现是教练核对而非学习者独立证据。学习者的目录选择说明、预期条件及失败分支与实际结果一致，形成性引导练习完成，不评分。 | 学习者在输入依赖变化题中自行检查路径、阅读脚本和交付目录，找到参考文件；自行创建目录并复制原交付文件，先预测只解决上一报错仍需执行验证，再取得report_written、即时退出码0及本副本报告case-checked。本人修订Runbook并提供三句英文交接；教练按最终文档在初始无reference和报告的新案例副本复现成功。诊断和多次文档修订使用概念及步骤提示，提示等级2，评分3/5，七日后复测；不将教练核验记为学习者独立证据。",
+      "kind": "primary",
+      "task_id": "2026-W42-04-mission"
     }
   ],
   "current_phase": "foundations",
@@ -5597,15 +5607,25 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W42-04-mission": {
+      "artifacts": [
+        "evidence/week-12/peer-reproduction-runbook.txt",
+        "evidence/week-12/peer-reproduction.json"
+      ],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "在教练讲解前置条件、隐含依赖并示范作者成功而接手人因 output 目录缺失失败后，学习者原话：不能，接手人不能根据这份Runbook复现出作者原有的预期输出。教练示范结果不记为学习者操作证据。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "不能，接手人不能根据这份Runbook复现出作者原有的预期输出",
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -5613,7 +5633,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -5621,9 +5641,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在完整提示带练中提交目录准备命令，原说明准备运行输出父目录；导出report_written及紧接退出码0，说明符合预期；读取case-checked并解释证明输入已经真实写入了，教练单独澄清报告输出术语。学习者本人撰写含创建、运行、验收和错误处理的Runbook，随后增加当前副本目录说明并改用相对路径，明确目录需换为接手人的项目路径。教练保留两版原文及旧路径/解释器拼写导致的真实复现失败。此次学习者实际进入接手人副本，使用正确项目解释器运行该副本相对脚本，报告report_written、紧接退出码0，Get-Content实读该副本报告case-checked，终端原文已保存在私有learner-guided-result-20261015-100217.txt。教练只读核对该副本报告，并依学习者允许替换项目目录及其实际确认的解释器修订，在另一份初始无output或报告的本地案例副本逐步复现：目录创建成功，导出report_written/退出0，报告内容case-checked。该文档复现是教练核对而非学习者独立证据。学习者的目录选择说明、预期条件及失败分支与实际结果一致，形成性引导练习完成，不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "学习者文档明确需设置为自己的项目目录，目录确认存在后继续；程序退出码应为0，否则据报错检查；报告内容应为case-checked，报错或不一致时检查当前副本路径和上一步运行。早期原解释为：准备运行输出父目录；符合预期；证明输入已经真实写入了。",
+            "learner_action": "撰写并修订Runbook的操作目录、相对案例路径及预期/失败处理；实际Set-Location进入接手人副本，使用正确解释器运行该副本export-report.py --root peer，立即读取LASTEXITCODE，再读取该副本peer/output/report.txt。",
+            "observed_result": "学习者接手人副本终端输出report_written、紧接进程退出码0，报告读取内容case-checked；教练核对文件位于接手人副本，并在另一个空案例副本复现同样结果。",
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -5631,44 +5657,53 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
         {
-          "artifacts": [],
+          "artifacts": [
+            "evidence/week-12/peer-reproduction-runbook.txt",
+            "evidence/week-12/peer-reproduction.json"
+          ],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者在输入依赖变化题中自行检查路径、阅读脚本和交付目录，找到参考文件；自行创建目录并复制原交付文件，先预测只解决上一报错仍需执行验证，再取得report_written、即时退出码0及本副本报告case-checked。本人修订Runbook并提供三句英文交接；教练按最终文档在初始无reference和报告的新案例副本复现成功。诊断和多次文档修订使用概念及步骤提示，提示等级2，评分3/5，七日后复测；不将教练核验记为学习者独立证据。",
+          "evidence_details": {
+            "handoff": "The label.txt is not in correct path.\nI copied this file to correct path.\nThe result is in line with expectations.",
+            "interpretation": "学习者原话：属于路径不对。文件在正确的路径上只能说能解决上一个报错，不能说python脚本能够成功。支持我的预测，脚本按预期执行。",
+            "learner_action": "学习者自行执行Test-Path、Get-Content、ls和目录导航，定位交付参考文件；在案例根目录创建reference目录并从package/reference复制label.txt，核对文件，再运行本副本导出脚本并读取即时退出码和报告；自行修订Runbook。",
+            "observed_result": "初次reference_missing: reference/label.txt且退出2；定位原交付内容case-checked；修复后report_written、即时退出0、报告case-checked。教练另外验证最终Runbook在新副本复现同样结果。",
+            "prediction": "不确定。文件在正确的路径上只能说能解决上一个报错，不能说python脚本能够成功"
+          },
+          "hint_level_used": 2,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
           "independent": false,
           "instruction": "新条件移除另一个隐含依赖；学习者独立修订、预测、复现、解释，并用 2–4 句英语说明兼容性改进。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-10-22",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-10-15",
       "created_on": "2026-10-15",
       "curriculum_week": 12,
-      "evidence": null,
+      "evidence": "在教练讲解前置条件、隐含依赖并示范作者成功而接手人因 output 目录缺失失败后，学习者原话：不能，接手人不能根据这份Runbook复现出作者原有的预期输出。教练示范结果不记为学习者操作证据。 | 学习者在完整提示带练中提交目录准备命令，原说明准备运行输出父目录；导出report_written及紧接退出码0，说明符合预期；读取case-checked并解释证明输入已经真实写入了，教练单独澄清报告输出术语。学习者本人撰写含创建、运行、验收和错误处理的Runbook，随后增加当前副本目录说明并改用相对路径，明确目录需换为接手人的项目路径。教练保留两版原文及旧路径/解释器拼写导致的真实复现失败。此次学习者实际进入接手人副本，使用正确项目解释器运行该副本相对脚本，报告report_written、紧接退出码0，Get-Content实读该副本报告case-checked，终端原文已保存在私有learner-guided-result-20261015-100217.txt。教练只读核对该副本报告，并依学习者允许替换项目目录及其实际确认的解释器修订，在另一份初始无output或报告的本地案例副本逐步复现：目录创建成功，导出report_written/退出0，报告内容case-checked。该文档复现是教练核对而非学习者独立证据。学习者的目录选择说明、预期条件及失败分支与实际结果一致，形成性引导练习完成，不评分。 | 学习者在输入依赖变化题中自行检查路径、阅读脚本和交付目录，找到参考文件；自行创建目录并复制原交付文件，先预测只解决上一报错仍需执行验证，再取得report_written、即时退出码0及本副本报告case-checked。本人修订Runbook并提供三句英文交接；教练按最终文档在初始无reference和报告的新案例副本复现成功。诊断和多次文档修订使用概念及步骤提示，提示等级2，评分3/5，七日后复测；不将教练核验记为学习者独立证据。",
       "id": "2026-W42-04-mission",
       "learning_goal": "以陌生读者视角发现隐藏依赖并证明文档可重复。",
-      "next_review": null,
+      "next_review": "2026-10-22",
       "phase": "foundations",
       "queue_order": 1087,
       "scenario": "作者本机可以执行 Runbook，但接手人的全新副本缺少隐含目录和前置工具。",
       "scheduled_for": "2026-10-15",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "Runbook 明确前置条件、影响、安全边界、检查顺序、预期与分支判断。",
         "每个修复步骤都有验证、失败处理和可行回滚，而不是命令清单。",
@@ -5765,7 +5800,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-10-14T18:00:59+08:00",
+  "updated_at": "2026-10-15T11:29:01+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",

@@ -1,0 +1,52 @@
+{
+  "task_id": "2026-W42-04-mission",
+  "completed_on": "2026-10-15",
+  "scope": "本地报告导出案例；公开记录省略本机绝对路径，原始记录保留于私有实验目录。",
+  "learner_prediction": "不确定。文件在正确的路径上只能说能解决上一个报错，不能说python脚本能够成功",
+  "learner_actions": [
+    {"command": "Test-Path -Path '.\\peer\\output\\'", "output": "True"},
+    {"action": "使用已验证的项目 Python，以 -X utf8 执行本副本 export-report.py --root peer；绝对解释器路径已省略", "output": "reference_missing: reference/label.txt", "immediate_exit_code": 2},
+    {"command": "Test-Path -Path '.\\reference/lab.txt'", "output": "False", "limitation": "检查对象拼写与报错不一致；教练指出后修正。"},
+    {"command": "Test-Path -Path '.\\reference/label.txt'", "output": "False"},
+    {"command": "Get-Content -Path '.\\export-report.py'", "learner_interpretation": "路径出现在python中，但是找不到目录，应该补上这个目录"},
+    {"action": "在案例根目录执行 ls，依次进入 package 和 reference 并列出文件，再执行 Get-Content -Path '.\\label.txt'", "output": "case-checked", "learner_interpretation": "属于路径不对"},
+    {"command": "New-Item -Path './reference/' -ItemType Directory", "working_directory": "案例根目录", "output": "reference 目录创建成功"},
+    {"command": "cp '.\\package\\reference\\label.txt' '.\\reference\\'", "output": "未显示输出；随后检查目标文件"},
+    {"command": "Get-Item -Path '.\\reference\\label.txt'", "output": "label.txt 文件，长度 13"},
+    {"command": "Get-Content -Path '.\\reference\\label.txt'", "output": "case-checked"},
+    {"action": "使用已验证的项目 Python，以 -X utf8 执行本副本 export-report.py --root peer；绝对解释器路径已省略", "output": "report_written", "immediate_exit_code": 0},
+    {"command": "Get-Content -Path '.\\peer\\output\\report.txt'", "output": "case-checked", "learner_interpretation": "支持我的预测，脚本按预期执行"}
+  ],
+  "learner_handoff_verbatim": [
+    "The label.txt is not in correct path.",
+    "I copied this file to correct path.",
+    "The result is in line with expectations."
+  ],
+  "runbook_artifact": "evidence/week-12/peer-reproduction-runbook.txt",
+  "runbook_public_copy_note": "公开副本仅统一换行并去除行尾空格，保留学习者原文及语法；私有快照保留原始字节。",
+  "coach_verification": {
+    "attribution": "以下为教练核验，不作为学习者独立执行或解释。",
+    "copied_input_matches_supplied_reference_sha256": true,
+    "document_revision_history": [
+      "原文输入步骤存在文件名拼写错误、来源不明、复制与移动混用及目录准备缺失。",
+      "后续版本将文件名建成目录，并提出缺少参考资料时手写预期内容；教练指出对象类型和保留失败证据的要求，学习者自行修订。",
+      "改成直接创建文件的版本在新副本失败：父目录不存在。",
+      "最终学习者将自己实际执行过的目录创建和复制命令写入文档，并保留源文件缺失时停止的分支。"
+    ],
+    "fresh_copy_initial_state": "只含交付脚本、package/reference/label.txt、接收目录及既有 peer/output；根目录 reference 和输出报告均不存在。",
+    "replay": "依学习者最终 Runbook 创建目录、检查交付源文件、复制输入、确认输出目录，使用交接材料指定的解释器执行本副本导出工具并验收。",
+    "stdout": "report_written",
+    "exit_code": 0,
+    "report_label": "case-checked",
+    "label_matches_delivered_reference": true,
+    "limitation": "验证范围为本地案例初始状态与所附解释器前提；不宣称所有机器或重复运行条件均已覆盖。"
+  },
+  "assessment": {
+    "score": 3,
+    "hint_level_used": 2,
+    "independent": false,
+    "rationale": "学习者自行构造检查与修复命令，提交真实失败、预测、复验、修订文档及三句英文交接。诊断和文档修订仍需概念与步骤提示，故不计无提示掌握；预测不确定或预测错误本身不扣分。讲解和带练阶段不评分。",
+    "next_review": "2026-10-22",
+    "review_focus": "无提示区分目录与文件、当前目录与输入路径，并交付可从初始副本复现的步骤。"
+  }
+}
