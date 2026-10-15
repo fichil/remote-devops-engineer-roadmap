@@ -1,0 +1,68 @@
+{
+  "task_id": "2026-W41-01-mission",
+  "scheduled_for": "2026-10-05",
+  "completed_on": "2026-10-15",
+  "kind": "carryover",
+  "scope": "本地静态日志教学样本；不代表当前真实服务运行。公开记录省略本机绝对路径。",
+  "sample_lines": [
+    "2026-01-03T10:00:03Z INFO run=305 complete exit=0",
+    "2026-01-03T10:00:02Z ERROR run=304 destination_missing exit=2",
+    "2026-01-03T10:00:01Z INFO run=304 config_loaded",
+    "2026-01-03T09:59:59Z INFO run=3040 complete exit=0",
+    "2026-01-03T10:00:00Z INFO run=305 start",
+    "2026-01-03T10:00:00Z INFO run=304 start",
+    "2026-01-03T10:00:02Z ERROR run=304 destination_missing exit=2",
+    "2026-01-03T10:00:01Z ERROR run=306 source_missing exit=2"
+  ],
+  "sample_sha256": "634766D077DCE2208E3585E4D67590B256378A21C51D6CCE0670DAE0901E8995",
+  "learner_prediction_verbatim": "不确定",
+  "learner_action": {
+    "command_with_local_path_redacted": "Select-String -LiteralPath '<本案例 events.log 的绝对路径>' -Pattern 'run=304 ' -SimpleMatch",
+    "note": "学习者自行构造完整命令；这里只隐藏绝对路径，未补写新动作。",
+    "observed_matches": [
+      {
+        "line": 2,
+        "text": "2026-01-03T10:00:02Z ERROR run=304 destination_missing exit=2"
+      },
+      {
+        "line": 3,
+        "text": "2026-01-03T10:00:01Z INFO run=304 config_loaded"
+      },
+      {
+        "line": 6,
+        "text": "2026-01-03T10:00:00Z INFO run=304 start"
+      },
+      {
+        "line": 7,
+        "text": "2026-01-03T10:00:02Z ERROR run=304 destination_missing exit=2"
+      }
+    ],
+    "cmdlet_status": null,
+    "status_note": "未提交查询命令执行状态；日志中的exit=2不是本次查询的退出码。"
+  },
+  "learner_timeline_verbatim": "2026-01-03T10:00:00Z run=304启动、2026-01-03T10:00:01Z run=304加载配置、2026-01-03T10:00:02Z run=304报错 destination_missing 退出码是2",
+  "learner_duplicate_reason_verbatim": "是同一行记录的重复，两句日志包括时间完全一致",
+  "learner_handoff_verbatim": "The log showed the run=304 is destination missing. In 2026-01-03T10:00:00Z run= 304 started, In 2026-01-03T10:00:01Z run=304 loaded config, In 2026-01-03T10:00:02Z run=304 show error destination missing, the exit code is 2. In line 2th and 7th have two same logs, I thought these are the same one.",
+  "coach_verification": {
+    "attribution": "教练只读复核，不记为学习者执行或解释。",
+    "matched_lines": [
+      2,
+      3,
+      6,
+      7
+    ],
+    "other_runs_excluded": true,
+    "timeline_matches_event_timestamps": true,
+    "lines_2_and_7_identical": true,
+    "scope_limit": "支持对样本日志去重整理；仅凭相同文本不独立证明真实事件只发生一次。"
+  },
+  "assessment": {
+    "score": 3,
+    "hint_level_used": 1,
+    "independent": false,
+    "rationale": "筛选命令和初始时间线由学习者自行完成。重复记录判断在时间相同不足以判重的概念提示及聚焦比较后补齐，因此本次完整交付不计提示等级0。初始预测不确定、英文语法瑕疵及教练误读回答的沟通问题不作为扣分依据；讲解和带练不评分。",
+    "next_review": "2026-10-22",
+    "review_focus": "在无提示的新日志条件下筛选精确运行标识、按时间还原顺序、说明重复处理的依据并完成英文交接。",
+    "english_feedback_coach_only": "时间点前用at；行号可写lines 2 and 7。保留学习者原文，不将教练修订计为学习者证据。"
+  }
+}
