@@ -308,6 +308,15 @@
       "evidence": "学习者根据现有静态样本拒绝把run101的成功归给run102。原话：不认可，run-101运行完成，但是run=102报错destination_missin，exit是2。能区分运行实例并引用目标运行错误与退出码；拼写原样保留，教练展示的日志和解释不记为学习者操作证据。本阶段为形成性讲解与示范，不评分。 | 学习者执行完整提示的Select-String命令，按字面匹配run=102加尾随空格，提交job.log第3行启动和第4行destination_missing exit=2的真实输出。学习者解释原话：2026-01-02T00:00:00Z run=102启动，2026-01-02T00:00:01Z run=102报错 destination_missing  退出码2。教练只读核对源文件一致；终端视觉换行不视为额外日志事件。学习者未提交查询命令的执行状态，不补造。形成性引导练习完成，不评分。 | 学习者在静态乱序重复日志变化题中自行构造Select-String精确筛选run304，排除其他运行并取得第2、3、6、7行；按时间整理启动、加载配置、destination_missing并记录日志退出码2。初始预测不确定有效。经概念提示及聚焦比较后，学习者说明两句日志包括时间完全一致，作为重复记录处理依据；本人提交三句英文事件交接。教练核对源日志一致，不将查询退出状态或真实事件发生次数补造为证据。本次提示等级1，评分3/5，七日后复测；教练误读答题意图的沟通问题不扣分。",
       "kind": "carryover",
       "task_id": "2026-W41-01-mission"
+    },
+    {
+      "artifacts": [
+        "evidence/week-11/exit-contract.json"
+      ],
+      "date": "2026-10-15",
+      "evidence": "教练示范只检查配置文件存在性的本地工具：存在配置输出config_present/退出0，缺失配置输出config_missing/退出2，报告文件仍不存在。学习者拒绝仅凭退出0关闭生成报告工单，原话：不支持，退出码只能证明上一条命令实现是否正常，不能证明程序是否存在问题。教练单独澄清退出码是程序按自身约定报告的状态，本工具0只表明文件存在，不保证程序实现或业务产物全面正确；澄清不计为学习者原话。形成性讲解阶段完成，不评分。 | 学习者按完整提示先运行缺失配置检查，实际config_missing及即时退出码2，解释检查配置文件时没有通过；再将输入换为job.conf，实际config_present及即时退出码0，解释差别是使用的配置文件不同。教练只读核对两输入一缺失一存在，并单独澄清检查器只验证文件存在、不验证内容；该精确化解释不记为学习者原话。两次真实执行和学习者对输入差异的说明形成带练对照，形成性阶段完成，不评分或宣称独立掌握。 | 独立变化题使用存在但destination为空的配置。学习者预测不确定，自行构造Python校验命令及Get-Content检查，实际取得config_invalid: missing_or_empty destination、source=input/sample.txt与destination=；本人定位destination配置问题，随后实际读取LASTEXITCODE为3并提交三句英文交接。中间展示的Get-Content不改变原生进程退出码；未声称即时捕获或重新执行。教练只读核验脚本与配置一致，键存在值为空及退出3的一般契约说明独立归于教练反馈。无完整命令或诊断方案提示，提示等级0，独立评分4/5；不确定预测不扣分。",
+      "kind": "carryover",
+      "task_id": "2026-W41-02-mission"
     }
   ],
   "current_phase": "foundations",
@@ -5009,15 +5018,24 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W41-02-mission": {
-      "carryover_activated_on": null,
+      "artifacts": [
+        "evidence/week-11/exit-contract.json"
+      ],
+      "carryover_activated_on": "2026-10-15",
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "教练示范只检查配置文件存在性的本地工具：存在配置输出config_present/退出0，缺失配置输出config_missing/退出2，报告文件仍不存在。学习者拒绝仅凭退出0关闭生成报告工单，原话：不支持，退出码只能证明上一条命令实现是否正常，不能证明程序是否存在问题。教练单独澄清退出码是程序按自身约定报告的状态，本工具0只表明文件存在，不保证程序实现或业务产物全面正确；澄清不计为学习者原话。形成性讲解阶段完成，不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "不支持，退出码只能证明上一条命令实现是否正常，不能证明程序是否存在问题",
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -5025,7 +5043,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -5033,9 +5051,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者按完整提示先运行缺失配置检查，实际config_missing及即时退出码2，解释检查配置文件时没有通过；再将输入换为job.conf，实际config_present及即时退出码0，解释差别是使用的配置文件不同。教练只读核对两输入一缺失一存在，并单独澄清检查器只验证文件存在、不验证内容；该精确化解释不记为学习者原话。两次真实执行和学习者对输入差异的说明形成带练对照，形成性阶段完成，不评分或宣称独立掌握。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "检查配置文件时没有通过；差别是使用的配置文件不同",
+            "learner_action": "按完整提示分别对missing.conf和job.conf执行同一检查器，每次紧接读取LASTEXITCODE。",
+            "observed_result": "missing.conf：config_missing/退出2；job.conf：config_present/退出0。",
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -5043,33 +5067,41 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
         {
-          "artifacts": [],
+          "artifacts": [
+            "evidence/week-11/exit-contract.json"
+          ],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "独立变化题使用存在但destination为空的配置。学习者预测不确定，自行构造Python校验命令及Get-Content检查，实际取得config_invalid: missing_or_empty destination、source=input/sample.txt与destination=；本人定位destination配置问题，随后实际读取LASTEXITCODE为3并提交三句英文交接。中间展示的Get-Content不改变原生进程退出码；未声称即时捕获或重新执行。教练只读核验脚本与配置一致，键存在值为空及退出3的一般契约说明独立归于教练反馈。无完整命令或诊断方案提示，提示等级0，独立评分4/5；不确定预测不扣分。",
+          "evidence_details": {
+            "handoff": "I checked the validate-config.py. The error message is  missing or empty destination. The exit code is 3, it is means destination is missing or empty in config file.",
+            "interpretation": "配置文件中的destination配置不存在",
+            "learner_action": "自行构造Python调用本变化题validate-config.py并传入job.conf，使用Get-Content读取配置，随后读取LASTEXITCODE并提交本人英文交接。",
+            "observed_result": "config_invalid: missing_or_empty destination；配置内容source=input/sample.txt及destination=；随后读取LASTEXITCODE为3。",
+            "prediction": "不确定"
+          },
+          "hint_level_used": 0,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "新条件使用存在但内容无效的配置；学习者无完整命令独立验证，提交预测、实际输出、退出码解释和 2–4 句英语 handoff。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
           "next_review": null,
-          "score": null,
-          "status": "queued",
+          "score": 4,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-10-15",
       "created_on": "2026-10-06",
       "curriculum_week": 11,
-      "evidence": null,
+      "evidence": "教练示范只检查配置文件存在性的本地工具：存在配置输出config_present/退出0，缺失配置输出config_missing/退出2，报告文件仍不存在。学习者拒绝仅凭退出0关闭生成报告工单，原话：不支持，退出码只能证明上一条命令实现是否正常，不能证明程序是否存在问题。教练单独澄清退出码是程序按自身约定报告的状态，本工具0只表明文件存在，不保证程序实现或业务产物全面正确；澄清不计为学习者原话。形成性讲解阶段完成，不评分。 | 学习者按完整提示先运行缺失配置检查，实际config_missing及即时退出码2，解释检查配置文件时没有通过；再将输入换为job.conf，实际config_present及即时退出码0，解释差别是使用的配置文件不同。教练只读核对两输入一缺失一存在，并单独澄清检查器只验证文件存在、不验证内容；该精确化解释不记为学习者原话。两次真实执行和学习者对输入差异的说明形成带练对照，形成性阶段完成，不评分或宣称独立掌握。 | 独立变化题使用存在但destination为空的配置。学习者预测不确定，自行构造Python校验命令及Get-Content检查，实际取得config_invalid: missing_or_empty destination、source=input/sample.txt与destination=；本人定位destination配置问题，随后实际读取LASTEXITCODE为3并提交三句英文交接。中间展示的Get-Content不改变原生进程退出码；未声称即时捕获或重新执行。教练只读核验脚本与配置一致，键存在值为空及退出3的一般契约说明独立归于教练反馈。无完整命令或诊断方案提示，提示等级0，独立评分4/5；不确定预测不扣分。",
       "id": "2026-W41-02-mission",
       "learning_goal": "将退出码视为进程接口，同时验证它与业务结果是否一致。",
       "next_review": null,
@@ -5077,10 +5109,10 @@
       "queue_order": 1080,
       "scenario": "上游只检查是否出现 ERROR 文本，没有依据脚本退出契约判断自动化结果。",
       "scheduled_for": "2026-10-06",
-      "score": null,
+      "score": 4,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能按运行标识和时间重建事件序列，不混合不同执行实例。",
         "能区分 stdout、stderr、日志级别和进程退出码各自证明的事实。",
@@ -5832,7 +5864,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-10-15T13:39:43+08:00",
+  "updated_at": "2026-10-15T14:16:59+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
