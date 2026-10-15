@@ -317,6 +317,13 @@
       "evidence": "教练示范只检查配置文件存在性的本地工具：存在配置输出config_present/退出0，缺失配置输出config_missing/退出2，报告文件仍不存在。学习者拒绝仅凭退出0关闭生成报告工单，原话：不支持，退出码只能证明上一条命令实现是否正常，不能证明程序是否存在问题。教练单独澄清退出码是程序按自身约定报告的状态，本工具0只表明文件存在，不保证程序实现或业务产物全面正确；澄清不计为学习者原话。形成性讲解阶段完成，不评分。 | 学习者按完整提示先运行缺失配置检查，实际config_missing及即时退出码2，解释检查配置文件时没有通过；再将输入换为job.conf，实际config_present及即时退出码0，解释差别是使用的配置文件不同。教练只读核对两输入一缺失一存在，并单独澄清检查器只验证文件存在、不验证内容；该精确化解释不记为学习者原话。两次真实执行和学习者对输入差异的说明形成带练对照，形成性阶段完成，不评分或宣称独立掌握。 | 独立变化题使用存在但destination为空的配置。学习者预测不确定，自行构造Python校验命令及Get-Content检查，实际取得config_invalid: missing_or_empty destination、source=input/sample.txt与destination=；本人定位destination配置问题，随后实际读取LASTEXITCODE为3并提交三句英文交接。中间展示的Get-Content不改变原生进程退出码；未声称即时捕获或重新执行。教练只读核验脚本与配置一致，键存在值为空及退出3的一般契约说明独立归于教练反馈。无完整命令或诊断方案提示，提示等级0，独立评分4/5；不确定预测不扣分。",
       "kind": "carryover",
       "task_id": "2026-W41-02-mission"
+    },
+    {
+      "artifacts": [],
+      "date": "2026-10-15",
+      "evidence": "讲解示范后，学习者本人判断：不接受，stdout 为空只能说明没有标准输出，错误可能写到了 stderr，需要查看错误输出和退出码。正确区分空标准输出与错误通道、退出状态，未将空 stdout 当作成功证明。此为形成性理解证据，不评分；教练运行的示范不计为学习者操作。 | 学习者按完整带练命令改用程序完整路径，在自己的终端成功启动检查脚本；本人提交退出码0、stdout为config_present、stderr为空，并自主解释：输出正常写进了stdout。教练读取本人生成的两个练习日志，复核stdout内容一致、stderr长度为0。结合此前本人已明确说明错误可能写到stderr且需要查看错误输出和退出码，形成对分离捕获的带练证据；不把教练对检查范围或业务结果的补充解释记为本人解释。本阶段为形成性练习，完成但不评分；完整命令提示后的操作不作为独立掌握证明。先前pwsh.exe按名称无法识别、两个日志缺失以及无效的LASTEXITCODE=3保留为环境错误过程，不能算检查脚本返回3。 | 变化题中，学习者自行组合分离捕获命令，在事前预测后运行，实际检查退出码、stdout、stderr和结果文件，正确否定stderr有文字就判失败的规则。两个通道及业务文件均由教练只读复核。最终三句英语由学习者本人撰写并保留原文，表达导出成功、验证依据和缓存提醒非致命；仍有is succeed、succeeded evidence、remain/reminder、is not means等语法或词形问题，stdout.txt是对实际practice.stdout.txt的不精确简称。教练曾提示succeed的语法选择并要求补齐遗漏的诊断解释，未替写最终交接。评分3/5、提示等级1：技术结果与核心判断正确，但初稿目标路径错误、旧日志覆盖风险、退出码采集和完整交接均需要提醒；不把带练阶段的程序查找环境问题计为扣分。事前预测与实际观察严格分开，不补造结果。",
+      "kind": "carryover",
+      "task_id": "2026-W41-03-mission"
     }
   ],
   "current_phase": "foundations",
@@ -5125,14 +5132,21 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W41-03-mission": {
-      "carryover_activated_on": null,
+      "artifacts": [],
+      "carryover_activated_on": "2026-10-15",
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
+          "evidence": "讲解示范后，学习者本人判断：不接受，stdout 为空只能说明没有标准输出，错误可能写到了 stderr，需要查看错误输出和退出码。正确区分空标准输出与错误通道、退出状态，未将空 stdout 当作成功证明。此为形成性理解证据，不评分；教练运行的示范不计为学习者操作。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
           "hint_level_used": null,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
@@ -5141,7 +5155,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -5149,8 +5163,14 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
+          "evidence": "学习者按完整带练命令改用程序完整路径，在自己的终端成功启动检查脚本；本人提交退出码0、stdout为config_present、stderr为空，并自主解释：输出正常写进了stdout。教练读取本人生成的两个练习日志，复核stdout内容一致、stderr长度为0。结合此前本人已明确说明错误可能写到stderr且需要查看错误输出和退出码，形成对分离捕获的带练证据；不把教练对检查范围或业务结果的补充解释记为本人解释。本阶段为形成性练习，完成但不评分；完整命令提示后的操作不作为独立掌握证明。先前pwsh.exe按名称无法识别、两个日志缺失以及无效的LASTEXITCODE=3保留为环境错误过程，不能算检查脚本返回3。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": null,
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
           "hint_level_used": null,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
@@ -5159,7 +5179,7 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
@@ -5167,36 +5187,42 @@
           "artifacts": [],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "变化题中，学习者自行组合分离捕获命令，在事前预测后运行，实际检查退出码、stdout、stderr和结果文件，正确否定stderr有文字就判失败的规则。两个通道及业务文件均由教练只读复核。最终三句英语由学习者本人撰写并保留原文，表达导出成功、验证依据和缓存提醒非致命；仍有is succeed、succeeded evidence、remain/reminder、is not means等语法或词形问题，stdout.txt是对实际practice.stdout.txt的不精确简称。教练曾提示succeed的语法选择并要求补齐遗漏的诊断解释，未替写最终交接。评分3/5、提示等级1：技术结果与核心判断正确，但初稿目标路径错误、旧日志覆盖风险、退出码采集和完整交接均需要提醒；不把带练阶段的程序查找环境问题计为扣分。事前预测与实际观察严格分开，不补造结果。",
+          "evidence_details": {
+            "handoff": "The running result is succeed.\nThe succeeded evidence is exit code is 0, and status=complete in result.txt and export_complete in stdout.txt\nThe cache remain in the stderr is not means fail, because it just a warn.",
+            "interpretation": "学习者本人判断stderr非空即失败的规则不适用于这个程序；其事前解释为程序也可能把不致命的提醒写进去，最后本人英文交接将该缓存诊断解释为提醒，不代表失败。NativeCommandError包装来源由教练补充，不计为本人独立解释。",
+            "learner_action": "学习者自行组合并实际执行：\n& $labPowerShell -NoProfile -File '.\\cases\\stream-diagnosis\\variation-a\\export-sample.ps1' 1> '.\\cases\\stream-diagnosis\\variation-a\\practice.stdout.txt' 2> '.\\cases\\stream-diagnosis\\variation-a\\practice.stderr.txt'\n随后立即读取 LASTEXITCODE，并自行用已学过的文件读取方法查看两个日志和脚本旁的 result.txt。$labPowerShell 是带练阶段已验证的本地 PowerShell 程序路径变量，不包含密钥。独立阶段没有获得完整运行命令；初稿旧案例路径、覆盖旧日志风险及遗漏退出码经过教练提醒后由学习者修订。",
+            "observed_result": "学习者实际提交退出码0；stdout为export_complete；stderr为warning: optional_cache_unavailable; export_completed_without_cache，并带外层PowerShell的NativeCommandError包装；result.txt包含rows=12和status=complete。教练读取本次新日志与结果文件，复核内容一致。退出码来自学习者紧接运行后的终端记录。",
+            "prediction": "学习者在执行前本人预测：有可能，程序也可能把不致命的提醒写进去。该回答对应stderr有文字而退出码仍为0是否可能的问题，先于本案例实际运行与结果文件产生。"
+          },
+          "hint_level_used": 1,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
-          "independent": false,
+          "independent": true,
           "instruction": "教练改变脚本使警告和结果分属不同通道；学习者独立捕获、预测、验证、解释并写 2–4 句英语诊断说明。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-10-22",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-10-15",
       "created_on": "2026-10-07",
       "curriculum_week": 11,
-      "evidence": null,
+      "evidence": "讲解示范后，学习者本人判断：不接受，stdout 为空只能说明没有标准输出，错误可能写到了 stderr，需要查看错误输出和退出码。正确区分空标准输出与错误通道、退出状态，未将空 stdout 当作成功证明。此为形成性理解证据，不评分；教练运行的示范不计为学习者操作。 | 学习者按完整带练命令改用程序完整路径，在自己的终端成功启动检查脚本；本人提交退出码0、stdout为config_present、stderr为空，并自主解释：输出正常写进了stdout。教练读取本人生成的两个练习日志，复核stdout内容一致、stderr长度为0。结合此前本人已明确说明错误可能写到stderr且需要查看错误输出和退出码，形成对分离捕获的带练证据；不把教练对检查范围或业务结果的补充解释记为本人解释。本阶段为形成性练习，完成但不评分；完整命令提示后的操作不作为独立掌握证明。先前pwsh.exe按名称无法识别、两个日志缺失以及无效的LASTEXITCODE=3保留为环境错误过程，不能算检查脚本返回3。 | 变化题中，学习者自行组合分离捕获命令，在事前预测后运行，实际检查退出码、stdout、stderr和结果文件，正确否定stderr有文字就判失败的规则。两个通道及业务文件均由教练只读复核。最终三句英语由学习者本人撰写并保留原文，表达导出成功、验证依据和缓存提醒非致命；仍有is succeed、succeeded evidence、remain/reminder、is not means等语法或词形问题，stdout.txt是对实际practice.stdout.txt的不精确简称。教练曾提示succeed的语法选择并要求补齐遗漏的诊断解释，未替写最终交接。评分3/5、提示等级1：技术结果与核心判断正确，但初稿目标路径错误、旧日志覆盖风险、退出码采集和完整交接均需要提醒；不把带练阶段的程序查找环境问题计为扣分。事前预测与实际观察严格分开，不补造结果。",
       "id": "2026-W41-03-mission",
       "learning_goal": "观察并解释 stdout 与 stderr，而不是默认隐藏错误文本。",
-      "next_review": null,
+      "next_review": "2026-10-22",
       "phase": "foundations",
       "queue_order": 1081,
       "scenario": "自动化日志只有普通输出，失败诊断实际上写入了错误通道并被调用方遗漏。",
       "scheduled_for": "2026-10-07",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "能按运行标识和时间重建事件序列，不混合不同执行实例。",
         "能区分 stdout、stderr、日志级别和进程退出码各自证明的事实。",
@@ -5864,7 +5890,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-10-15T14:16:59+08:00",
+  "updated_at": "2026-10-15T16:34:48+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
