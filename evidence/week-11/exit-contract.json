@@ -1,0 +1,39 @@
+{
+  "task_id": "2026-W41-02-mission",
+  "scheduled_for": "2026-10-06",
+  "completed_on": "2026-10-15",
+  "kind": "carryover",
+  "scope": "本地只读配置校验教学样本；不执行业务作业、不创建业务输出。公开命令省略本机绝对路径。",
+  "learner_prediction_verbatim": "不确定",
+  "learner_commands_with_local_paths_redacted": [
+    "& '<项目 Python 绝对路径>' -X utf8 '<本变化题 validate-config.py 绝对路径>' --config '<本变化题 job.conf 绝对路径>'",
+    "Get-Content -Path '<本变化题 job.conf 绝对路径>'",
+    "$LASTEXITCODE"
+  ],
+  "command_attribution": "学习者自行构造并执行；只隐藏绝对路径，未补写动作。",
+  "learner_validator_output": "config_invalid: missing_or_empty destination",
+  "learner_config_output": [
+    "source=input/sample.txt",
+    "destination="
+  ],
+  "learner_interpretation_verbatim": "配置文件中的destination配置不存在",
+  "observed_native_exit_status": 3,
+  "exit_status_provenance": "Previous submitted native command was Python validate-config.py. Submitted intervening command was Get-Content, which does not update LASTEXITCODE. No intervening external program was shown. Do not claim an immediate capture or a rerun, neither was submitted.",
+  "learner_handoff_verbatim": "I checked the validate-config.py. The error message is  missing or empty destination. The exit code is 3, it is means destination is missing or empty in config file.",
+  "coach_verification": {
+    "attribution": "教练只读核验源文件，不替学习者执行变化题或补写学习者解释。",
+    "validator_sha256": "1D95EE909C03C102FE421EE26FDD844530CC583FF0C8D1C2A4A041E83A5FEDF5",
+    "configuration_matches_submitted_output": true,
+    "contract": "0表示配置格式及必填值通过；2表示配置文件缺失；3表示配置内容无效。具体原因需结合错误消息；3不专指destination。",
+    "specific_finding": "destination键存在，值为空；与missing_or_empty destination消息及退出3相符。",
+    "scope_limit": "不验证业务输入实际存在，也不运行作业或证明业务产物生成。"
+  },
+  "assessment": {
+    "score": 4,
+    "hint_level_used": 0,
+    "independent": true,
+    "rationale": "变化题未提供完整命令或诊断方案。学习者以不确定为预测，自行选择命令执行内容校验并读取配置，在反馈前定位destination问题；提交真实报错、随后读取的退出码和三句本人英文交接。补交退出码及英文的程序性提醒不属于解题提示；结果提交后教练澄清键存在而值为空，不计为学习者原始解释。配置键和值、检查工具和检查对象的表述精度仍可提高，评4而非5；讲解及带练不评分。",
+    "next_review": null,
+    "english_feedback_coach_only": "检查对象为job.conf，validate-config.py为检查工具；it is means应为it means。保留学习者原文。"
+  }
+}
