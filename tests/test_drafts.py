@@ -16,6 +16,7 @@ from devops_coach.publication import (
     recover_publications,
 )
 from devops_coach.publication_scope import validate_state_scope
+from devops_coach.review import review_week
 from devops_coach.storage import load_json, write_json
 
 
@@ -185,6 +186,81 @@ def test_dry_run_does_not_write_and_target_definition_stays_strict(project_copy:
     drafts.save_progress(project_copy, progress)
     with pytest.raises(ValueError, match="definition changes"):
         publish_completed_task(project_copy, date(2026, 8, 5), "primary", apply=False)
+
+
+@pytest.mark.parametrize(
+    ("published_action", "remove_private_action"),
+    [(None, False), ("previously published guidance", False), ("published guidance", True)],
+)
+def test_review_guidance_stays_private_through_publication_recovery(
+    project_copy: Path, published_action: str | None, remove_private_action: bool,
+):
+    _prepare_repository(project_copy)
+    tid = "2026-W31-03-mission"
+    target = date(2026, 7, 29)
+    if published_action is not None:
+        baseline = load_json(project_copy / drafts.STATE)
+        baseline["tasks"][tid]["coaching_action"] = published_action
+        write_json(project_copy / drafts.STATE, baseline)
+        _git(project_copy, "add", "--", drafts.STATE)
+        _git(project_copy, "commit", "-m", "test: existing published guidance")
+        _git(project_copy, "push", "origin", "main")
+    drafts.import_drafts(project_copy, apply=True)
+    review_week(project_copy, "2026-W31")
+    if remove_private_action:
+        progress = drafts.load_progress(project_copy)
+        del progress["tasks"][tid]["coaching_action"]
+        drafts.save_progress(project_copy, progress)
+    _complete_primary(project_copy, target, tid)
+    original = copy.deepcopy(drafts.load_progress(project_copy))
+    baseline = load_json(project_copy / drafts.STATE)
+    completion = original["completion_log"][-1]
+    snapshot = drafts.candidate(project_copy, original, completion)
+    expected_task = copy.deepcopy(original["tasks"][tid])
+    if published_action is None:
+        expected_task.pop("coaching_action")
+    else:
+        expected_task["coaching_action"] = published_action
+    assert snapshot["tasks"][tid] == expected_task
+    assert snapshot["completion_log"][-1] == completion
+    assert snapshot["weekly_reviews"] == baseline["weekly_reviews"]
+    assert snapshot["adaptation"] == baseline["adaptation"]
+    # Projection must not make the scope validator accept teaching edits in published content.
+    corrupted = copy.deepcopy(snapshot)
+    corrupted["tasks"][tid]["coaching_action"] = "leaked private guidance"
+    with pytest.raises(ValueError, match="definition changes"):
+        validate_state_scope(project_copy, baseline, corrupted, tid, target, completion)
+    runner = FakeGitHubRunner(project_copy, fail_checks_once=True)
+    with pytest.raises(PublicationError, match="simulated CI failure"):
+        publish_completed_task(
+            project_copy, target, "primary", apply=True, runner=runner, run_checks=False,
+        )
+    result = recover_publications(project_copy, runner=runner, run_checks=False)
+    assert result[0]["status"] == "complete"
+    assert len(runner.prs) == 1
+    assert load_json(project_copy / drafts.STATE)["tasks"][tid] == expected_task
+    assert drafts.load_progress(project_copy) == original
+    assert _git(project_copy, "status", "--porcelain") == ""
+    assert recover_publications(project_copy, runner=runner, run_checks=False) == []
+    assert drafts.load_progress(project_copy) == original
+
+
+@pytest.mark.parametrize("field", ["title", "instruction", "unknown_metadata"])
+def test_review_projection_still_rejects_other_definition_changes(project_copy: Path, field: str):
+    _prepare_repository(project_copy)
+    drafts.import_drafts(project_copy, apply=True)
+    review_week(project_copy, "2026-W31")
+    _complete_primary(project_copy)
+    progress = drafts.load_progress(project_copy)
+    task = progress["tasks"]["2026-W31-03-mission"]
+    if field == "instruction":
+        task["checkpoints"][0][field] = "unrelated teaching rewrite"
+    else:
+        task[field] = "unrelated definition"
+    before = files(project_copy)
+    with pytest.raises(ValueError, match="definition changes"):
+        drafts.candidate(project_copy, progress, progress["completion_log"][-1])
+    assert files(project_copy) == before
 
 
 def test_non_conflicting_remote_change_preserved(project_copy: Path):

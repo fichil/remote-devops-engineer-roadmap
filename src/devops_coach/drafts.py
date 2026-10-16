@@ -478,7 +478,16 @@ def candidate(root: Path, progress: dict, completion: dict) -> dict:
         plan = result["weekly_plans"][week]
         result["current_week"] = plan["week"]
         result["current_phase"] = plan["execution_phase"]
-    result["tasks"][completion["task_id"]] = copy.deepcopy(progress["tasks"][completion["task_id"]])
+    tid = completion["task_id"]
+    task = copy.deepcopy(progress["tasks"][tid])
+    # Weekly-review guidance stays private, including after publication cleanup.
+    # Retain the published value; every other definition change must still fail scope checks.
+    original = result["tasks"][tid]
+    if "coaching_action" in original:
+        task["coaching_action"] = copy.deepcopy(original["coaching_action"])
+    else:
+        task.pop("coaching_action", None)
+    result["tasks"][tid] = task
     result["completion_log"].append(copy.deepcopy(completion))
     update_task_gate(result, result["tasks"][completion["task_id"]])
     result["updated_at"] = progress["updated_at"]
