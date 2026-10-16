@@ -1,0 +1,252 @@
+{
+  "task_id": "2026-W42-05-mission",
+  "assessed_on": "2026-10-16",
+  "scope": "本地JSON训练模型中的请求故障；不是实际Linux服务、操作系统权限或网络验收。",
+  "submission_disposition": "用户明确要求按现有提交评分并发布；本次提交与评估闭环，不代表Runbook全部验收或掌握度达标。未替学习者修复缺陷。",
+  "learner_events": [
+    {
+      "case": "friday-transfer-20261016/case-b",
+      "full_command_hint_for_this_variation": false,
+      "hint_level_for_this_diagnostic": 0,
+      "learner_prediction_verbatim": "不确定",
+      "learner_command_verbatim": ".\\.venv\\Scripts\\python.exe -X utf8 'private/labs/2026-W42/friday-reproduction/cases/friday-transfer-20261016/probe.py' --case '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-b'",
+      "learner_observed_output": {
+        "scope": "local_training_model",
+        "input_readable": true,
+        "process_running": true,
+        "configured_listen_port": 18080,
+        "expected_port_listening": true,
+        "request_path": "/status",
+        "request_result": "http_response",
+        "http_status": 404,
+        "body": "not_found",
+        "acceptance_passed": false
+      },
+      "learner_exit_code": 2,
+      "learner_interpretation_verbatim": "旧交接的描述不成立，端口已经被监听，但是路径没找到报错404",
+      "source_event": "learner-case-b-diagnosis-20261016.json"
+    },
+    {
+      "case": "friday-transfer-20261016/case-b",
+      "full_command_hint_for_this_variation": false,
+      "hint_level_for_this_choice": 0,
+      "learner_reads": [
+        {
+          "command_verbatim": "Get-Content -Path '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-b\\options\\enable-process.json'",
+          "observed_output": {
+            "input_readable": true,
+            "process_running": true,
+            "listen_port": 18080,
+            "request_path": "/status"
+          }
+        },
+        {
+          "command_verbatim": "Get-Content -Path '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-b\\options\\use-health-path.json'",
+          "observed_output": {
+            "input_readable": true,
+            "process_running": true,
+            "listen_port": 18080,
+            "request_path": "/health"
+          }
+        },
+        {
+          "command_verbatim": "Get-Content -Path '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-b\\state.json'",
+          "observed_output": {
+            "input_readable": true,
+            "process_running": true,
+            "listen_port": 18080,
+            "request_path": "/status"
+          }
+        }
+      ],
+      "learner_choice_and_prediction_verbatim": "我会选use-health-path.json做最小修复，预计会改变请求的路径，因为其他两个文件和现有文件不是一样的配置吗",
+      "source_event": "learner-case-b-repair-choice-20261016.json"
+    },
+    {
+      "case": "friday-transfer-20261016/case-b",
+      "full_command_hint_for_this_variation": false,
+      "hint_level": 0,
+      "learner_actions": [
+        {
+          "command_verbatim": "Copy-Item -LiteralPath '.\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-b\\state.json' -Destination '.\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-b\\backup\\state.before-repair.json' -PassThru",
+          "observed_file": {
+            "name": "state.before-repair.json",
+            "length": 115,
+            "last_write_time_display": "2026/10/16 11:29"
+          },
+          "powershell_success_status_submitted": null
+        },
+        {
+          "command_verbatim": "Copy-Item -LiteralPath '.\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-b\\options\\use-health-path.json' -Destination '.\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-b\\state.json' -PassThru",
+          "observed_file": {
+            "name": "state.json",
+            "length": 115,
+            "last_write_time_display": "2026/10/16 11:29"
+          },
+          "powershell_success_status_submitted": null
+        },
+        {
+          "command_verbatim": ".\\.venv\\Scripts\\python.exe -X utf8 'private/labs/2026-W42/friday-reproduction/cases/friday-transfer-20261016/probe.py' --case '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-b'",
+          "observed_output": {
+            "scope": "local_training_model",
+            "input_readable": true,
+            "process_running": true,
+            "configured_listen_port": 18080,
+            "expected_port_listening": true,
+            "request_path": "/health",
+            "request_result": "http_response",
+            "http_status": 200,
+            "body": "ready",
+            "acceptance_passed": true
+          },
+          "native_exit_code": 0
+        }
+      ],
+      "learner_interpretation_verbatim": "替换后模拟请求成功响应码200，退出码0",
+      "source_event": "learner-case-b-repair-recheck-20261016.json"
+    },
+    {
+      "case": "friday-transfer-20261016/case-c",
+      "full_command_hint_for_this_variation": false,
+      "hint_level_for_this_diagnostic": 0,
+      "learner_prediction_verbatim": "不确定",
+      "learner_command_verbatim": ".\\.venv\\Scripts\\python.exe -X utf8 'private/labs/2026-W42/friday-reproduction/cases/friday-transfer-20261016/probe.py' --case '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-c'",
+      "learner_observed_output": {
+        "scope": "local_training_model",
+        "input_readable": false,
+        "process_running": true,
+        "configured_listen_port": 18080,
+        "expected_port_listening": true,
+        "request_path": "/health",
+        "request_result": "http_response",
+        "http_status": 500,
+        "body": "input_permission_denied",
+        "acceptance_passed": false
+      },
+      "learner_exit_code": 2,
+      "learner_interpretation_verbatim": "报错500没有输入权限",
+      "source_event": "learner-case-c-diagnosis-20261016.json"
+    },
+    {
+      "case": "friday-transfer-20261016/case-c",
+      "full_command_hint_for_this_variation": false,
+      "hint_level": 0,
+      "learner_reads": [
+        {
+          "command_verbatim": "Get-Content -Path '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-c\\state.json'",
+          "observed_output": {
+            "input_readable": false,
+            "process_running": true,
+            "listen_port": 18080,
+            "request_path": "/health"
+          }
+        },
+        {
+          "command_verbatim": "Get-Content -Path '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-c\\options\\use-health-path.json'",
+          "observed_output": {
+            "input_readable": false,
+            "process_running": true,
+            "listen_port": 18080,
+            "request_path": "/health"
+          }
+        },
+        {
+          "command_verbatim": "Get-Content -Path '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-c\\options\\enable-process.json'",
+          "observed_output": {
+            "input_readable": false,
+            "process_running": true,
+            "listen_port": 18080,
+            "request_path": "/health"
+          }
+        },
+        {
+          "command_verbatim": "Get-Content -Path '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-c\\options\\allow-input-read.json'",
+          "observed_output": {
+            "input_readable": true,
+            "process_running": true,
+            "listen_port": 18080,
+            "request_path": "/health"
+          }
+        }
+      ],
+      "learner_actions": [
+        {
+          "command_verbatim": "Copy-Item -LiteralPath '.\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-c\\state.json' -Destination '.\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-c\\backup\\state.before-repair.json' -PassThru",
+          "observed_file": {
+            "name": "state.before-repair.json",
+            "length": 116,
+            "last_write_time_display": "2026/10/16 11:29"
+          },
+          "powershell_success_status_submitted": null
+        },
+        {
+          "command_verbatim": "Copy-Item -LiteralPath '.\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-c\\options\\allow-input-read.json' -Destination '.\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-c\\state.json' -PassThru",
+          "observed_file": {
+            "name": "state.json",
+            "length": 115,
+            "last_write_time_display": "2026/10/16 11:29"
+          },
+          "powershell_success_status_submitted": null
+        },
+        {
+          "command_verbatim": ".\\.venv\\Scripts\\python.exe -X utf8 'private/labs/2026-W42/friday-reproduction/cases/friday-transfer-20261016/probe.py' --case '<WORKSPACE>\\private\\labs\\2026-W42\\friday-reproduction\\cases\\friday-transfer-20261016\\case-c'",
+          "observed_output": {
+            "scope": "local_training_model",
+            "input_readable": true,
+            "process_running": true,
+            "configured_listen_port": 18080,
+            "expected_port_listening": true,
+            "request_path": "/health",
+            "request_result": "http_response",
+            "http_status": 200,
+            "body": "ready",
+            "acceptance_passed": true
+          },
+          "native_exit_code": 0
+        }
+      ],
+      "learner_repair_prediction_submitted_in_this_turn": null,
+      "learner_post_repair_interpretation_submitted_in_this_turn": null,
+      "previous_diagnostic_prediction": "不确定",
+      "source_event": "learner-case-c-repair-recheck-20261016.json"
+    }
+  ],
+  "learner_runbook_artifact": "evidence/week-12/runbook-boss-submitted-runbook.txt",
+  "learner_handoff_verbatim": "I checked these simulation request of case a\\b\\c. They have different errors when I simulate request. I use file from \\options\\ fixing these errors. I checked re-examination, these request both show response code 200 and exit code 0.",
+  "learner_runbook_addenda_verbatim": [
+    "如果原备份文件已经存在需要修改备份名",
+    "检查命令或路径是否正确，之后重新运行命令",
+    "停止在这里并报告",
+    "环境恢复正常",
+    "指检查器能够执行"
+  ],
+  "formative_scope": "输入文件恢复及case-a有完整命令带练，均不单独评分，不作为无提示掌握证据。",
+  "coach_verification": {
+    "attribution": "以下是教练核验与文档反馈，不是学习者独立操作或解释。",
+    "learner_model_rechecks": "A/B/C均有学习者提交的HTTP200、body ready、acceptance_passed true和退出码0。",
+    "raw_v2_entry": "实际执行首条 ..venv 前缀命令时Python未启动，已停止；未假称原始v2可完整运行。",
+    "fresh_fixture_three_repair_sections": "在独立受控副本中，明确校正Python前缀，并按学习者已说明的案例及候选文件替换规则执行；A/B/C均HTTP200、ready、acceptance true、退出0。诊断阶段先停止报告，修复段单独进入。",
+    "renamed_backup_rollback": "受控测试先提供不同的旧快照，本次备份另存新名；模拟修复后失败，再执行原稿回滚命令。复制成功但读了固定旧文件，未恢复本次修改前快照。",
+    "full_runbook_acceptance_passed": false,
+    "original_learner_package_modified_by_reproduction": false,
+    "backup_observation": "当前A固定名备份为健康状态，与最初故障快照不符；B/C备份匹配初始清单。A变化来源未确认，保留现场，不归责于学习者。新副本测试使用另行核对过初始哈希的样本。",
+    "english_review": "四句本人英文包含操作和实际结果；语法及剩余风险、下一步说明仍需改善。"
+  },
+  "assessment": {
+    "score": 3,
+    "hint_level_used": 2,
+    "independent": false,
+    "independence_detail": "B/C的变化案例命令与修复选择无完整命令提示；最终文档分支和交接仍需要教练概念及步骤反馈，故整个交付不标作完全独立。",
+    "rationale": "真实预测、命令、结果、解释和四句英文均已提交，B/C修复成功；但原稿执行前缀有误，回滚可靠性未通过，分支/前提/验收/风险交接不完整。评为3/5并保留缺陷，未达到4/5掌握门槛。不因预测不确定而扣分。",
+    "mastery_threshold_met": false,
+    "next_review": "2026-10-23",
+    "review_focus": "用不提供完整命令的变化条件检验本次备份与回滚对应、失败分支及准确交接；仅复验受影响部分，沿用已有成功证据。"
+  },
+  "known_gaps": [
+    "改名备份必须与本次回滚源对应，回滚后验证选定快照；当前受控复验失败。",
+    "分清Python未启动、状态读取/格式失败、模型故障及修复后失败，正确取得各自状态。",
+    "明确已提供的实验前提、模型写入范围和具体诊断字段。",
+    "文档写全模型端口、路径、HTTP200、ready、acceptance true与退出0的验收范围。",
+    "最终交接仍缺少准确的剩余风险和下一步说明；已有四句英文原文保留。"
+  ]
+}

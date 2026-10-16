@@ -1,0 +1,33 @@
+学习者提交快照：本次评估3/5，保留未修正缺陷；不是已完整验收通过的操作手册。
+公开副本仅将本机绝对根路径替换为 <WORKSPACE> 并统一换行；正文拼写、命令和英文保持提交原文。占位路径不能直接执行。
+原始检查命令有路径拼写错误，改名备份后的回滚源仍有缺陷；详见同目录 runbook-boss-assessment.json。
+
+适用于项目本项目3个cese的模拟请求修复
+运行目录：<WORKSPACE>
+A的修复依据是报错"连接被拒绝"使用enable-process.json进行修复，B的依据是报错404not_found，使用use-health-path.json做最小修复，C报错00没有输入权限使用allow-input-read.json进行修复。复验后模拟请求正常响应码200，退出码0。
+可执行的检查
+..venv\Scripts\python.exe -X utf8 'private/labs/2026-W42/friday-reproduction/cases/friday-transfer-20261016/probe.py' --case '<WORKSPACE>\private\labs\2026-W42\friday-reproduction\cases\friday-transfer-20261016\case-a'
+需要根据case替换\case-a
+备份：
+Copy-Item -LiteralPath '.\private\labs\2026-W42\friday-reproduction\cases\friday-transfer-20261016\case-a\state.json' -Destination '.\private\labs\2026-W42\friday-reproduction\cases\friday-transfer-20261016\case-a\backup\state.before-repair.json' -PassThru
+需要根据case替换\case-a
+修复：
+Copy-Item -LiteralPath '.\private\labs\2026-W42\friday-reproduction\cases\friday-transfer-20261016\case-a\options\use-health-path.json' -Destination '.\private\labs\2026-W42\friday-reproduction\cases\friday-transfer-20261016\case-a\state.json' -PassThru
+需要根据case替换\case-a
+需要根据case的报错替换\use-health-path.json
+复验步骤：
+..venv\Scripts\python.exe -X utf8 'private/labs/2026-W42/friday-reproduction/cases/friday-transfer-20261016/probe.py' --case '<WORKSPACE>\private\labs\2026-W42\friday-reproduction\cases\friday-transfer-20261016\case-a'
+需要根据case替换\case-a
+使用命令查看退出码：
+$LASTEXITCODE
+失败是停在失败的命令后执行回滚（仅在完成备份后可执行回滚，在执行备份前报错请检查路径或命令是否正确，修复命令或路径后重新执行）
+Copy-Item -LiteralPath '.\private\labs\2026-W42\friday-reproduction\cases\friday-transfer-20261016\case-a\backup\state.before-repair.json' -Destination '.\private\labs\2026-W42\friday-reproduction\cases\friday-transfer-20261016\case-a\state.json' -PassThru
+需要根据case替换\case-a
+I checked these simulation request of case a\b\c. They have different errors when I simulate request. I use file from \options\ fixing these errors. I checked re-examination, these request both show response code 200 and exit code 0.
+
+后续学习者补充（依次为已有备份、未启动检查器、模型故障停报、修复入口及其澄清）：
+如果原备份文件已经存在需要修改备份名
+检查命令或路径是否正确，之后重新运行命令
+停止在这里并报告
+环境恢复正常
+指检查器能够执行
