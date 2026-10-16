@@ -331,6 +331,16 @@
       "evidence": "学习者对空结果文件能否证明恢复的判断原话：不能，还得确定这个创建的文件在正确的路径上。形成性证据仅支持学习者拒绝仅凭文件存在宣布恢复并提出目标路径检查；尚不证明内容验收或当前运行关联已掌握。教练反馈：路径正确只证明位置，后续还需已定义的业务内容及当前运行证据；此反馈不是学习者原话。 | 带练累计证据：学习者提交 run=102 两行日志和查询成功 True，原解释正确限制根因但错误将 ERROR 级别推为 stderr，教练已明确讲解边界，尚不将纠正归为学习者掌握。随后学习者实际读取 job.conf，报告 source=input/sample.txt、destination=output/result.txt 和读取成功 True，并自主解释：不能证明run=102使用了这个output/result.txt，只能证明配置了这个目标路径，具体运行时读取的路径不一定是这个。教练核对原始文件一致；该新解释有效区分磁盘配置与运行时加载证据。尚需新的实际运行、输出通道、恢复及业务验证，本形成性阶段保持进行中，不评分。\n带练第三步实际运行：学习者执行完整提示的 guided-201，提交配置加载、源路径解析、目标路径解析和 destination_parent_missing 四行运行事件及立即取得的进程退出码2。学习者指出配置路径、源路径、目标路径和停止诊断；原话称源/目标路径为读取，教练反馈明确：resolved仅证明路径解析，输入文本读取和输出写入均在父目录检查之后，当前失败未执行这些读写。教练独立核对同一run的四行日志和实际父目录缺失。反馈不作为学习者掌握；仍待学习者完成恢复及业务验收，保持形成性进行中、不评分。\n带练第四步：学习者实际执行完整提示的 New-Item 创建 output，提交目录对象和随后读取的 LASTEXITCODE=2；没有提交即时 PowerShell $?。教练核对实际目录为 Container，创建时间2026-10-09 17:54:53，结果文件仍不存在。学习者自主解释创建目录不能宣布恢复且还需后续校验。教练反馈：补齐的是目标父目录；New-Item 是 cmdlet，不更新 LASTEXITCODE，2 是上一 native 脚本进程的保留值，不能记作目录创建退出码。反馈不计为学习者掌握。等待学习者重跑和业务验收，保持形成性进行中，无分数。\n带练第五步：学习者重跑 guided-202，提交四行实际运行事件，最后 result_written characters=22 exit=0，立即取得 LASTEXITCODE=0；原解释：运行成功了。教练核对相同run日志/时间与实际结果文件22字节，确认脚本写入事件；该短解释尚未通过独立读文件验证业务内容，不能扩大为完整业务恢复。待学习者完成全文对照及解释，保持形成性进行中、不评分。\n历史带练最终验收补登记：私有原始证据记录学习者于2026-10-10实际执行全文大小写敏感比较，结果True，本人解释：支持宣布任务恢复正常。教练于2026-10-15复核原输入和结果字节一致、均22字节，以及guided-202的既有result_written日志。本次登记沿用已激活的最早遗留，不回写历史激活状态；明确保留原观察完成日期2026-10-10，不把本次教练复核记成学习者新操作。形成性引导练习完成，无分数；最终独立交付尚未完成。 | 2026-10-15 完成 Evidence Boss 遗留的独立迁移与交付，保留原计划日期2026-10-09。案例 A 已明确转为不评分带练；不同条件的案例 B 由学习者提出路径不匹配假设，读取模拟历史 batch-602 事件支持假设，自行修改 destination，提出恢复预测并实际运行 guided-b-01，提交即时退出码0、分离的stdout/stderr、目标写入事件及全文比较True，最后提交本人三句英文交接。原始本地证据保留于忽略的私有实验目录；公开记录仅包含脱敏证据。执行范围、重定向父目录及运行环境曾获教练提醒，无完整业务命令提示；最终交接把缺失结果称为空文件需校准，因此3/5、hint_level=1，待七日检索。没有将教练反馈或案例 A 示范记为学习者独立掌握。",
       "kind": "carryover",
       "task_id": "2026-W41-05-mission"
+    },
+    {
+      "artifacts": [
+        "evidence/week-12/runbook-boss-assessment.json",
+        "evidence/week-12/runbook-boss-submitted-runbook.txt"
+      ],
+      "date": "2026-10-16",
+      "evidence": "场景：同事只验证输入文件不存在，却声称已验证所有文件读取故障。学习者先回答：不接受，他说假话。随后本人补充：验证完所有的文件的读取情况才能说：“已验证所有文件读取故障”。这提供了验证范围须支持结论范围的判断依据。教练另行澄清：遍历所有文件不等于覆盖所有故障条件，实际交付应列出已测条件；该措辞与范围澄清不计作学习者原话。未提交操作证据，本阶段仅记录讲解后的判断；形成性、不评分。 | 学习者完成带练闭环：首次 Get-Content 检查 input/report.txt 返回 PathNotFound 和 $? False；本人停止规则为“应该停在输入检查，因为文件不存在后继续作业会将问题变得更加复杂”。使用完整提示的 Copy-Item 从已知 reference/report.txt 恢复，文件长度33、$? True；重复原读取检查得到 report_id=guided-01 和 status=ready、$? True；本人验收判断为“修复读取到预期内容，确认已经恢复”。随后本人编写三步 Runbook。初版 Test-Path 多余引号导致存在文件误判，教练通过实际复现指出并给出语法指导；学习者本人修订引号，补充来源样本及 input 目录前提，将第三步改为读取并核对内容。教练在独立受控副本按修订版执行，仅映射根路径并提供声明前提：缺文件分支检查 False、复制及读取成功；重复执行检查 True、跳过复制、读取仍成功，总复制次数1，原学习副本未改。完成范围为此已声明输入恢复案例的可复现手册；所有操作和文档修订属形成性带练，不评分，不计独立掌握。 | 按用户“就这样吧，评分然后提交”对现有学习提交结束评估，评分3/5。B/C变化案例由学习者自行诊断、比对状态样本、备份、选择修复并复验200/ready/退出0；A为完整命令带练不计独立掌握。已有本人预测、动作、实际结果、解释、Runbook及四句英文。原始v2路径拼写导致检查器未启动；教练标明机械校订后的独立副本三例修复通过，但改名备份后的回滚仍读取旧快照，完整Runbook验收未通过。文档分支、前提、验收及风险/下一步交接仍有缺口，详见已登记评估附件。这里完成的是提交与评估，不把缺陷记为通过，不降低4/5掌握门槛；七日后复测。教练解释、修订和审计不计为学习者独立证据。",
+      "kind": "primary",
+      "task_id": "2026-W42-05-mission"
     }
   ],
   "current_phase": "foundations",
@@ -5832,15 +5842,25 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     },
     "2026-W42-05-mission": {
+      "artifacts": [
+        "evidence/week-12/runbook-boss-assessment.json",
+        "evidence/week-12/runbook-boss-submitted-runbook.txt"
+      ],
       "carryover_activated_on": null,
       "checkpoints": [
         {
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "场景：同事只验证输入文件不存在，却声称已验证所有文件读取故障。学习者先回答：不接受，他说假话。随后本人补充：验证完所有的文件的读取情况才能说：“已验证所有文件读取故障”。这提供了验证范围须支持结论范围的判断依据。教练另行澄清：遍历所有文件不等于覆盖所有故障条件，实际交付应列出已测条件；该措辞与范围澄清不计作学习者原话。未提交操作证据，本阶段仅记录讲解后的判断；形成性、不评分。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "验证完所有的文件的读取情况才能说：“已验证所有文件读取故障”",
+            "learner_action": null,
+            "observed_result": null,
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "briefing",
           "independent": false,
@@ -5848,7 +5868,7 @@
           "learner_action": "看完讲解示范后表达理解或指出具体不懂之处，不复述题目充当答案。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "讲解示范后，通过一个有实际判断价值的问题或操作后的自主解释展示理解；不评分，不能仅因看过示范而标记掌握。",
           "title": "讲解与示范"
         },
@@ -5856,9 +5876,15 @@
           "artifacts": [],
           "assessment": "formative",
           "coach_action": "先用中文讲用途、对象关系和例子；陌生命令直接完整拆解命令、选项、参数、引号、目标、预期输出类型及退出状态，再带领学习者操作。每个概念块最多一个有实际判断价值的问题，也可用操作后的解释检查理解；不要求复述题目、连续填空或猜具体版本号。普通只读查询不重复询问配置会不会变化；若会启动进程等具体副作用，先解释。预测只用于结果差异、范围选择或故障假设，允许不确定和错误，随后用安全观察纠正；错误预测不是编造证据，实际结果必须真实，教练解释不能记成学习者解释。学习者说不懂时返回讲解与示范，不继续猜参数。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "学习者完成带练闭环：首次 Get-Content 检查 input/report.txt 返回 PathNotFound 和 $? False；本人停止规则为“应该停在输入检查，因为文件不存在后继续作业会将问题变得更加复杂”。使用完整提示的 Copy-Item 从已知 reference/report.txt 恢复，文件长度33、$? True；重复原读取检查得到 report_id=guided-01 和 status=ready、$? True；本人验收判断为“修复读取到预期内容，确认已经恢复”。随后本人编写三步 Runbook。初版 Test-Path 多余引号导致存在文件误判，教练通过实际复现指出并给出语法指导；学习者本人修订引号，补充来源样本及 input 目录前提，将第三步改为读取并核对内容。教练在独立受控副本按修订版执行，仅映射根路径并提供声明前提：缺文件分支检查 False、复制及读取成功；重复执行检查 True、跳过复制、读取仍成功，总复制次数1，原学习副本未改。完成范围为此已声明输入恢复案例的可复现手册；所有操作和文档修订属形成性带练，不评分，不计独立掌握。",
+          "evidence_details": {
+            "handoff": null,
+            "interpretation": "应该停在输入检查，因为文件不存在后继续作业会将问题变得更加复杂。修复读取到预期内容，确认已经恢复。修订手册已注明来源及目标目录前提，并要求读取核对预期内容。",
+            "learner_action": "执行完整提示的检查、复制与复验，给出停止和验收规则；本人撰写并根据真实复现反馈修订三步 Runbook。",
+            "observed_result": "学习者：缺文件 PathNotFound/False；复制 report.txt 长度33/True；复验两行预期内容/True。教练独立副本：缺文件分支通过，已存在分支跳过复制后通过，总复制1次。",
+            "prediction": null
+          },
+          "hint_level_used": 3,
           "hint_policy": "新概念和陌生命令先完整讲解示范；已教过的内容再逐渐减少提示。示范和带练不评分；完整命令不能作为独立掌握证据。",
           "id": "lab",
           "independent": false,
@@ -5866,44 +5892,53 @@
           "learner_action": "在带领下执行已讲清的操作，观察并用自己的话解释；不懂时先请求讲解。",
           "next_review": null,
           "score": null,
-          "status": "queued",
+          "status": "done",
           "success_criteria": "在讲解示范后实际操作，提交真实结果并自主解释；该阶段不计分。",
           "title": "引导练习"
         },
         {
-          "artifacts": [],
+          "artifacts": [
+            "evidence/week-12/runbook-boss-assessment.json",
+            "evidence/week-12/runbook-boss-submitted-runbook.txt"
+          ],
           "assessment": "summative",
           "coach_action": "提供变化条件但不给完整命令；只验证真实证据并按 0–5 分总结评价。",
-          "evidence": null,
-          "evidence_details": null,
-          "hint_level_used": null,
+          "evidence": "按用户“就这样吧，评分然后提交”对现有学习提交结束评估，评分3/5。B/C变化案例由学习者自行诊断、比对状态样本、备份、选择修复并复验200/ready/退出0；A为完整命令带练不计独立掌握。已有本人预测、动作、实际结果、解释、Runbook及四句英文。原始v2路径拼写导致检查器未启动；教练标明机械校订后的独立副本三例修复通过，但改名备份后的回滚仍读取旧快照，完整Runbook验收未通过。文档分支、前提、验收及风险/下一步交接仍有缺口，详见已登记评估附件。这里完成的是提交与评估，不把缺陷记为通过，不降低4/5掌握门槛；七日后复测。教练解释、修订和审计不计为学习者独立证据。",
+          "evidence_details": {
+            "handoff": "I checked these simulation request of case a\\b\\c. They have different errors when I simulate request. I use file from \\options\\ fixing these errors. I checked re-examination, these request both show response code 200 and exit code 0.",
+            "interpretation": "学习者B：旧交接的描述不成立，端口已经被监听，但是路径没找到报错404；替换后模拟请求成功响应码200，退出码0。学习者C：报错500没有输入权限；最终稿选择allow-input-read并报告三例复验响应200、退出0（原稿“00”保留于提交快照并由教练标明实际为500）。教练另指出必须结合模型字段、回滚旧快照缺陷及局限，这些补充不归属学习者。",
+            "learner_action": "本人读取B/C当前状态和候选样本；对B选择use-health-path，对C选择allow-input-read；自行构造备份、复制和probe检查命令，并提交实际输出。随后提交Runbook、改名保留旧备份/未启动检查器先修路径/模型故障停报/检查器能执行后进入修复等补充及四句英文。",
+            "observed_result": "B原请求/status、HTTP404，C原input_readable=false、HTTP500/input_permission_denied，初查均退出2。学习者修复后B/C均/health、HTTP200、body ready、acceptance_passed true、退出0。教练独立副本按已说明的机械校订后三例修复通过；另存新名备份的回滚分支未恢复本次修改前状态。未伪造复制命令未提交的成功状态。",
+            "prediction": "B/C初步预测均为“不确定”。B选定方案时本人写：我会选use-health-path.json做最小修复，预计会改变请求的路径，因为其他两个文件和现有文件不是一样的配置吗。"
+          },
+          "hint_level_used": 2,
           "hint_policy": "不提供完整命令；若需要完整提示，本次转回引导练习并更换变化题。",
           "id": "written_handoff",
           "independent": false,
           "instruction": "使用 friday_variation 且不给完整命令；学习者独立提交预测、动作、实际结果、解释、Runbook 证据和 2–4 句英语最终交付。",
           "learner_action": "独立选择或编写命令，预测、执行、解释，并完成英文书面交付。",
-          "next_review": null,
-          "score": null,
-          "status": "queued",
+          "next_review": "2026-10-23",
+          "score": 3,
+          "status": "done",
           "success_criteria": "在变化条件下独立提交有判断价值的预测、学习者动作、实际结果、解释，以及 2–4 句真实英文 PR 评论或交接。预测不要求猜精确值，观察不能编造。",
           "title": "独立迁移与交付"
         }
       ],
-      "completed_on": null,
+      "completed_on": "2026-10-16",
       "created_on": "2026-10-16",
       "curriculum_week": 12,
-      "evidence": null,
+      "evidence": "场景：同事只验证输入文件不存在，却声称已验证所有文件读取故障。学习者先回答：不接受，他说假话。随后本人补充：验证完所有的文件的读取情况才能说：“已验证所有文件读取故障”。这提供了验证范围须支持结论范围的判断依据。教练另行澄清：遍历所有文件不等于覆盖所有故障条件，实际交付应列出已测条件；该措辞与范围澄清不计作学习者原话。未提交操作证据，本阶段仅记录讲解后的判断；形成性、不评分。 | 学习者完成带练闭环：首次 Get-Content 检查 input/report.txt 返回 PathNotFound 和 $? False；本人停止规则为“应该停在输入检查，因为文件不存在后继续作业会将问题变得更加复杂”。使用完整提示的 Copy-Item 从已知 reference/report.txt 恢复，文件长度33、$? True；重复原读取检查得到 report_id=guided-01 和 status=ready、$? True；本人验收判断为“修复读取到预期内容，确认已经恢复”。随后本人编写三步 Runbook。初版 Test-Path 多余引号导致存在文件误判，教练通过实际复现指出并给出语法指导；学习者本人修订引号，补充来源样本及 input 目录前提，将第三步改为读取并核对内容。教练在独立受控副本按修订版执行，仅映射根路径并提供声明前提：缺文件分支检查 False、复制及读取成功；重复执行检查 True、跳过复制、读取仍成功，总复制次数1，原学习副本未改。完成范围为此已声明输入恢复案例的可复现手册；所有操作和文档修订属形成性带练，不评分，不计独立掌握。 | 按用户“就这样吧，评分然后提交”对现有学习提交结束评估，评分3/5。B/C变化案例由学习者自行诊断、比对状态样本、备份、选择修复并复验200/ready/退出0；A为完整命令带练不计独立掌握。已有本人预测、动作、实际结果、解释、Runbook及四句英文。原始v2路径拼写导致检查器未启动；教练标明机械校订后的独立副本三例修复通过，但改名备份后的回滚仍读取旧快照，完整Runbook验收未通过。文档分支、前提、验收及风险/下一步交接仍有缺口，详见已登记评估附件。这里完成的是提交与评估，不把缺陷记为通过，不降低4/5掌握门槛；七日后复测。教练解释、修订和审计不计为学习者独立证据。",
       "id": "2026-W42-05-mission",
       "learning_goal": "独立交付经过新环境验证的 Linux 排障手册和周复盘证据。",
-      "next_review": null,
+      "next_review": "2026-10-23",
       "phase": "foundations",
       "queue_order": 1088,
       "scenario": "新工程师只拿到裸远程的新副本和变化案例，必须依靠 Runbook 完成诊断、恢复与交接。",
       "scheduled_for": "2026-10-16",
-      "score": null,
+      "score": 3,
       "section": "mission",
       "source": "weekly-plan",
-      "status": "queued",
+      "status": "done",
       "success_criteria": [
         "Runbook 明确前置条件、影响、安全边界、检查顺序、预期与分支判断。",
         "每个修复步骤都有验证、失败处理和可行回滚，而不是命令清单。",
@@ -5916,7 +5951,7 @@
       "workflow_version": "cognitive_apprenticeship_v1"
     }
   },
-  "updated_at": "2026-10-15T18:01:52+08:00",
+  "updated_at": "2026-10-16T16:19:09+08:00",
   "weekly_plans": {
     "2026-W34": {
       "calendar_phase": "foundations",
